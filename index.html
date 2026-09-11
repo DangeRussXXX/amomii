@@ -1,0 +1,4167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMOMII ONE Command Center v1.5</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+    --bg:#030605;
+    --panel:#07100a;
+    --panel2:#09150c;
+    --line:#193d24;
+    --line2:#285936;
+    --green:#52f27b;
+    --green2:#9affad;
+    --dim:#668b70;
+    --blue:#62c9ff;
+    --yellow:#ffe27d;
+    --red:#ff6666;
+    --purple:#c58cff;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 50% -20%,#12351d 0%,transparent 35%),
+        linear-gradient(180deg,#020403,#050907 55%,#020403);
+    color:#d8ffe0;
+    font-family:"Courier New",monospace;
+    overflow-x:hidden;
+}
+
+body:before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.035;
+    background:repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 2px,
+        #fff 3px
+    );
+}
+
+button,input{
+    font:inherit;
+}
+
+header{
+    min-height:78px;
+    padding:14px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    background:rgba(5,13,8,.94);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 0 30px rgba(50,255,100,.06);
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+    letter-spacing:4px;
+    color:#dfffe4;
+    text-shadow:0 0 12px rgba(82,242,123,.45);
+}
+
+.subtitle{
+    color:var(--dim);
+    font-size:11px;
+    margin-top:4px;
+    letter-spacing:1px;
+}
+
+.header-right{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:14px;
+}
+
+.status-light{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:11px;
+    color:#9ebca5;
+}
+
+.dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#444;
+    box-shadow:0 0 7px #222;
+}
+
+.dot.online{
+    background:var(--green);
+    box-shadow:0 0 14px var(--green);
+}
+
+.dot.voice{
+    background:var(--yellow);
+    box-shadow:0 0 14px var(--yellow);
+}
+
+.dot.speaking{
+    background:var(--blue);
+    box-shadow:0 0 14px var(--blue);
+}
+
+main{
+    display:grid;
+    grid-template-columns:225px minmax(450px,1fr) 320px;
+    min-height:calc(100vh - 78px);
+}
+
+.panel{
+    padding:14px;
+    border-right:1px solid var(--line);
+    background:rgba(4,10,6,.72);
+}
+
+.panel:last-child{
+    border-left:1px solid var(--line);
+    border-right:none;
+}
+
+.panel-title{
+    color:#6fe68b;
+    font-size:11px;
+    letter-spacing:2px;
+    margin:5px 0 10px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+}
+
+button{
+    width:100%;
+    margin-bottom:7px;
+    padding:9px;
+    background:linear-gradient(180deg,#0a170d,#071009);
+    color:#bfffc8;
+    border:1px solid #285536;
+    border-radius:5px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+button:hover{
+    background:#102217;
+    border-color:#4b9b5c;
+    box-shadow:0 0 12px rgba(82,242,123,.08);
+}
+
+button:active{
+    transform:translateY(1px);
+}
+
+button:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+}
+
+button.primary{
+    color:#a9eaff;
+    border-color:#347286;
+}
+
+button.voice{
+    color:var(--yellow);
+    border-color:#75652e;
+}
+
+button.danger{
+    color:#ffaaaa;
+    border-color:#713838;
+}
+
+button.media{
+    color:#d0aaff;
+    border-color:#5b4380;
+}
+
+.console{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+}
+
+.console-output{
+    height:340px;
+    overflow-y:auto;
+    padding:16px;
+    white-space:pre-wrap;
+    font-size:12px;
+    line-height:1.5;
+    border-bottom:1px solid var(--line);
+}
+
+.log-line{
+    margin-bottom:3px;
+}
+
+.log-time{
+    color:#416149;
+}
+
+.log-info{color:#91c99c}
+.log-command{color:var(--blue)}
+.log-voice{color:var(--yellow)}
+.log-speech{color:#87b8ff}
+.log-error{color:#ff7777}
+
+.input-area{
+    padding:10px;
+    display:flex;
+    gap:7px;
+    border-bottom:1px solid var(--line);
+}
+
+.input-area input{
+    flex:1;
+    min-width:0;
+    background:#020604;
+    color:#d7f9df;
+    border:1px solid #2c5b38;
+    padding:10px;
+    outline:none;
+}
+
+.input-area input:focus{
+    border-color:#64c97a;
+    box-shadow:0 0 10px rgba(82,242,123,.08);
+}
+
+.input-area button{
+    width:90px;
+    margin:0;
+}
+
+/* MEDIA */
+
+.media-center{
+    padding:12px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(9,21,12,.95),rgba(4,10,6,.9));
+}
+
+.media-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:9px;
+}
+
+.media-title{
+    color:#8cffaa;
+    letter-spacing:2px;
+    font-size:12px;
+}
+
+.media-mode{
+    color:#567a60;
+    font-size:10px;
+}
+
+.media-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.media-box{
+    border:1px solid var(--line2);
+    background:#040a06;
+    padding:10px;
+    min-width:0;
+}
+
+.media-box h3{
+    margin:0 0 8px;
+    font-size:11px;
+    letter-spacing:1px;
+    color:#78e792;
+}
+
+.file-row{
+    display:flex;
+    gap:6px;
+}
+
+.file-row input[type=file]{
+    width:100%;
+    color:#91af97;
+    font-size:10px;
+}
+
+.library{
+    height:82px;
+    overflow:auto;
+    border:1px solid #183722;
+    margin-top:8px;
+    padding:5px;
+    font-size:10px;
+}
+
+.library-item{
+    padding:5px;
+    border-bottom:1px solid #102519;
+    cursor:pointer;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.library-item:hover{
+    background:#0c1d11;
+}
+
+.library-item.active{
+    color:var(--green);
+    background:#0d2113;
+}
+
+.media-controls{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:5px;
+    margin-top:8px;
+}
+
+.media-controls button{
+    padding:7px 3px;
+    margin:0;
+    font-size:10px;
+}
+
+.media-meta{
+    display:flex;
+    justify-content:space-between;
+    gap:5px;
+    margin-top:7px;
+    font-size:10px;
+    color:#709478;
+}
+
+.volume-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-top:7px;
+}
+
+.volume-row span{
+    font-size:10px;
+    color:#65836c;
+}
+
+.volume-row input{
+    flex:1;
+}
+
+.youtube-box{
+    margin-top:10px;
+    border:1px solid #49376a;
+    background:#08060d;
+    padding:10px;
+}
+
+.youtube-input{
+    display:flex;
+    gap:6px;
+}
+
+.youtube-input input{
+    flex:1;
+    min-width:0;
+    background:#030205;
+    color:#ddd;
+    border:1px solid #4d3c69;
+    padding:9px;
+    outline:none;
+}
+
+.youtube-input button{
+    width:95px;
+    margin:0;
+}
+
+.youtube-frame{
+    width:100%;
+    aspect-ratio:16/9;
+    border:1px solid #30223f;
+    margin-top:8px;
+    background:#000;
+}
+
+.youtube-frame iframe{
+    width:100%;
+    height:100%;
+    border:0;
+}
+
+/* STATUS */
+
+.status-card,
+.activity,
+.voice-box,
+.profile-card,
+.diagnostic-card,
+.morse-box{
+    background:linear-gradient(180deg,#08120b,#050b07);
+    border:1px solid var(--line);
+    padding:10px;
+    margin-bottom:10px;
+}
+
+.status-row{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    padding:6px 0;
+    border-bottom:1px solid #12261a;
+    font-size:11px;
+}
+
+.status-row:last-child{
+    border-bottom:none;
+}
+
+.status-label{
+    color:#618068;
+}
+
+.status-value{
+    color:#d8ffdf;
+    text-align:right;
+}
+
+.activity-value{
+    color:#8feaa0;
+    margin-top:5px;
+    font-size:11px;
+}
+
+.voice-box{
+    border-color:#554a20;
+    background:#0d0b05;
+    font-size:10px;
+}
+
+#lastHeard{
+    margin-top:5px;
+    color:#f5dc82;
+    word-break:break-word;
+}
+
+.profile-card{
+    border-color:#305a3a;
+}
+
+.profile-name{
+    color:var(--green);
+    font-size:18px;
+    margin-top:5px;
+}
+
+.profile-small{
+    color:#698970;
+    font-size:10px;
+    margin-top:4px;
+}
+
+.diagnostic-card{
+    border-color:#314c3a;
+}
+
+.test-row{
+    display:grid;
+    grid-template-columns:1fr 65px;
+    gap:5px;
+    padding:5px 0;
+    border-bottom:1px solid #12261a;
+    font-size:10px;
+}
+
+.test-result{
+    text-align:right;
+}
+
+.test-ok{color:var(--green)}
+.test-fail{color:var(--red)}
+.test-testing{color:var(--yellow)}
+.test-waiting{color:#607565}
+
+.result-pass{
+    color:var(--green);
+    text-shadow:0 0 8px rgba(82,242,123,.3);
+}
+
+.result-fail{color:var(--red)}
+
+.morse-box{
+    border-color:#304e5d;
+    background:#061016;
+    font-size:10px;
+}
+
+.command-list{
+    max-height:180px;
+    overflow-y:auto;
+    font-size:10px;
+}
+
+.command-item{
+    border-bottom:1px solid #12261a;
+    padding:5px 0;
+}
+
+.command-item .time{color:#416149}
+.command-item .type{color:#72c5ff}
+
+.small-button{
+    padding:6px;
+    font-size:10px;
+}
+
+@media(max-width:1100px){
+    main{
+        grid-template-columns:210px 1fr;
+    }
+
+    main>.panel:last-child{
+        grid-column:1/-1;
+        border-left:none;
+        border-top:1px solid var(--line);
+        display:grid;
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+    }
+
+    main>.panel:last-child>.panel-title{
+        grid-column:1/-1;
+    }
+}
+
+@media(max-width:750px){
+    main{
+        display:block;
+    }
+
+    .panel{
+        border-right:none;
+        border-bottom:1px solid var(--line);
+    }
+
+    main>.panel:last-child{
+        display:block;
+    }
+
+    .media-grid{
+        grid-template-columns:1fr;
+    }
+
+    .header-right{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <div class="logo">AMOMII ONE</div>
+        <div class="subtitle">COMMAND CENTER • VOICE • SERIAL • MEDIA • DIAGNOSTICS</div>
+    </div>
+
+    <div class="header-right">
+        <div class="status-light">
+            <span id="connectionDot" class="dot"></span>
+            <span id="connectionText">DISCONNECTED</span>
+        </div>
+
+        <div class="status-light">
+            <span id="voiceDot" class="dot"></span>
+            <span id="voiceText">VOICE OFF</span>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<!-- LEFT -->
+
+<section class="panel">
+
+<div class="panel-title">CONTROL</div>
+
+<button class="primary" onclick="connectSerial()">CONNECT</button>
+<button onclick="disconnectSerial()">DISCONNECT</button>
+<button onclick="requestStatus()">STATUS</button>
+<button onclick="runSystemTest()">SYSTEM TEST</button>
+<button onclick="showHelp()">HELP</button>
+
+<br>
+
+<div class="panel-title">LED</div>
+
+<button onclick="sendCommand('on')">LED ON</button>
+<button onclick="sendCommand('off')">LED OFF</button>
+<button onclick="sendCommand('toggle')">TOGGLE</button>
+<button onclick="sendCommand('blink')">BLINK</button>
+<button onclick="sendCommand('blink 5')">BLINK 5</button>
+<button class="danger" onclick="sendCommand('sos')">SOS</button>
+<button onclick="sendCommand('stop')">STOP</button>
+
+<br>
+
+<div class="panel-title">VOICE</div>
+
+<button id="voiceButton" class="voice" onclick="toggleVoice()">
+START VOICE
+</button>
+
+<button onclick="speakHelp()">SPEAK HELP</button>
+<button onclick="speakAllCommands()">SPEAK COMMANDS</button>
+
+</section>
+
+
+<!-- CENTER -->
+
+<section class="console">
+
+<div id="consoleOutput" class="console-output"></div>
+
+<div class="input-area">
+<input
+id="commandInput"
+placeholder="Enter serial command..."
+autocomplete="off">
+<button onclick="sendManualCommand()">SEND</button>
+</div>
+
+
+<!-- MEDIA CENTER -->
+
+<div class="media-center">
+
+<div class="media-header">
+<div class="media-title">MEDIA CENTER</div>
+<div id="mediaMode" class="media-mode">READY</div>
+</div>
+
+<div class="media-grid">
+
+<!-- MUSIC -->
+
+<div class="media-box">
+
+<h3>♪ MUSIC LIBRARY</h3>
+
+<div class="file-row">
+<input
+id="musicFiles"
+type="file"
+accept="audio/*"
+multiple
+onchange="loadMusicFiles(this.files)">
+</div>
+
+<div id="musicLibrary" class="library">
+No music loaded.
+</div>
+
+<audio id="musicPlayer" preload="metadata"></audio>
+
+<div class="media-controls">
+<button onclick="musicPrevious()">◀◀</button>
+<button onclick="musicPlayPause()">PLAY</button>
+<button onclick="musicStop()">STOP</button>
+<button onclick="musicNext()">▶▶</button>
+<button onclick="toggleMusicShuffle()">SHUF</button>
+</div>
+
+<div class="media-meta">
+<span id="musicTrack">No track</span>
+<span id="musicMode">NORMAL</span>
+</div>
+
+<div class="volume-row">
+<span>VOL</span>
+<input
+id="musicVolume"
+type="range"
+min="0"
+max="1"
+step=".01"
+value=".8"
+oninput="setMusicVolume(this.value)">
+</div>
+
+</div>
+
+
+<!-- VIDEO -->
+
+<div class="media-box">
+
+<h3>▶ VIDEO LIBRARY</h3>
+
+<div class="file-row">
+<input
+id="videoFiles"
+type="file"
+accept="video/*"
+multiple
+onchange="loadVideoFiles(this.files)">
+</div>
+
+<div id="videoLibrary" class="library">
+No videos loaded.
+</div>
+
+<video
+id="videoPlayer"
+controls
+preload="metadata"
+style="width:100%;margin-top:8px;background:#000;max-height:160px;">
+</video>
+
+<div class="media-controls">
+<button onclick="videoPrevious()">◀◀</button>
+<button onclick="videoPlayPause()">PLAY</button>
+<button onclick="videoStop()">STOP</button>
+<button onclick="videoNext()">▶▶</button>
+<button onclick="videoFullscreen()">FULL</button>
+</div>
+
+<div class="media-meta">
+<span id="videoTrack">No video</span>
+<span id="videoMode">NORMAL</span>
+</div>
+
+<div class="volume-row">
+<span>VOL</span>
+<input
+id="videoVolume"
+type="range"
+min="0"
+max="1"
+step=".01"
+value=".8"
+oninput="setVideoVolume(this.value)">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- YOUTUBE -->
+
+<div class="youtube-box">
+
+<div class="panel-title" style="margin-top:0">
+YOUTUBE PLAYER
+</div>
+
+<div class="youtube-input">
+<input
+id="youtubeInput"
+placeholder="Paste YouTube URL or video ID...">
+<button class="media" onclick="loadYouTube()">LOAD</button>
+</div>
+
+<div class="youtube-frame">
+<iframe
+id="youtubeFrame"
+allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+allowfullscreen>
+</iframe>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- RIGHT -->
+
+<section class="panel">
+
+<div class="panel-title">ASSISTANT</div>
+
+<div class="profile-card">
+
+<div class="status-label">USER PROFILE</div>
+
+<div id="profileName" class="profile-name">
+UNKNOWN
+</div>
+
+<div class="profile-small">
+Assistant: AMOMII
+</div>
+
+<div class="profile-small">
+Voice: <span id="profileVoice">OFFLINE</span>
+</div>
+
+</div>
+
+
+<div class="activity">
+
+<div class="status-label">ACTIVITY</div>
+
+<div id="activityValue" class="activity-value">
+IDLE
+</div>
+
+</div>
+
+
+<div class="voice-box">
+
+<div class="status-label">VOICE ENGINE</div>
+
+<div id="lastHeard">
+Waiting for voice...
+</div>
+
+</div>
+
+
+<div class="panel-title">SYSTEM STATUS</div>
+
+<div class="status-card">
+
+<div class="status-row">
+<span class="status-label">Board</span>
+<span id="statusBoard" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">Connection</span>
+<span id="statusConnection" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">System</span>
+<span id="statusSystem" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">LED</span>
+<span id="statusLED" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">Blinking</span>
+<span id="statusBlinking" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">Blink speed</span>
+<span id="statusSpeed" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">Commands</span>
+<span id="statusCommands" class="status-value">---</span>
+</div>
+
+<div class="status-row">
+<span class="status-label">Uptime</span>
+<span id="statusUptime" class="status-value">---</span>
+</div>
+
+</div>
+
+
+<div class="panel-title">SYSTEM TEST</div>
+
+<div class="diagnostic-card">
+
+<div class="test-row">
+<span>Serial</span>
+<span id="testSerial" class="test-result test-waiting">WAITING</span>
+</div>
+
+<div class="test-row">
+<span>LED</span>
+<span id="testLED" class="test-result test-waiting">WAITING</span>
+</div>
+
+<div class="test-row">
+<span>Timing</span>
+<span id="testTiming" class="test-result test-waiting">WAITING</span>
+</div>
+
+<div class="test-row">
+<span>Memory</span>
+<span id="testMemory" class="test-result test-waiting">WAITING</span>
+</div>
+
+<div class="test-row">
+<span>Commands</span>
+<span id="testCommands" class="test-result test-waiting">WAITING</span>
+</div>
+
+<div class="test-row">
+<span>System</span>
+<span id="testSystem" class="test-result test-waiting">WAITING</span>
+</div>
+
+<div class="test-row">
+<span>Result</span>
+<span id="testResult" class="test-result test-waiting">WAITING</span>
+</div>
+
+</div>
+
+
+<div class="panel-title">MORSE</div>
+
+<div class="morse-box">
+<div id="morseStatus">
+No Morse transmission.
+</div>
+</div>
+
+
+<br>
+
+<div class="panel-title">COMMAND HISTORY</div>
+
+<div id="commandHistory" class="command-list"></div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* ============================================================
+   AMOMII ONE v1.5
+   VOICE + PERSONAL ASSISTANT + DIAGNOSTICS + MEDIA
+   ============================================================ */
+
+
+/* ============================================================
+   SERIAL
+   ============================================================ */
+
+let port=null;
+let reader=null;
+let writer=null;
+let serialConnected=false;
+let serialBuffer="";
+
+
+/* ============================================================
+   VOICE
+   ============================================================ */
+
+let recognition=null;
+let voiceEnabled=false;
+let recognitionRunning=false;
+let restartingRecognition=false;
+
+let isSpeaking=false;
+let speechQueue=[];
+
+let speechResumeTimer=null;
+let speechCooldownTimer=null;
+
+
+/* ============================================================
+   PERSONAL ASSISTANT
+   ============================================================ */
+
+let userName="";
+let awaitingName=false;
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+let collectingStatus=false;
+let statusLines=[];
+let statusTimer=null;
+
+
+/* ============================================================
+   SYSTEM TEST
+   ============================================================ */
+
+let systemTestState={
+    active:false,
+    serial:null,
+    led:null,
+    timing:null,
+    memory:null,
+    commands:null,
+    system:null
+};
+
+let systemTestFinishTimer=null;
+
+
+/* ============================================================
+   COMMAND HISTORY
+   ============================================================ */
+
+let commandCount=0;
+
+
+/* ============================================================
+   MUSIC
+   ============================================================ */
+
+let musicFiles=[];
+let musicUrls=[];
+let musicIndex=-1;
+let musicShuffle=false;
+let musicRepeat=false;
+
+
+/* ============================================================
+   VIDEO
+   ============================================================ */
+
+let videoFiles=[];
+let videoUrls=[];
+let videoIndex=-1;
+let videoShuffle=false;
+let videoRepeat=false;
+
+
+/* ============================================================
+   DOM
+   ============================================================ */
+
+const consoleOutput=document.getElementById("consoleOutput");
+const commandInput=document.getElementById("commandInput");
+
+const connectionDot=document.getElementById("connectionDot");
+const connectionText=document.getElementById("connectionText");
+
+const voiceDot=document.getElementById("voiceDot");
+const voiceText=document.getElementById("voiceText");
+
+const voiceButton=document.getElementById("voiceButton");
+
+const activityValue=document.getElementById("activityValue");
+const lastHeard=document.getElementById("lastHeard");
+
+const profileName=document.getElementById("profileName");
+const profileVoice=document.getElementById("profileVoice");
+
+const musicPlayer=document.getElementById("musicPlayer");
+const videoPlayer=document.getElementById("videoPlayer");
+
+
+/* ============================================================
+   LOGGING
+   ============================================================ */
+
+function timestamp(){
+    return new Date().toLocaleTimeString();
+}
+
+function log(message,type="info"){
+
+    const line=document.createElement("div");
+    line.className="log-line";
+
+    let cls="log-info";
+
+    if(type==="command") cls="log-command";
+    if(type==="voice") cls="log-voice";
+    if(type==="speech") cls="log-speech";
+    if(type==="error") cls="log-error";
+
+    line.innerHTML=
+        `<span class="log-time">[${timestamp()}]</span> `+
+        `<span class="${cls}">${escapeHtml(message)}</span>`;
+
+    consoleOutput.appendChild(line);
+    consoleOutput.scrollTop=consoleOutput.scrollHeight;
+}
+
+function escapeHtml(text){
+    return String(text)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+/* ============================================================
+   ACTIVITY
+   ============================================================ */
+
+function setActivity(text){
+    activityValue.textContent=text;
+}
+
+
+/* ============================================================
+   CONNECTION UI
+   ============================================================ */
+
+function setConnectionUI(connected){
+
+    serialConnected=connected;
+
+    if(connected){
+        connectionDot.classList.add("online");
+        connectionText.textContent="CONNECTED";
+    }else{
+        connectionDot.classList.remove("online");
+        connectionText.textContent="DISCONNECTED";
+    }
+}
+
+
+/* ============================================================
+   VOICE UI
+   ============================================================ */
+
+function setVoiceUI(state){
+
+    voiceDot.className="dot";
+
+    if(state==="listening"){
+        voiceDot.classList.add("voice");
+        voiceText.textContent="LISTENING";
+    }
+    else if(state==="speaking"){
+        voiceDot.classList.add("speaking");
+        voiceText.textContent="SPEAKING";
+    }
+    else{
+        voiceText.textContent="VOICE OFF";
+    }
+
+    profileVoice.textContent=
+        state==="listening" ? "READY" :
+        state==="speaking" ? "SPEAKING" :
+        "OFFLINE";
+}
+
+
+/* ============================================================
+   PERSONAL ASSISTANT
+   ============================================================ */
+
+function cleanName(name){
+
+    name=name
+        .replace(/[.!?,]/g," ")
+        .replace(/\s+/g," ")
+        .trim();
+
+    name=name.replace(
+        /^(my name is|my name's|call me|i am|i'm)\s+/i,
+        ""
+    );
+
+    if(name.length>30){
+        name=name.substring(0,30);
+    }
+
+    return name.trim();
+}
+
+
+function setUserName(name){
+
+    name=cleanName(name);
+
+    if(!name){
+        speak("I didn't catch your name. Please tell me your name.");
+        awaitingName=true;
+        return;
+    }
+
+    userName=name;
+    awaitingName=false;
+
+    profileName.textContent=userName.toUpperCase();
+
+    log("User identified as "+userName+".");
+
+    speak(
+        "Nice to meet you, "+
+        userName+
+        ". I'm ready."
+    );
+}
+
+
+function addressUser(text){
+
+    if(userName){
+        return userName+", "+text;
+    }
+
+    return text;
+}
+
+
+function askForName(){
+
+    awaitingName=true;
+
+    speak(
+        "Voice control enabled. "+
+        "Before we begin, what is your name?"
+    );
+}
+
+
+function forgetName(){
+
+    const oldName=userName;
+
+    userName="";
+    awaitingName=false;
+
+    profileName.textContent="UNKNOWN";
+
+    log(
+        oldName
+            ? "User name cleared for this session."
+            : "No user name was stored."
+    );
+
+    speak(
+        oldName
+            ? "Okay. I've forgotten your name for this session."
+            : "You haven't given me a name yet."
+    );
+}
+
+
+/* ============================================================
+   SERIAL CONNECT
+   ============================================================ */
+
+async function connectSerial(){
+
+    if(!("serial" in navigator)){
+
+        log(
+            "Web Serial is not supported by this browser.",
+            "error"
+        );
+
+        speak("Web Serial is not supported by this browser.");
+
+        return;
+    }
+
+    try{
+
+        port=await navigator.serial.requestPort();
+
+        await port.open({
+            baudRate:9600
+        });
+
+        writer=port.writable.getWriter();
+
+        setConnectionUI(true);
+
+        log("Serial connection established.");
+
+        speak(
+            userName
+                ? addressUser("AMOMII ONE is connected.")
+                : "AMOMII ONE connected."
+        );
+
+        readSerialLoop();
+
+    }catch(error){
+
+        log(
+            "Connection failed: "+error.message,
+            "error"
+        );
+    }
+}
+
+
+/* ============================================================
+   DISCONNECT
+   ============================================================ */
+
+async function disconnectSerial(){
+
+    try{
+
+        if(reader){
+
+            try{
+                await reader.cancel();
+            }catch(e){}
+
+            try{
+                reader.releaseLock();
+            }catch(e){}
+
+            reader=null;
+        }
+
+        if(writer){
+
+            try{
+                writer.releaseLock();
+            }catch(e){}
+
+            writer=null;
+        }
+
+        if(port){
+
+            try{
+                await port.close();
+            }catch(e){}
+
+            port=null;
+        }
+
+        setConnectionUI(false);
+
+        log("Serial connection closed.");
+
+        speak(
+            userName
+                ? addressUser("AMOMII ONE is disconnected.")
+                : "AMOMII ONE disconnected."
+        );
+
+    }catch(error){
+
+        log(
+            "Disconnect error: "+error.message,
+            "error"
+        );
+    }
+}
+
+
+/* ============================================================
+   SERIAL READER
+   ============================================================ */
+
+async function readSerialLoop(){
+
+    if(!port || !port.readable) return;
+
+    const decoder=new TextDecoder();
+
+    try{
+
+        reader=port.readable.getReader();
+
+        while(true){
+
+            const {value,done}=await reader.read();
+
+            if(done) break;
+
+            if(value){
+                processSerialData(
+                    decoder.decode(value)
+                );
+            }
+        }
+
+    }catch(error){
+
+        if(serialConnected){
+
+            log(
+                "Serial read error: "+error.message,
+                "error"
+            );
+        }
+
+    }finally{
+
+        if(reader){
+
+            try{
+                reader.releaseLock();
+            }catch(e){}
+
+            reader=null;
+        }
+    }
+}
+
+
+/* ============================================================
+   SERIAL PROCESSING
+   ============================================================ */
+
+function processSerialData(text){
+
+    serialBuffer+=text;
+
+    const lines=serialBuffer.split(/\r?\n/);
+
+    serialBuffer=lines.pop()||"";
+
+    for(const rawLine of lines){
+
+        const clean=rawLine.replace(/\r/g,"").trim();
+
+        if(!clean) continue;
+
+        log(clean);
+
+        if(collectingStatus){
+            collectStatusLine(clean);
+        }
+
+        parseSerialResponse(clean);
+    }
+}
+
+
+/* ============================================================
+   SEND SERIAL
+   ============================================================ */
+
+async function sendCommand(command){
+
+    command=String(command).trim();
+
+    if(!command) return;
+
+    addHistory("SERIAL",command);
+
+    log("> "+command,"command");
+
+    if(!writer){
+
+        log(
+            "Not connected to AMOMII ONE.",
+            "error"
+        );
+
+        return;
+    }
+
+    try{
+
+        const data=new TextEncoder().encode(
+            command+"\n"
+        );
+
+        await writer.write(data);
+
+    }catch(error){
+
+        log(
+            "Send error: "+error.message,
+            "error"
+        );
+    }
+}
+
+
+/* ============================================================
+   MANUAL COMMAND
+   ============================================================ */
+
+function sendManualCommand(){
+
+    const command=commandInput.value.trim();
+
+    if(!command) return;
+
+    commandInput.value="";
+
+    sendCommand(command);
+}
+
+commandInput.addEventListener(
+    "keydown",
+    event=>{
+        if(event.key==="Enter"){
+            sendManualCommand();
+        }
+    }
+);
+
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+
+function addHistory(type,command){
+
+    commandCount++;
+
+    const history=document.getElementById(
+        "commandHistory"
+    );
+
+    const item=document.createElement("div");
+
+    item.className="command-item";
+
+    item.innerHTML=
+        `<span class="time">${timestamp()}</span> `+
+        `<span class="type">${escapeHtml(type)}</span> `+
+        `${escapeHtml(command)}`;
+
+    history.prepend(item);
+
+    while(history.children.length>50){
+        history.removeChild(history.lastChild);
+    }
+}
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+function requestStatus(options={}){
+
+    if(!serialConnected){
+
+        log(
+            "Cannot request status: board is not connected.",
+            "error"
+        );
+
+        if(options.speakError!==false){
+            speak(
+                userName
+                    ? addressUser("AMOMII ONE is not connected.")
+                    : "AMOMII ONE is not connected."
+            );
+        }
+
+        return;
+    }
+
+    collectingStatus=true;
+    statusLines=[];
+
+    clearTimeout(statusTimer);
+
+    setActivity("REQUESTING STATUS");
+
+    sendCommand("status");
+
+    statusTimer=setTimeout(
+        finishStatusReading,
+        1200
+    );
+}
+
+
+function collectStatusLine(line){
+
+    statusLines.push(line);
+
+    clearTimeout(statusTimer);
+
+    statusTimer=setTimeout(
+        finishStatusReading,
+        900
+    );
+}
+
+
+function finishStatusReading(){
+
+    if(!collectingStatus) return;
+
+    collectingStatus=false;
+
+    clearTimeout(statusTimer);
+
+    parseStatusText(
+        statusLines.join("\n")
+    );
+
+    setActivity("IDLE");
+}
+
+
+/* ============================================================
+   STATUS PARSER
+   ============================================================ */
+
+function parseStatusText(text){
+
+    const lines=text.split(/\r?\n/);
+
+    let found=false;
+
+    for(const line of lines){
+
+        const match=line.match(
+            /^\s*([^:]+):\s*(.*?)\s*$/
+        );
+
+        if(!match) continue;
+
+        const label=match[1]
+            .trim()
+            .toLowerCase();
+
+        const value=match[2].trim();
+
+        found=true;
+
+        if(label==="board")
+            document.getElementById("statusBoard").textContent=value;
+
+        if(label==="connection")
+            document.getElementById("statusConnection").textContent=value;
+
+        if(label==="system")
+            document.getElementById("statusSystem").textContent=value;
+
+        if(label==="led")
+            document.getElementById("statusLED").textContent=value;
+
+        if(label==="blinking")
+            document.getElementById("statusBlinking").textContent=value;
+
+        if(label==="blink speed")
+            document.getElementById("statusSpeed").textContent=value;
+
+        if(label==="commands")
+            document.getElementById("statusCommands").textContent=value;
+
+        if(label==="uptime")
+            document.getElementById("statusUptime").textContent=value;
+    }
+
+    if(found){
+
+        const spoken=buildSpokenStatus();
+
+        if(spoken){
+            speak(spoken);
+        }
+    }
+}
+
+
+function getStatus(id){
+
+    return document.getElementById(id)
+        .textContent
+        .trim();
+}
+
+
+function formatCommands(value){
+
+    const number=parseInt(value,10);
+
+    if(!isNaN(number)){
+
+        return number+
+            (number===1
+                ? " command has been processed"
+                : " commands have been processed");
+    }
+
+    return value+" commands processed";
+}
+
+
+function buildSpokenStatus(){
+
+    const board=getStatus("statusBoard");
+    const connection=getStatus("statusConnection");
+    const system=getStatus("statusSystem");
+    const led=getStatus("statusLED");
+    const blinking=getStatus("statusBlinking");
+    const speed=getStatus("statusSpeed");
+    const commands=getStatus("statusCommands");
+    const uptime=getStatus("statusUptime");
+
+    if(board==="---" && system==="---"){
+        return null;
+    }
+
+    let text="";
+
+    if(userName){
+        text+=userName+", ";
+    }
+
+    if(board!=="---")
+        text+=board+". ";
+
+    if(system!=="---")
+        text+="The system is "+system.toLowerCase()+". ";
+
+    if(connection!=="---")
+        text+="The connection is "+connection.toLowerCase()+". ";
+
+    if(led!=="---")
+        text+="The LED is "+led.toLowerCase()+". ";
+
+    if(blinking!=="---"){
+
+        if(
+            blinking.toLowerCase()==="no" ||
+            blinking.toLowerCase()==="off"
+        ){
+            text+="Blinking is disabled. ";
+        }else{
+            text+="Blinking is enabled. ";
+        }
+    }
+
+    if(speed!=="---")
+        text+="Blink speed is "+speed+". ";
+
+    if(commands!=="---")
+        text+=formatCommands(commands)+". ";
+
+    if(uptime!=="---")
+        text+="Uptime is "+uptime+".";
+
+    return text.trim();
+}
+
+
+/* ============================================================
+   SYSTEM TEST
+   ============================================================ */
+
+function resetSystemTest(){
+
+    systemTestState={
+        active:false,
+        serial:null,
+        led:null,
+        timing:null,
+        memory:null,
+        commands:null,
+        system:null
+    };
+
+    setTestUI("testSerial","WAITING");
+    setTestUI("testLED","WAITING");
+    setTestUI("testTiming","WAITING");
+    setTestUI("testMemory","WAITING");
+    setTestUI("testCommands","WAITING");
+    setTestUI("testSystem","WAITING");
+    setTestUI("testResult","WAITING");
+}
+
+
+function setTestUI(id,value){
+
+    const el=document.getElementById(id);
+
+    el.textContent=value;
+
+    el.className="test-result";
+
+    if(value==="OK")
+        el.classList.add("test-ok");
+
+    else if(value==="FAIL")
+        el.classList.add("test-fail");
+
+    else if(value==="TESTING")
+        el.classList.add("test-testing");
+
+    else if(value==="PASS")
+        el.classList.add("test-ok");
+
+    else if(value==="INCOMPLETE")
+        el.classList.add("test-fail");
+
+    else
+        el.classList.add("test-waiting");
+}
+
+
+function runSystemTest(){
+
+    if(!serialConnected){
+
+        speak(
+            userName
+                ? addressUser(
+                    "AMOMII ONE is not connected. "+
+                    "Connect the board before running a system test."
+                  )
+                : "AMOMII ONE is not connected. Connect the board before running a system test."
+        );
+
+        return;
+    }
+
+    clearTimeout(systemTestFinishTimer);
+
+    resetSystemTest();
+
+    systemTestState.active=true;
+
+    setActivity("SYSTEM TEST");
+
+    addHistory("SYSTEM","test");
+
+    log("Starting system test...");
+
+    speak(
+        userName
+            ? addressUser("Starting the system test.")
+            : "Starting system test."
+    );
+
+    sendCommand("test");
+
+    systemTestFinishTimer=setTimeout(
+        ()=>{
+            if(systemTestState.active){
+                finishSystemTest();
+            }
+        },
+        15000
+    );
+}
+
+
+function finishSystemTest(){
+
+    if(!systemTestState.active) return;
+
+    systemTestState.active=false;
+
+    clearTimeout(systemTestFinishTimer);
+
+    const keys=[
+        "serial",
+        "led",
+        "timing",
+        "memory",
+        "commands",
+        "system"
+    ];
+
+    const labels={
+        serial:"Serial",
+        led:"LED",
+        timing:"timing",
+        memory:"memory",
+        commands:"commands",
+        system:"system"
+    };
+
+    const failures=[];
+    const incomplete=[];
+
+    for(const key of keys){
+
+        if(systemTestState[key]==="FAIL"){
+            failures.push(labels[key]);
+        }
+
+        if(systemTestState[key]===null){
+            incomplete.push(labels[key]);
+        }
+    }
+
+    if(failures.length===0 && incomplete.length===0){
+
+        setTestUI("testResult","PASS");
+        setActivity("TEST PASSED");
+
+        speak(
+            userName
+                ? userName+
+                  ", system test complete. Serial, LED, timing, memory, commands, and system checks all passed."
+                : "System test complete. Serial, LED, timing, memory, commands, and system checks all passed."
+        );
+
+    }else if(failures.length>0){
+
+        setTestUI("testResult","FAIL");
+        setActivity("TEST FAILED");
+
+        speak(
+            userName
+                ? userName+
+                  ", system test complete. The following checks failed: "+
+                  failures.join(", ")+"."
+                : "System test complete. The following checks failed: "+
+                  failures.join(", ")+"."
+        );
+
+    }else{
+
+        setTestUI("testResult","INCOMPLETE");
+        setActivity("TEST INCOMPLETE");
+
+        speak(
+            userName
+                ? userName+
+                  ", the system test finished, but I could not verify every check."
+                : "The system test finished, but I could not verify every check."
+        );
+    }
+}
+
+
+/* ============================================================
+   SERIAL RESPONSE
+   ============================================================ */
+
+function parseSerialResponse(line){
+
+    const trimmed=line.trim();
+
+    const testMatch=trimmed.match(
+        /^\s*(Serial|LED|Timing|Memory|Commands|System):\s*(OK|FAIL|TESTING)\s*$/i
+    );
+
+    if(testMatch && systemTestState.active){
+
+        const label=testMatch[1].toLowerCase();
+        const value=testMatch[2].toUpperCase();
+
+        const map={
+            serial:"serial",
+            led:"led",
+            timing:"timing",
+            memory:"memory",
+            commands:"commands",
+            system:"system"
+        };
+
+        const key=map[label];
+
+        if(key){
+
+            systemTestState[key]=value;
+
+            const uiMap={
+                serial:"testSerial",
+                led:"testLED",
+                timing:"testTiming",
+                memory:"testMemory",
+                commands:"testCommands",
+                system:"testSystem"
+            };
+
+            setTestUI(
+                uiMap[key],
+                value
+            );
+
+            setActivity(
+                label.toUpperCase()+
+                " "+value
+            );
+        }
+
+        return;
+    }
+
+
+    if(
+        /^=+\s*$/.test(trimmed) &&
+        systemTestState.active
+    ){
+        finishSystemTest();
+        return;
+    }
+
+
+    const text=trimmed.toLowerCase();
+
+
+    if(text.includes("flash complete")){
+        setActivity("LED TEST COMPLETE");
+        return;
+    }
+
+
+    if(
+        text.includes("led is now on") ||
+        text.includes("led: on") ||
+        text.includes("led turned on")
+    ){
+
+        setActivity("LED ON");
+
+        document.getElementById(
+            "statusLED"
+        ).textContent="ON";
+
+        if(!isSpeaking){
+            speak(
+                userName
+                    ? addressUser("The LED is now on.")
+                    : "The LED is now on."
+            );
+        }
+
+        return;
+    }
+
+
+    if(
+        text.includes("led is now off") ||
+        text.includes("led: off") ||
+        text.includes("led turned off")
+    ){
+
+        setActivity("LED OFF");
+
+        document.getElementById(
+            "statusLED"
+        ).textContent="OFF";
+
+        if(!isSpeaking){
+            speak(
+                userName
+                    ? addressUser("The LED is now off.")
+                    : "The LED is now off."
+            );
+        }
+
+        return;
+    }
+
+
+    if(
+        text.includes("blink complete") ||
+        text.includes("blinking complete") ||
+        text.includes("blink finished")
+    ){
+
+        setActivity("BLINK COMPLETE");
+
+        if(!isSpeaking){
+            speak(
+                userName
+                    ? addressUser("Blink sequence complete.")
+                    : "Blink sequence complete."
+            );
+        }
+
+        setTimeout(
+            ()=>setActivity("IDLE"),
+            1200
+        );
+
+        return;
+    }
+
+
+    if(
+        text.includes("sos complete") ||
+        text.includes("sos finished") ||
+        text.includes("sos sent")
+    ){
+
+        setActivity("SOS COMPLETE");
+
+        if(!isSpeaking){
+            speak(
+                userName
+                    ? addressUser("SOS transmission complete.")
+                    : "SOS transmission complete."
+            );
+        }
+
+        return;
+    }
+
+
+    if(
+        text.includes("stopped") ||
+        text.includes("operation stopped")
+    ){
+
+        setActivity("STOPPED");
+
+        if(!isSpeaking){
+            speak(
+                userName
+                    ? addressUser("Operation stopped.")
+                    : "Operation stopped."
+            );
+        }
+
+        return;
+    }
+
+
+    if(
+        text.includes("morse") &&
+        (
+            text.includes("start") ||
+            text.includes("sending") ||
+            text.includes("transmitting")
+        )
+    ){
+
+        document.getElementById(
+            "morseStatus"
+        ).textContent="Morse transmission active.";
+
+        setActivity("MORSE ACTIVE");
+
+        return;
+    }
+
+
+    if(
+        text.includes("morse") &&
+        (
+            text.includes("complete") ||
+            text.includes("finished") ||
+            text.includes("done")
+        )
+    ){
+
+        document.getElementById(
+            "morseStatus"
+        ).textContent="Morse transmission complete.";
+
+        setActivity("MORSE COMPLETE");
+
+        if(!isSpeaking){
+            speak("Morse transmission complete.");
+        }
+    }
+}
+
+
+/* ============================================================
+   SPEECH
+   ============================================================ */
+
+function speak(text){
+
+    if(!text) return;
+
+    speechQueue.push(text);
+
+    processSpeechQueue();
+}
+
+
+function processSpeechQueue(){
+
+    if(isSpeaking) return;
+
+    if(speechQueue.length===0){
+
+        setActivity(
+            voiceEnabled
+                ? "LISTENING"
+                : "IDLE"
+        );
+
+        return;
+    }
+
+    const text=speechQueue.shift();
+
+    stopRecognitionForSpeech();
+
+    clearTimeout(speechCooldownTimer);
+    clearTimeout(speechResumeTimer);
+
+    isSpeaking=true;
+
+    setActivity("SPEAKING");
+    setVoiceUI("speaking");
+
+    log(
+        'Speaking: "'+text+'"',
+        "speech"
+    );
+
+    if(!("speechSynthesis" in window)){
+
+        isSpeaking=false;
+        processSpeechQueue();
+        return;
+    }
+
+    speechSynthesis.cancel();
+
+    const utterance=
+        new SpeechSynthesisUtterance(text);
+
+    utterance.rate=.95;
+    utterance.pitch=1;
+    utterance.volume=1;
+
+    const voices=
+        speechSynthesis.getVoices();
+
+    const preferred=
+        voices.find(
+            v=>v.lang &&
+            v.lang.toLowerCase().startsWith("en-us")
+        )||
+        voices.find(
+            v=>v.lang &&
+            v.lang.toLowerCase().startsWith("en")
+        );
+
+    if(preferred){
+        utterance.voice=preferred;
+    }
+
+    utterance.onstart=()=>{
+        isSpeaking=true;
+        setActivity("SPEAKING");
+        setVoiceUI("speaking");
+    };
+
+    utterance.onend=()=>{
+
+        isSpeaking=false;
+
+        setActivity(
+            voiceEnabled
+                ? "VOICE READY"
+                : "IDLE"
+        );
+
+        log("Speech complete.","speech");
+
+        speechCooldownTimer=setTimeout(
+            ()=>{
+
+                if(speechQueue.length>0){
+                    processSpeechQueue();
+                }else{
+                    resumeRecognitionAfterSpeech();
+                }
+
+            },
+            650
+        );
+    };
+
+    utterance.onerror=event=>{
+
+        isSpeaking=false;
+
+        if(
+            event.error!=="canceled" &&
+            event.error!=="interrupted"
+        ){
+
+            log(
+                "Speech error: "+event.error,
+                "error"
+            );
+        }
+
+        speechCooldownTimer=setTimeout(
+            ()=>{
+                if(speechQueue.length>0){
+                    processSpeechQueue();
+                }else{
+                    resumeRecognitionAfterSpeech();
+                }
+            },
+            650
+        );
+    };
+
+    speechSynthesis.speak(utterance);
+}
+
+
+/* ============================================================
+   SPEECH / RECOGNITION PROTECTION
+   ============================================================ */
+
+function stopRecognitionForSpeech(){
+
+    if(!recognition) return;
+
+    restartingRecognition=false;
+
+    if(recognitionRunning){
+
+        try{
+            recognition.abort();
+        }catch(e){}
+
+        recognitionRunning=false;
+    }
+
+    setVoiceUI("off");
+}
+
+
+function resumeRecognitionAfterSpeech(){
+
+    if(!voiceEnabled) return;
+
+    clearTimeout(speechResumeTimer);
+
+    speechResumeTimer=setTimeout(
+        ()=>{
+
+            if(
+                !voiceEnabled ||
+                isSpeaking ||
+                recognitionRunning
+            ){
+                return;
+            }
+
+            startRecognition();
+
+        },
+        500
+    );
+}
+
+
+/* ============================================================
+   VOICE INITIALIZATION
+   ============================================================ */
+
+function initializeVoice(){
+
+    const SpeechRecognition=
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if(!SpeechRecognition){
+
+        log(
+            "Speech recognition is not supported in this browser.",
+            "error"
+        );
+
+        voiceButton.disabled=true;
+
+        return false;
+    }
+
+    recognition=new SpeechRecognition();
+
+    recognition.continuous=false;
+    recognition.interimResults=false;
+    recognition.lang="en-US";
+    recognition.maxAlternatives=1;
+
+    recognition.onstart=()=>{
+
+        recognitionRunning=true;
+
+        if(voiceEnabled && !isSpeaking){
+
+            setVoiceUI("listening");
+            setActivity(
+                awaitingName
+                    ? "WAITING FOR NAME"
+                    : "LISTENING"
+            );
+        }
+    };
+
+
+    recognition.onresult=event=>{
+
+        if(isSpeaking) return;
+
+        const result=
+            event.results[
+                event.results.length-1
+            ];
+
+        if(!result || !result[0]) return;
+
+        const transcript=
+            result[0].transcript.trim();
+
+        if(!transcript) return;
+
+        lastHeard.textContent=
+            '"'+transcript+'"';
+
+        log(
+            'Voice: "'+transcript+'"',
+            "voice"
+        );
+
+        executeVoiceCommand(transcript);
+    };
+
+
+    recognition.onerror=event=>{
+
+        recognitionRunning=false;
+
+        if(event.error==="no-speech"){
+
+            if(voiceEnabled){
+                restartRecognitionSoon();
+            }
+
+            return;
+        }
+
+        if(event.error==="aborted"){
+            return;
+        }
+
+        log(
+            "Voice recognition error: "+event.error,
+            "error"
+        );
+
+        if(voiceEnabled){
+            restartRecognitionSoon();
+        }
+    };
+
+
+    recognition.onend=()=>{
+
+        recognitionRunning=false;
+
+        if(
+            voiceEnabled &&
+            !isSpeaking
+        ){
+            restartRecognitionSoon();
+        }
+    };
+
+    return true;
+}
+
+
+function startRecognition(){
+
+    if(
+        !recognition ||
+        !voiceEnabled ||
+        isSpeaking ||
+        recognitionRunning
+    ){
+        return;
+    }
+
+    try{
+
+        restartingRecognition=false;
+
+        recognition.start();
+
+    }catch(error){
+
+        recognitionRunning=false;
+        restartRecognitionSoon();
+    }
+}
+
+
+function restartRecognitionSoon(){
+
+    if(
+        !voiceEnabled ||
+        isSpeaking ||
+        restartingRecognition
+    ){
+        return;
+    }
+
+    restartingRecognition=true;
+
+    setTimeout(
+        ()=>{
+
+            restartingRecognition=false;
+
+            if(
+                voiceEnabled &&
+                !isSpeaking &&
+                !recognitionRunning
+            ){
+                startRecognition();
+            }
+
+        },
+        700
+    );
+}
+
+
+/* ============================================================
+   VOICE TOGGLE
+   ============================================================ */
+
+function toggleVoice(){
+
+    if(!recognition){
+
+        if(!initializeVoice()){
+            return;
+        }
+    }
+
+    if(voiceEnabled){
+
+        voiceEnabled=false;
+        restartingRecognition=false;
+
+        clearTimeout(speechResumeTimer);
+        clearTimeout(speechCooldownTimer);
+
+        try{
+            recognition.abort();
+        }catch(e){}
+
+        recognitionRunning=false;
+
+        voiceButton.textContent="START VOICE";
+
+        setVoiceUI("off");
+        setActivity("IDLE");
+
+        log("Voice control disabled.");
+
+        return;
+    }
+
+    voiceEnabled=true;
+
+    voiceButton.textContent="STOP VOICE";
+
+    log("Voice control enabled.");
+
+    if(userName){
+
+        speak(
+            "Voice control enabled. "+
+            "Welcome back, "+
+            userName+"."
+        );
+
+    }else{
+
+        askForName();
+    }
+}
+
+
+/* ============================================================
+   VOICE COMMAND ENGINE
+   ============================================================ */
+
+function executeVoiceCommand(rawCommand){
+
+    const original=rawCommand.trim();
+
+    const command=normalizeVoiceCommand(original);
+
+    if(!command) return;
+
+    addHistory("VOICE",original);
+
+
+    /* NAME COLLECTION */
+
+    if(awaitingName){
+
+        if(
+            command.includes("change my name") ||
+            command.includes("change name")
+        ){
+
+            speak(
+                "What would you like me to call you?"
+            );
+
+            awaitingName=true;
+            return;
+        }
+
+        if(
+            command.includes("forget my name") ||
+            command.includes("forget name")
+        ){
+
+            forgetName();
+            return;
+        }
+
+        if(
+            command==="help" ||
+            command.includes("what can you do")
+        ){
+
+            speak(
+                "Before we begin, I need to know what you'd like me to call you."
+            );
+
+            return;
+        }
+
+        setUserName(original);
+        return;
+    }
+
+
+    /* NAME */
+
+    if(
+        command.includes("what is my name") ||
+        command.includes("whats my name") ||
+        command.includes("what's my name") ||
+        command.includes("what should you call me") ||
+        command.includes("what do you call me")
+    ){
+
+        if(userName){
+
+            speak(
+                "Your name is "+userName+"."
+            );
+
+        }else{
+
+            speak(
+                "You haven't told me your name yet."
+            );
+        }
+
+        return;
+    }
+
+
+    if(
+        command.includes("change my name") ||
+        command.includes("change name")
+    ){
+
+        awaitingName=true;
+
+        speak(
+            "What would you like me to call you?"
+        );
+
+        return;
+    }
+
+
+    if(
+        command.includes("forget my name") ||
+        command.includes("forget name")
+    ){
+
+        forgetName();
+        return;
+    }
+
+
+    /* ASSISTANT IDENTITY */
+
+    if(
+        command==="who are you" ||
+        command.includes("what is your name") ||
+        command.includes("whats your name") ||
+        command.includes("what's your name")
+    ){
+
+        speak(
+            userName
+                ? "I'm AMOMII, your command center assistant, "+userName+"."
+                : "I'm AMOMII, your command center assistant."
+        );
+
+        return;
+    }
+
+
+    /* HELP */
+
+    if(
+        command==="help" ||
+        command.includes("give me help") ||
+        command.includes("need help") ||
+        command.includes("show me the commands") ||
+        command.includes("what commands do you have")
+    ){
+
+        speakHelp();
+        return;
+    }
+
+
+    /* CAPABILITIES */
+
+    if(
+        command.includes("what can you do") ||
+        command.includes("what are your capabilities") ||
+        command.includes("what do you do") ||
+        command.includes("what can you control")
+    ){
+
+        speak(
+            userName
+                ? "I can control AMOMII ONE, operate the LED, run diagnostics, manage your music and video libraries, load YouTube videos, report system status, tell you the time and date, and communicate with the trainer pad, "+userName+"."
+                : "I can control AMOMII ONE, operate the LED, run diagnostics, manage your music and video libraries, load YouTube videos, report system status, tell you the time and date, and communicate with the trainer pad."
+        );
+
+        return;
+    }
+
+
+    /* ALL COMMANDS */
+
+    if(
+        command.includes("all commands") ||
+        command.includes("all voice commands") ||
+        command.includes("list commands") ||
+        command.includes("complete command list")
+    ){
+
+        speakAllCommands();
+        return;
+    }
+
+
+    /* TIME */
+
+    if(
+        command.includes("what time is it") ||
+        command.includes("what is the time") ||
+        command.includes("current time") ||
+        command==="time" ||
+        command.includes("tell me the time")
+    ){
+
+        speakTime();
+        return;
+    }
+
+
+    /* DATE TIME */
+
+    if(
+        command.includes("date and time") ||
+        command.includes("time and date")
+    ){
+
+        speakDateTime();
+        return;
+    }
+
+
+    /* DATE */
+
+    if(
+        command.includes("what is today's date") ||
+        command.includes("what is todays date") ||
+        command.includes("what date is it") ||
+        command.includes("current date") ||
+        command==="date"
+    ){
+
+        speakDate();
+        return;
+    }
+
+
+    /* DAY */
+
+    if(
+        command==="day" ||
+        command.includes("what day is it") ||
+        command.includes("day of the week")
+    ){
+
+        speakDay();
+        return;
+    }
+
+
+    /* MONTH */
+
+    if(
+        command==="month" ||
+        command.includes("what month is it") ||
+        command.includes("current month")
+    ){
+
+        speakMonth();
+        return;
+    }
+
+
+    /* YEAR */
+
+    if(
+        command==="year" ||
+        command.includes("what year is it") ||
+        command.includes("current year")
+    ){
+
+        speakYear();
+        return;
+    }
+
+
+    /* STATUS */
+
+    if(
+        command==="status" ||
+        command.includes("system status") ||
+        command.includes("give me status") ||
+        command.includes("how is the system") ||
+        command.includes("are you online")
+    ){
+
+        requestStatus();
+        return;
+    }
+
+
+    /* DIAGNOSTICS */
+
+    if(
+        command==="test" ||
+        command.includes("system test") ||
+        command.includes("run a test") ||
+        command.includes("test the system") ||
+        command.includes("diagnostic") ||
+        command.includes("run diagnostics") ||
+        command.includes("diagnostic test")
+    ){
+
+        runSystemTest();
+        return;
+    }
+
+
+    /* LED ON */
+
+    if(
+        command==="on" ||
+        command==="led on" ||
+        command.includes("turn the led on") ||
+        command.includes("turn led on") ||
+        command.includes("turn the light on") ||
+        command.includes("lights on") ||
+        command.includes("light on")
+    ){
+
+        voiceLEDOn();
+        return;
+    }
+
+
+    /* LED OFF */
+
+    if(
+        command==="off" ||
+        command==="led off" ||
+        command.includes("turn the led off") ||
+        command.includes("turn led off") ||
+        command.includes("turn the light off") ||
+        command.includes("lights off") ||
+        command.includes("light off")
+    ){
+
+        voiceLEDOff();
+        return;
+    }
+
+
+    /* TOGGLE */
+
+    if(
+        command==="toggle" ||
+        command==="toggle led" ||
+        command.includes("toggle the led") ||
+        command.includes("toggle the light")
+    ){
+
+        voiceToggle();
+        return;
+    }
+
+
+    /* BLINK FIVE */
+
+    if(
+        command.includes("blink five") ||
+        command.includes("blink 5")
+    ){
+
+        voiceBlinkFive();
+        return;
+    }
+
+
+    /* BLINK */
+
+    if(
+        command==="blink" ||
+        command.includes("start blinking") ||
+        command.includes("make it blink") ||
+        command.includes("make the led blink") ||
+        command.includes("blink the led")
+    ){
+
+        voiceBlink();
+        return;
+    }
+
+
+    /* SOS */
+
+    if(
+        command==="sos" ||
+        command.includes("send sos") ||
+        command.includes("transmit sos") ||
+        command.includes("send an sos")
+    ){
+
+        voiceSOS();
+        return;
+    }
+
+
+    /* STOP */
+
+    if(
+        command==="stop" ||
+        command==="stop everything" ||
+        command==="stop blinking" ||
+        command==="cancel" ||
+        command==="abort"
+    ){
+
+        voiceStop();
+        return;
+    }
+
+
+    /* CONNECT */
+
+    if(
+        command==="connect" ||
+        command.includes("connect to amomii") ||
+        command.includes("connect to the board")
+    ){
+
+        voiceConnect();
+        return;
+    }
+
+
+    /* DISCONNECT */
+
+    if(
+        command==="disconnect" ||
+        command.includes("disconnect from amomii") ||
+        command.includes("disconnect the board")
+    ){
+
+        voiceDisconnect();
+        return;
+    }
+
+
+    /* MUSIC */
+
+    if(
+        command.includes("play music") ||
+        command.includes("start music") ||
+        command==="music"
+    ){
+
+        musicPlay();
+        return;
+    }
+
+    if(
+        command.includes("pause music") ||
+        command.includes("pause the music")
+    ){
+
+        musicPlayer.pause();
+        setActivity("MUSIC PAUSED");
+        return;
+    }
+
+    if(
+        command.includes("stop music") ||
+        command.includes("stop the music")
+    ){
+
+        musicStop();
+        return;
+    }
+
+    if(
+        command.includes("next song") ||
+        command.includes("next track") ||
+        command.includes("next music")
+    ){
+
+        musicNext();
+        return;
+    }
+
+    if(
+        command.includes("previous song") ||
+        command.includes("previous track") ||
+        command.includes("previous music")
+    ){
+
+        musicPrevious();
+        return;
+    }
+
+
+    /* VIDEO */
+
+    if(
+        command.includes("play video") ||
+        command.includes("start video") ||
+        command==="video"
+    ){
+
+        videoPlay();
+        return;
+    }
+
+    if(
+        command.includes("pause video") ||
+        command.includes("pause the video")
+    ){
+
+        videoPlayer.pause();
+        setActivity("VIDEO PAUSED");
+        return;
+    }
+
+    if(
+        command.includes("stop video") ||
+        command.includes("stop the video")
+    ){
+
+        videoStop();
+        return;
+    }
+
+    if(
+        command.includes("next video")
+    ){
+
+        videoNext();
+        return;
+    }
+
+    if(
+        command.includes("previous video") ||
+        command.includes("previous video")
+    ){
+
+        videoPrevious();
+        return;
+    }
+
+    if(
+        command.includes("fullscreen video") ||
+        command.includes("full screen video")
+    ){
+
+        videoFullscreen();
+        return;
+    }
+
+
+    /* YOUTUBE */
+
+    if(
+        command.includes("youtube") &&
+        (
+            command.includes("pause") ||
+            command.includes("stop")
+        )
+    ){
+
+        youtubeCommand(
+            command.includes("pause")
+            ? "pause"
+            : "stop"
+        );
+
+        return;
+    }
+
+
+    /* MEDIA HELP */
+
+    if(
+        command.includes("media help") ||
+        command.includes("music help") ||
+        command.includes("video help")
+    ){
+
+        speakMediaHelp();
+        return;
+    }
+
+
+    /* UNKNOWN */
+
+    log(
+        'Voice command not recognized: "'+
+        original+
+        '"',
+        "error"
+    );
+
+    setActivity("UNKNOWN COMMAND");
+
+    setTimeout(
+        ()=>{
+            if(voiceEnabled && !isSpeaking){
+                setActivity("LISTENING");
+            }
+        },
+        1000
+    );
+}
+
+
+/* ============================================================
+   NORMALIZE VOICE
+   ============================================================ */
+
+function normalizeVoiceCommand(text){
+
+    let command=text.toLowerCase().trim();
+
+    command=command.replace(
+        /^hey\s+amomii[\s,]*/i,
+        ""
+    );
+
+    command=command.replace(
+        /^amomii\s+one[\s,]*/i,
+        ""
+    );
+
+    command=command.replace(
+        /^amomii[\s,]*/i,
+        ""
+    );
+
+    command=command
+        .replace(/[!?.,]/g,"")
+        .replace(/\s+/g," ")
+        .trim();
+
+    return command;
+}
+
+
+/* ============================================================
+   VOICE COMMAND RESPONSES
+   ============================================================ */
+
+function voiceLEDOn(){
+    speak("Turning the LED on.");
+    sendCommand("on");
+}
+
+function voiceLEDOff(){
+    speak("Turning the LED off.");
+    sendCommand("off");
+}
+
+function voiceToggle(){
+    speak("Toggling the LED.");
+    sendCommand("toggle");
+}
+
+function voiceBlink(){
+    speak("Starting the blink sequence.");
+    sendCommand("blink");
+}
+
+function voiceBlinkFive(){
+    speak("Blinking five times.");
+    sendCommand("blink 5");
+}
+
+function voiceSOS(){
+    speak("Transmitting SOS.");
+    sendCommand("sos");
+}
+
+function voiceStop(){
+    speak("Stopping the current operation.");
+    sendCommand("stop");
+}
+
+function voiceConnect(){
+    speak("Opening the serial connection.");
+    connectSerial();
+}
+
+function voiceDisconnect(){
+    speak("Disconnecting from AMOMII ONE.");
+    disconnectSerial();
+}
+
+
+/* ============================================================
+   HELP
+   ============================================================ */
+
+function showHelp(){
+
+    log("AMOMII ONE VOICE COMMANDS:");
+
+    log("STATUS");
+    log("HELP");
+    log("WHAT CAN YOU DO");
+    log("ALL COMMANDS");
+
+    log("WHAT'S MY NAME");
+    log("CHANGE MY NAME");
+    log("FORGET MY NAME");
+    log("WHO ARE YOU");
+
+    log("TIME");
+    log("DATE");
+    log("DAY");
+    log("MONTH");
+    log("YEAR");
+    log("DATE AND TIME");
+
+    log("LED ON");
+    log("LED OFF");
+    log("TOGGLE");
+    log("BLINK");
+    log("BLINK FIVE");
+    log("SOS");
+    log("STOP");
+
+    log("SYSTEM TEST");
+    log("RUN DIAGNOSTICS");
+
+    log("PLAY MUSIC");
+    log("PAUSE MUSIC");
+    log("STOP MUSIC");
+    log("NEXT SONG");
+    log("PREVIOUS SONG");
+
+    log("PLAY VIDEO");
+    log("PAUSE VIDEO");
+    log("STOP VIDEO");
+    log("NEXT VIDEO");
+    log("PREVIOUS VIDEO");
+    log("FULLSCREEN VIDEO");
+
+    log("MEDIA HELP");
+
+    log(
+        "Voice recognition pauses while AMOMII is speaking."
+    );
+}
+
+
+function speakHelp(){
+
+    speak(
+        "AMOMII ONE can control the LED, "+
+        "blinking, SOS, system status and diagnostics. "+
+        "I can also manage your music library, "+
+        "video library, and YouTube videos. "+
+        "You can ask me the time or date, "+
+        "ask what I can do, ask for all commands, "+
+        "or ask me to identify myself."
+    );
+}
+
+
+function speakAllCommands(){
+
+    speak(
+        "AMOMII ONE commands include status, help, "+
+        "what can you do, all commands, "+
+        "what's my name, change my name, forget my name, "+
+        "who are you, time, date, day, month, year, "+
+        "date and time, LED on, LED off, toggle, blink, "+
+        "blink five, SOS, stop, system test, "+
+        "run diagnostics, connect, disconnect, "+
+        "play music, pause music, stop music, next song, "+
+        "previous song, play video, pause video, stop video, "+
+        "next video, previous video, fullscreen video, "+
+        "and media help."
+    );
+}
+
+
+function speakMediaHelp(){
+
+    speak(
+        "For music, say play music, pause music, "+
+        "stop music, next song, or previous song. "+
+        "For video, say play video, pause video, "+
+        "stop video, next video, previous video, "+
+        "or fullscreen video. "+
+        "You can also load a YouTube video using the YouTube player."
+    );
+}
+
+
+/* ============================================================
+   DATE / TIME
+   ============================================================ */
+
+function speakTime(){
+
+    const time=new Date().toLocaleTimeString(
+        undefined,
+        {
+            hour:"numeric",
+            minute:"2-digit"
+        }
+    );
+
+    speak(
+        userName
+            ? userName+", the current time is "+time+"."
+            : "The current time is "+time+"."
+    );
+}
+
+
+function speakDate(){
+
+    const date=new Date().toLocaleDateString(
+        undefined,
+        {
+            weekday:"long",
+            year:"numeric",
+            month:"long",
+            day:"numeric"
+        }
+    );
+
+    speak(
+        userName
+            ? userName+", today is "+date+"."
+            : "Today is "+date+"."
+    );
+}
+
+
+function speakDay(){
+
+    const day=new Date().toLocaleDateString(
+        undefined,
+        {weekday:"long"}
+    );
+
+    speak("Today is "+day+".");
+}
+
+
+function speakMonth(){
+
+    const month=new Date().toLocaleDateString(
+        undefined,
+        {month:"long"}
+    );
+
+    speak("The current month is "+month+".");
+}
+
+
+function speakYear(){
+
+    const year=new Date().toLocaleDateString(
+        undefined,
+        {year:"numeric"}
+    );
+
+    speak("The current year is "+year+".");
+}
+
+
+function speakDateTime(){
+
+    const now=new Date();
+
+    const date=now.toLocaleDateString(
+        undefined,
+        {
+            weekday:"long",
+            year:"numeric",
+            month:"long",
+            day:"numeric"
+        }
+    );
+
+    const time=now.toLocaleTimeString(
+        undefined,
+        {
+            hour:"numeric",
+            minute:"2-digit"
+        }
+    );
+
+    speak(
+        userName
+            ? userName+", it is "+time+" on "+date+"."
+            : "It is "+time+" on "+date+"."
+    );
+}
+
+
+/* ============================================================
+   MUSIC LIBRARY
+   ============================================================ */
+
+function revokeUrls(urls){
+
+    for(const url of urls){
+        try{
+            URL.revokeObjectURL(url);
+        }catch(e){}
+    }
+}
+
+
+function loadMusicFiles(files){
+
+    revokeUrls(musicUrls);
+
+    musicFiles=Array.from(files||[]);
+    musicUrls=musicFiles.map(
+        file=>URL.createObjectURL(file)
+    );
+
+    musicIndex=musicFiles.length ? 0 : -1;
+
+    renderMusicLibrary();
+
+    if(musicIndex>=0){
+        selectMusic(musicIndex,false);
+    }
+
+    log(
+        musicFiles.length+
+        " music file"+
+        (musicFiles.length===1?"":"s")+
+        " loaded."
+    );
+}
+
+
+function renderMusicLibrary(){
+
+    const library=document.getElementById(
+        "musicLibrary"
+    );
+
+    library.innerHTML="";
+
+    if(!musicFiles.length){
+
+        library.textContent="No music loaded.";
+        return;
+    }
+
+    musicFiles.forEach(
+        (file,index)=>{
+
+            const item=document.createElement("div");
+
+            item.className=
+                "library-item"+
+                (index===musicIndex ? " active":"");
+
+            item.textContent=
+                (index+1)+". "+file.name;
+
+            item.onclick=()=>{
+                selectMusic(index,true);
+            };
+
+            library.appendChild(item);
+        }
+    );
+}
+
+
+function selectMusic(index,autoPlay=true){
+
+    if(
+        index<0 ||
+        index>=musicFiles.length
+    ){
+        return;
+    }
+
+    musicIndex=index;
+
+    musicPlayer.src=musicUrls[index];
+
+    document.getElementById(
+        "musicTrack"
+    ).textContent=musicFiles[index].name;
+
+    renderMusicLibrary();
+
+    document.getElementById(
+        "mediaMode"
+    ).textContent="MUSIC";
+
+    setActivity(
+        "MUSIC: "+musicFiles[index].name
+    );
+
+    if(autoPlay){
+        musicPlayer.play().catch(()=>{});
+    }
+}
+
+
+function musicPlay(){
+
+    if(!musicFiles.length){
+
+        speak("No music is loaded. Select music files first.");
+        return;
+    }
+
+    if(musicIndex<0){
+        selectMusic(0,false);
+    }
+
+    musicPlayer.play().catch(()=>{});
+
+    setActivity("MUSIC PLAYING");
+}
+
+
+function musicPlayPause(){
+
+    if(!musicFiles.length){
+
+        speak("No music is loaded. Select music files first.");
+        return;
+    }
+
+    if(musicPlayer.paused){
+        musicPlay();
+    }else{
+        musicPlayer.pause();
+        setActivity("MUSIC PAUSED");
+    }
+}
+
+
+function musicStop(){
+
+    musicPlayer.pause();
+    musicPlayer.currentTime=0;
+
+    setActivity("MUSIC STOPPED");
+}
+
+
+function musicNext(){
+
+    if(!musicFiles.length){
+
+        speak("No music is loaded.");
+        return;
+    }
+
+    let next;
+
+    if(musicShuffle){
+
+        next=Math.floor(
+            Math.random()*musicFiles.length
+        );
+
+        if(
+            musicFiles.length>1 &&
+            next===musicIndex
+        ){
+            next=(next+1)%musicFiles.length;
+        }
+
+    }else{
+
+        next=musicIndex+1;
+
+        if(next>=musicFiles.length){
+
+            if(musicRepeat){
+                next=0;
+            }else{
+                next=0;
+            }
+        }
+    }
+
+    selectMusic(next,true);
+}
+
+
+function musicPrevious(){
+
+    if(!musicFiles.length){
+
+        speak("No music is loaded.");
+        return;
+    }
+
+    let previous=musicIndex-1;
+
+    if(previous<0){
+        previous=musicFiles.length-1;
+    }
+
+    selectMusic(previous,true);
+}
+
+
+function toggleMusicShuffle(){
+
+    musicShuffle=!musicShuffle;
+
+    document.getElementById(
+        "musicMode"
+    ).textContent=
+        musicShuffle
+            ? "SHUFFLE"
+            : "NORMAL";
+
+    log(
+        "Music shuffle "+
+        (musicShuffle?"enabled.":"disabled.")
+    );
+}
+
+
+function setMusicVolume(value){
+
+    musicPlayer.volume=parseFloat(value);
+}
+
+
+musicPlayer.addEventListener(
+    "ended",
+    ()=>{
+        if(musicRepeat || musicFiles.length>1){
+            musicNext();
+        }else{
+            setActivity("MUSIC COMPLETE");
+        }
+    }
+);
+
+
+/* ============================================================
+   VIDEO LIBRARY
+   ============================================================ */
+
+function loadVideoFiles(files){
+
+    revokeUrls(videoUrls);
+
+    videoFiles=Array.from(files||[]);
+    videoUrls=videoFiles.map(
+        file=>URL.createObjectURL(file)
+    );
+
+    videoIndex=videoFiles.length ? 0 : -1;
+
+    renderVideoLibrary();
+
+    if(videoIndex>=0){
+        selectVideo(videoIndex,false);
+    }
+
+    log(
+        videoFiles.length+
+        " video file"+
+        (videoFiles.length===1?"":"s")+
+        " loaded."
+    );
+}
+
+
+function renderVideoLibrary(){
+
+    const library=document.getElementById(
+        "videoLibrary"
+    );
+
+    library.innerHTML="";
+
+    if(!videoFiles.length){
+
+        library.textContent="No videos loaded.";
+        return;
+    }
+
+    videoFiles.forEach(
+        (file,index)=>{
+
+            const item=document.createElement("div");
+
+            item.className=
+                "library-item"+
+                (index===videoIndex ? " active":"");
+
+            item.textContent=
+                (index+1)+". "+file.name;
+
+            item.onclick=()=>{
+                selectVideo(index,true);
+            };
+
+            library.appendChild(item);
+        }
+    );
+}
+
+
+function selectVideo(index,autoPlay=true){
+
+    if(
+        index<0 ||
+        index>=videoFiles.length
+    ){
+        return;
+    }
+
+    videoIndex=index;
+
+    videoPlayer.src=videoUrls[index];
+    videoPlayer.load();
+
+    document.getElementById(
+        "videoTrack"
+    ).textContent=videoFiles[index].name;
+
+    renderVideoLibrary();
+
+    document.getElementById(
+        "mediaMode"
+    ).textContent="VIDEO";
+
+    setActivity(
+        "VIDEO: "+videoFiles[index].name
+    );
+
+    if(autoPlay){
+        videoPlayer.play().catch(()=>{});
+    }
+}
+
+
+function videoPlay(){
+
+    if(!videoFiles.length){
+
+        speak("No video is loaded. Select video files first.");
+        return;
+    }
+
+    if(videoIndex<0){
+        selectVideo(0,false);
+    }
+
+    videoPlayer.play().catch(()=>{});
+
+    setActivity("VIDEO PLAYING");
+}
+
+
+function videoPlayPause(){
+
+    if(!videoFiles.length){
+
+        speak("No video is loaded. Select video files first.");
+        return;
+    }
+
+    if(videoPlayer.paused){
+        videoPlay();
+    }else{
+        videoPlayer.pause();
+        setActivity("VIDEO PAUSED");
+    }
+}
+
+
+function videoStop(){
+
+    videoPlayer.pause();
+    videoPlayer.currentTime=0;
+
+    setActivity("VIDEO STOPPED");
+}
+
+
+function videoNext(){
+
+    if(!videoFiles.length){
+
+        speak("No videos are loaded.");
+        return;
+    }
+
+    let next;
+
+    if(videoShuffle){
+
+        next=Math.floor(
+            Math.random()*videoFiles.length
+        );
+
+        if(
+            videoFiles.length>1 &&
+            next===videoIndex
+        ){
+            next=(next+1)%videoFiles.length;
+        }
+
+    }else{
+
+        next=videoIndex+1;
+
+        if(next>=videoFiles.length){
+            next=0;
+        }
+    }
+
+    selectVideo(next,true);
+}
+
+
+function videoPrevious(){
+
+    if(!videoFiles.length){
+
+        speak("No videos are loaded.");
+        return;
+    }
+
+    let previous=videoIndex-1;
+
+    if(previous<0){
+        previous=videoFiles.length-1;
+    }
+
+    selectVideo(previous,true);
+}
+
+
+function videoFullscreen(){
+
+    if(!videoPlayer.src){
+
+        speak("No video is loaded.");
+        return;
+    }
+
+    if(videoPlayer.requestFullscreen){
+        videoPlayer.requestFullscreen();
+    }else if(videoPlayer.webkitEnterFullscreen){
+        videoPlayer.webkitEnterFullscreen();
+    }
+}
+
+
+function setVideoVolume(value){
+
+    videoPlayer.volume=parseFloat(value);
+}
+
+
+videoPlayer.addEventListener(
+    "ended",
+    ()=>{
+        if(videoFiles.length>1 || videoRepeat){
+            videoNext();
+        }else{
+            setActivity("VIDEO COMPLETE");
+        }
+    }
+);
+
+
+/* ============================================================
+   YOUTUBE
+   ============================================================ */
+
+function extractYouTubeId(value){
+
+    value=value.trim();
+
+    if(/^[a-zA-Z0-9_-]{11}$/.test(value)){
+        return value;
+    }
+
+    const patterns=[
+        /youtube\.com\/watch\?v=([^&]+)/i,
+        /youtu\.be\/([^?&]+)/i,
+        /youtube\.com\/embed\/([^?&]+)/i,
+        /youtube\.com\/shorts\/([^?&]+)/i
+    ];
+
+    for(const pattern of patterns){
+
+        const match=value.match(pattern);
+
+        if(match){
+            return match[1];
+        }
+    }
+
+    return null;
+}
+
+
+function loadYouTube(){
+
+    const input=document.getElementById(
+        "youtubeInput"
+    );
+
+    const value=input.value.trim();
+
+    if(!value){
+
+        log(
+            "Enter a YouTube URL or video ID.",
+            "error"
+        );
+
+        return;
+    }
+
+    const id=extractYouTubeId(value);
+
+    if(!id){
+
+        log(
+            "Could not identify a YouTube video ID.",
+            "error"
+        );
+
+        speak(
+            "I couldn't identify that YouTube video."
+        );
+
+        return;
+    }
+
+    const frame=document.getElementById(
+        "youtubeFrame"
+    );
+
+    frame.src=
+        "https://www.youtube.com/embed/"+
+        encodeURIComponent(id)+
+        "?enablejsapi=1&rel=0";
+
+    document.getElementById(
+        "mediaMode"
+    ).textContent="YOUTUBE";
+
+    setActivity("YOUTUBE LOADED");
+
+    log(
+        "YouTube video loaded: "+id
+    );
+}
+
+
+function youtubeCommand(action){
+
+    const frame=document.getElementById(
+        "youtubeFrame"
+    );
+
+    if(!frame.src){
+
+        speak("No YouTube video is loaded.");
+        return;
+    }
+
+    frame.contentWindow.postMessage(
+        JSON.stringify({
+            event:"command",
+            func:
+                action==="pause"
+                    ? "pauseVideo"
+                    : "stopVideo",
+            args:[]
+        }),
+        "*"
+    );
+
+    setActivity(
+        action==="pause"
+            ? "YOUTUBE PAUSED"
+            : "YOUTUBE STOPPED"
+    );
+}
+
+
+/* ============================================================
+   STARTUP
+   ============================================================ */
+
+log(
+    "================================================"
+);
+
+log(
+    "AMOMII ONE COMMAND CENTER v1.5"
+);
+
+log(
+    "VOICE + PERSONAL ASSISTANT + DIAGNOSTICS + MEDIA"
+);
+
+log(
+    "================================================"
+);
+
+log(
+    "Web Serial: "+
+    (
+        "serial" in navigator
+            ? "AVAILABLE"
+            : "NOT AVAILABLE"
+    )
+);
+
+log(
+    "Voice recognition: "+
+    (
+        (
+            "SpeechRecognition" in window ||
+            "webkitSpeechRecognition" in window
+        )
+            ? "AVAILABLE"
+            : "NOT AVAILABLE"
+    )
+);
+
+log(
+    "Voice synthesis: "+
+    (
+        "speechSynthesis" in window
+            ? "AVAILABLE"
+            : "NOT AVAILABLE"
+    )
+);
+
+log("Music library: READY");
+log("Video library: READY");
+log("YouTube player: READY");
+log("Personal assistant: READY");
+log("System diagnostics: READY");
+log("AMOMII ONE READY.");
+
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+
+initializeVoice();
+
+musicPlayer.volume=.8;
+videoPlayer.volume=.8;
+
+
+if("speechSynthesis" in window){
+
+    speechSynthesis.onvoiceschanged=()=>{
+        speechSynthesis.getVoices();
+    };
+}
+
+
+/* ============================================================
+   CLEANUP
+   ============================================================ */
+
+window.addEventListener(
+    "beforeunload",
+    ()=>{
+        revokeUrls(musicUrls);
+        revokeUrls(videoUrls);
+
+        try{
+            if(reader) reader.cancel();
+        }catch(e){}
+
+        try{
+            if(writer) writer.releaseLock();
+        }catch(e){}
+    }
+);
+
+</script>
+
+</body>
+</html>
