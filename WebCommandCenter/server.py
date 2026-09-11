@@ -18,7 +18,7 @@ server = ThreadingHTTPServer(
 
 print()
 print("========================================")
-print("       AMOMII WEB COMMAND CENTER")
+print("       DANGERUSS WEB COMMAND CENTER")
 print("========================================")
 print()
 print(f"Server: http://{HOST}:{PORT}")
