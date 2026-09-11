@@ -3,4163 +3,5861 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DANGERUSS VOICE Command Center v1.5</title>
+
+<title>Command Center</title>
 
 <style>
-*{box-sizing:border-box}
-
 :root{
-    --bg:#030605;
-    --panel:#07100a;
-    --panel2:#09150c;
-    --line:#193d24;
-    --line2:#285936;
-    --green:#52f27b;
-    --green2:#9affad;
-    --dim:#668b70;
-    --blue:#62c9ff;
-    --yellow:#ffe27d;
-    --red:#ff6666;
-    --purple:#c58cff;
+  --bg:#05080c;
+  --panel:#0b1118;
+  --panel2:#0e1620;
+  --border:#1b2a38;
+  --text:#dce7f0;
+  --muted:#718392;
+  --green:#38ff88;
+  --cyan:#27d7ff;
+  --yellow:#ffd84d;
+  --red:#ff5364;
+  --purple:#b77cff;
+  --orange:#ff9d45;
+  --shadow:0 0 30px rgba(0,0,0,.45);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  background:
+    radial-gradient(circle at top left,rgba(39,215,255,.06),transparent 30%),
+    radial-gradient(circle at top right,rgba(56,255,136,.04),transparent 25%),
+    var(--bg);
+  color:var(--text);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 body{
-    margin:0;
-    min-height:100vh;
-    background:
-        radial-gradient(circle at 50% -20%,#12351d 0%,transparent 35%),
-        linear-gradient(180deg,#020403,#050907 55%,#020403);
-    color:#d8ffe0;
-    font-family:"Courier New",monospace;
-    overflow-x:hidden;
+  min-height:100vh;
 }
 
-body:before{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    opacity:.035;
-    background:repeating-linear-gradient(
-        0deg,
-        transparent 0px,
-        transparent 2px,
-        #fff 3px
-    );
-}
-
-button,input{
-    font:inherit;
-}
-
-header{
-    min-height:78px;
-    padding:14px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    background:rgba(5,13,8,.94);
-    border-bottom:1px solid var(--line);
-    box-shadow:0 0 30px rgba(50,255,100,.06);
-}
-
-.logo{
-    font-size:24px;
-    font-weight:bold;
-    letter-spacing:4px;
-    color:#dfffe4;
-    text-shadow:0 0 12px rgba(82,242,123,.45);
-}
-
-.subtitle{
-    color:var(--dim);
-    font-size:11px;
-    margin-top:4px;
-    letter-spacing:1px;
-}
-
-.header-right{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-    gap:14px;
-}
-
-.status-light{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    font-size:11px;
-    color:#9ebca5;
-}
-
-.dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    background:#444;
-    box-shadow:0 0 7px #222;
-}
-
-.dot.online{
-    background:var(--green);
-    box-shadow:0 0 14px var(--green);
-}
-
-.dot.voice{
-    background:var(--yellow);
-    box-shadow:0 0 14px var(--yellow);
-}
-
-.dot.speaking{
-    background:var(--blue);
-    box-shadow:0 0 14px var(--blue);
-}
-
-main{
-    display:grid;
-    grid-template-columns:225px minmax(450px,1fr) 320px;
-    min-height:calc(100vh - 78px);
-}
-
-.panel{
-    padding:14px;
-    border-right:1px solid var(--line);
-    background:rgba(4,10,6,.72);
-}
-
-.panel:last-child{
-    border-left:1px solid var(--line);
-    border-right:none;
-}
-
-.panel-title{
-    color:#6fe68b;
-    font-size:11px;
-    letter-spacing:2px;
-    margin:5px 0 10px;
-    padding-bottom:8px;
-    border-bottom:1px solid var(--line);
+button,
+input,
+select,
+textarea{
+  font:inherit;
 }
 
 button{
-    width:100%;
-    margin-bottom:7px;
-    padding:9px;
-    background:linear-gradient(180deg,#0a170d,#071009);
-    color:#bfffc8;
-    border:1px solid #285536;
-    border-radius:5px;
-    cursor:pointer;
-    transition:.15s;
+  cursor:pointer;
 }
 
-button:hover{
-    background:#102217;
-    border-color:#4b9b5c;
-    box-shadow:0 0 12px rgba(82,242,123,.08);
+.app{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-button:active{
-    transform:translateY(1px);
+/* =========================
+   HEADER
+========================= */
+
+header{
+  height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 22px;
+  border-bottom:1px solid var(--border);
+  background:rgba(5,8,12,.94);
+  backdrop-filter:blur(12px);
+  position:sticky;
+  top:0;
+  z-index:20;
 }
 
-button:disabled{
-    opacity:.4;
-    cursor:not-allowed;
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
 }
 
-button.primary{
-    color:#a9eaff;
-    border-color:#347286;
+.brand-mark{
+  width:42px;
+  height:42px;
+  border:1px solid var(--cyan);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--cyan);
+  font-weight:900;
+  box-shadow:0 0 18px rgba(39,215,255,.18);
 }
 
-button.voice{
-    color:var(--yellow);
-    border-color:#75652e;
+.brand h1{
+  margin:0;
+  font-size:20px;
+  letter-spacing:2px;
 }
 
-button.danger{
-    color:#ffaaaa;
-    border-color:#713838;
+.brand small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:2px;
+  margin-top:3px;
 }
 
-button.media{
-    color:#d0aaff;
-    border-color:#5b4380;
+.header-status{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  font-size:12px;
 }
+
+.status-item{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--muted);
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--red);
+  box-shadow:0 0 8px currentColor;
+}
+
+.dot.ok{
+  background:var(--green);
+  color:var(--green);
+}
+
+.dot.cyan{
+  background:var(--cyan);
+  color:var(--cyan);
+}
+
+.dot.warn{
+  background:var(--yellow);
+  color:var(--yellow);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+  flex:1;
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr) 330px;
+  gap:14px;
+  padding:14px;
+}
+
+.column{
+  min-width:0;
+}
+
+.panel{
+  background:linear-gradient(
+    180deg,
+    rgba(14,22,32,.96),
+    rgba(8,13,19,.96)
+  );
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.panel + .panel{
+  margin-top:14px;
+}
+
+.panel-title{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 13px;
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.015);
+}
+
+.panel-title strong{
+  font-size:11px;
+  letter-spacing:1.7px;
+  color:#b9c8d5;
+}
+
+.panel-body{
+  padding:13px;
+}
+
+.section-label{
+  font-size:9px;
+  letter-spacing:1.7px;
+  color:var(--muted);
+  margin:15px 0 8px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+
+.btn{
+  border:1px solid var(--border);
+  background:#0a1118;
+  color:var(--text);
+  padding:9px 8px;
+  border-radius:7px;
+  font-size:10px;
+  letter-spacing:.7px;
+  transition:.15s;
+}
+
+.btn:hover{
+  border-color:#315064;
+  transform:translateY(-1px);
+}
+
+.btn.primary{
+  border-color:rgba(39,215,255,.45);
+  color:var(--cyan);
+}
+
+.btn.green{
+  border-color:rgba(56,255,136,.35);
+  color:var(--green);
+}
+
+.btn.yellow{
+  border-color:rgba(255,216,77,.35);
+  color:var(--yellow);
+}
+
+.btn.red{
+  border-color:rgba(255,83,100,.35);
+  color:var(--red);
+}
+
+.btn.purple{
+  border-color:rgba(183,124,255,.35);
+  color:var(--purple);
+}
+
+.btn.full{
+  width:100%;
+  margin-top:7px;
+}
+
+/* =========================
+   CENTER TABS
+========================= */
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  padding:9px;
+  border-bottom:1px solid var(--border);
+}
+
+.tab{
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--muted);
+  padding:7px 11px;
+  border-radius:6px;
+  font-size:10px;
+  letter-spacing:1px;
+}
+
+.tab:hover{
+  color:var(--text);
+}
+
+.tab.active{
+  color:var(--cyan);
+  border-color:rgba(39,215,255,.3);
+  background:rgba(39,215,255,.05);
+}
+
+.tab-content{
+  display:none;
+  padding:14px;
+}
+
+.tab-content.active{
+  display:block;
+}
+
+/* =========================
+   CONSOLE
+========================= */
 
 .console{
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-}
-
-.console-output{
-    height:340px;
-    overflow-y:auto;
-    padding:16px;
-    white-space:pre-wrap;
-    font-size:12px;
-    line-height:1.5;
-    border-bottom:1px solid var(--line);
+  height:390px;
+  overflow:auto;
+  background:#030608;
+  border:1px solid #12202a;
+  border-radius:8px;
+  padding:12px;
+  font-family:
+    "Cascadia Code",
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+  font-size:11px;
+  line-height:1.55;
+  white-space:pre-wrap;
 }
 
 .log-line{
-    margin-bottom:3px;
+  margin:0;
 }
 
 .log-time{
-    color:#416149;
+  color:#4f6473;
 }
 
-.log-info{color:#91c99c}
-.log-command{color:var(--blue)}
-.log-voice{color:var(--yellow)}
-.log-speech{color:#87b8ff}
-.log-error{color:#ff7777}
-
-.input-area{
-    padding:10px;
-    display:flex;
-    gap:7px;
-    border-bottom:1px solid var(--line);
+.log-system{
+  color:var(--cyan);
 }
 
-.input-area input{
-    flex:1;
-    min-width:0;
-    background:#020604;
-    color:#d7f9df;
-    border:1px solid #2c5b38;
-    padding:10px;
-    outline:none;
+.log-success{
+  color:var(--green);
 }
 
-.input-area input:focus{
-    border-color:#64c97a;
-    box-shadow:0 0 10px rgba(82,242,123,.08);
+.log-warning{
+  color:var(--yellow);
 }
 
-.input-area button{
-    width:90px;
-    margin:0;
+.log-error{
+  color:var(--red);
 }
 
-/* MEDIA */
-
-.media-center{
-    padding:12px;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg,rgba(9,21,12,.95),rgba(4,10,6,.9));
+.serial-input{
+  display:flex;
+  gap:7px;
+  margin-top:9px;
 }
 
-.media-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:9px;
+input,
+textarea,
+select{
+  width:100%;
+  background:#050a0f;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:9px 10px;
+  outline:none;
 }
 
-.media-title{
-    color:#8cffaa;
-    letter-spacing:2px;
-    font-size:12px;
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#315064;
 }
 
-.media-mode{
-    color:#567a60;
-    font-size:10px;
+.serial-input button{
+  min-width:90px;
 }
 
-.media-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
+/* =========================
+   STATUS
+========================= */
+
+.status-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
 }
 
-.media-box{
-    border:1px solid var(--line2);
-    background:#040a06;
-    padding:10px;
-    min-width:0;
+.status-box{
+  background:#070d13;
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:9px;
 }
 
-.media-box h3{
-    margin:0 0 8px;
-    font-size:11px;
-    letter-spacing:1px;
-    color:#78e792;
+.status-box label{
+  display:block;
+  color:var(--muted);
+  font-size:8px;
+  letter-spacing:1.2px;
+  margin-bottom:4px;
 }
 
-.file-row{
-    display:flex;
-    gap:6px;
+.status-box span{
+  font-size:11px;
+  color:var(--text);
 }
 
-.file-row input[type=file]{
-    width:100%;
-    color:#91af97;
-    font-size:10px;
+.value-green{
+  color:var(--green)!important;
 }
 
-.library{
-    height:82px;
-    overflow:auto;
-    border:1px solid #183722;
-    margin-top:8px;
-    padding:5px;
-    font-size:10px;
+.value-cyan{
+  color:var(--cyan)!important;
 }
 
-.library-item{
-    padding:5px;
-    border-bottom:1px solid #102519;
-    cursor:pointer;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+.value-yellow{
+  color:var(--yellow)!important;
 }
 
-.library-item:hover{
-    background:#0c1d11;
+.value-red{
+  color:var(--red)!important;
 }
 
-.library-item.active{
-    color:var(--green);
-    background:#0d2113;
+/* =========================
+   ASSISTANT CARD
+========================= */
+
+.assistant-card{
+  padding:14px;
+  background:
+    radial-gradient(circle at top right,rgba(183,124,255,.12),transparent 50%),
+    #070c12;
+  border:1px solid var(--border);
+  border-radius:9px;
+}
+
+.avatar{
+  width:52px;
+  height:52px;
+  border-radius:12px;
+  border:1px solid var(--purple);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--purple);
+  font-weight:900;
+  font-size:18px;
+  margin-bottom:10px;
+}
+
+.assistant-name{
+  font-size:16px;
+  font-weight:800;
+  letter-spacing:1px;
+}
+
+.assistant-role{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.profile-row{
+  margin-top:13px;
+  padding-top:10px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+}
+
+.profile-row span:first-child{
+  color:var(--muted);
+}
+
+/* =========================
+   DIAGNOSTICS
+========================= */
+
+.diag-row{
+  display:grid;
+  grid-template-columns:1fr 70px;
+  align-items:center;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:10px;
+}
+
+.diag-state{
+  text-align:right;
+  font-weight:700;
+}
+
+.pass{
+  color:var(--green);
+}
+
+.fail{
+  color:var(--red);
+}
+
+.testing{
+  color:var(--yellow);
+}
+
+.unknown{
+  color:var(--muted);
+}
+
+.result-banner{
+  margin-top:10px;
+  padding:9px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  text-align:center;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1.5px;
+}
+
+/* =========================
+   MEDIA
+========================= */
+
+.media-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:12px;
+}
+
+.media-toolbar .btn{
+  flex:1;
+  min-width:100px;
+}
+
+.media-player{
+  width:100%;
+  background:#000;
+  border:1px solid var(--border);
+  border-radius:8px;
+  min-height:80px;
+}
+
+video.media-player{
+  max-height:360px;
 }
 
 .media-controls{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:5px;
-    margin-top:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:9px;
 }
 
-.media-controls button{
-    padding:7px 3px;
-    margin:0;
-    font-size:10px;
+.media-controls .btn{
+  min-width:65px;
 }
 
-.media-meta{
-    display:flex;
-    justify-content:space-between;
-    gap:5px;
-    margin-top:7px;
-    font-size:10px;
-    color:#709478;
+.volume{
+  width:120px;
 }
 
-.volume-row{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    margin-top:7px;
+.library{
+  margin-top:12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  max-height:180px;
+  overflow:auto;
 }
 
-.volume-row span{
-    font-size:10px;
-    color:#65836c;
+.library-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:10px;
 }
 
-.volume-row input{
-    flex:1;
+.library-item:last-child{
+  border-bottom:none;
 }
 
-.youtube-box{
-    margin-top:10px;
-    border:1px solid #49376a;
-    background:#08060d;
-    padding:10px;
+.library-item.active{
+  color:var(--cyan);
+  background:rgba(39,215,255,.05);
 }
 
-.youtube-input{
-    display:flex;
-    gap:6px;
-}
-
-.youtube-input input{
-    flex:1;
-    min-width:0;
-    background:#030205;
-    color:#ddd;
-    border:1px solid #4d3c69;
-    padding:9px;
-    outline:none;
-}
-
-.youtube-input button{
-    width:95px;
-    margin:0;
+.library-item button{
+  border:0;
+  background:none;
+  color:var(--muted);
 }
 
 .youtube-frame{
-    width:100%;
-    aspect-ratio:16/9;
-    border:1px solid #30223f;
-    margin-top:8px;
-    background:#000;
+  width:100%;
+  aspect-ratio:16/9;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#000;
 }
 
-.youtube-frame iframe{
-    width:100%;
-    height:100%;
-    border:0;
+/* =========================
+   TASKS / CALENDAR
+========================= */
+
+.item-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
 }
 
-/* STATUS */
-
-.status-card,
-.activity,
-.voice-box,
-.profile-card,
-.diagnostic-card,
-.morse-box{
-    background:linear-gradient(180deg,#08120b,#050b07);
-    border:1px solid var(--line);
-    padding:10px;
-    margin-bottom:10px;
+.todo-item,
+.reminder-item,
+.calendar-item,
+.knowledge-item{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:10px;
+  border:1px solid var(--border);
+  background:#070d13;
+  border-radius:8px;
 }
 
-.status-row{
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-    padding:6px 0;
-    border-bottom:1px solid #12261a;
-    font-size:11px;
+.todo-item input[type="checkbox"]{
+  width:auto;
+  margin-top:2px;
 }
 
-.status-row:last-child{
-    border-bottom:none;
+.item-main{
+  flex:1;
+  min-width:0;
 }
 
-.status-label{
-    color:#618068;
+.item-title{
+  font-size:11px;
+  font-weight:700;
 }
 
-.status-value{
-    color:#d8ffdf;
-    text-align:right;
+.item-meta{
+  color:var(--muted);
+  font-size:9px;
+  margin-top:3px;
 }
 
-.activity-value{
-    color:#8feaa0;
-    margin-top:5px;
-    font-size:11px;
+.delete-btn{
+  border:0;
+  background:none;
+  color:var(--red);
+  font-size:13px;
 }
+
+.completed .item-title{
+  text-decoration:line-through;
+  color:var(--muted);
+}
+
+.add-row{
+  display:flex;
+  gap:7px;
+  margin-bottom:12px;
+}
+
+.add-row input{
+  flex:1;
+}
+
+.add-row button{
+  min-width:80px;
+}
+
+/* =========================
+   KNOWLEDGE
+========================= */
+
+.knowledge-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.knowledge-item{
+  flex-direction:column;
+  min-height:100px;
+}
+
+.knowledge-icon{
+  font-size:19px;
+}
+
+.knowledge-item strong{
+  font-size:11px;
+}
+
+.knowledge-item span{
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.4;
+}
+
+/* =========================
+   VOICE
+========================= */
 
 .voice-box{
-    border-color:#554a20;
-    background:#0d0b05;
-    font-size:10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:11px;
+  background:#070d13;
 }
 
-#lastHeard{
-    margin-top:5px;
-    color:#f5dc82;
-    word-break:break-word;
+.voice-last{
+  color:var(--cyan);
+  font-size:11px;
+  min-height:17px;
 }
 
-.profile-card{
-    border-color:#305a3a;
-}
-
-.profile-name{
-    color:var(--green);
-    font-size:18px;
-    margin-top:5px;
-}
-
-.profile-small{
-    color:#698970;
-    font-size:10px;
-    margin-top:4px;
-}
-
-.diagnostic-card{
-    border-color:#314c3a;
-}
-
-.test-row{
-    display:grid;
-    grid-template-columns:1fr 65px;
-    gap:5px;
-    padding:5px 0;
-    border-bottom:1px solid #12261a;
-    font-size:10px;
-}
-
-.test-result{
-    text-align:right;
-}
-
-.test-ok{color:var(--green)}
-.test-fail{color:var(--red)}
-.test-testing{color:var(--yellow)}
-.test-waiting{color:#607565}
-
-.result-pass{
-    color:var(--green);
-    text-shadow:0 0 8px rgba(82,242,123,.3);
-}
-
-.result-fail{color:var(--red)}
-
-.morse-box{
-    border-color:#304e5d;
-    background:#061016;
-    font-size:10px;
+.voice-state{
+  margin-top:7px;
+  font-size:9px;
+  color:var(--muted);
 }
 
 .command-list{
-    max-height:180px;
-    overflow-y:auto;
-    font-size:10px;
+  columns:2;
+  column-gap:20px;
+  font-size:9px;
+  line-height:1.7;
+  color:var(--muted);
 }
 
-.command-item{
-    border-bottom:1px solid #12261a;
-    padding:5px 0;
+.command-list div{
+  break-inside:avoid;
 }
 
-.command-item .time{color:#416149}
-.command-item .type{color:#72c5ff}
+/* =========================
+   MODAL
+========================= */
 
-.small-button{
-    padding:6px;
-    font-size:10px;
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:20px;
 }
+
+.modal.show{
+  display:flex;
+}
+
+.modal-card{
+  width:min(500px,100%);
+  background:#0b1118;
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 20px 80px rgba(0,0,0,.7);
+}
+
+.modal-header{
+  padding:13px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+}
+
+.modal-body{
+  padding:14px;
+}
+
+.modal-footer{
+  padding:12px 14px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media(max-width:1100px){
-    main{
-        grid-template-columns:210px 1fr;
-    }
+  .main{
+    grid-template-columns:210px minmax(0,1fr);
+  }
 
-    main>.panel:last-child{
-        grid-column:1/-1;
-        border-left:none;
-        border-top:1px solid var(--line);
-        display:grid;
-        grid-template-columns:repeat(2,1fr);
-        gap:10px;
-    }
+  .right-column{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
 
-    main>.panel:last-child>.panel-title{
-        grid-column:1/-1;
-    }
+  .right-column .panel{
+    margin-top:0;
+  }
 }
 
-@media(max-width:750px){
-    main{
-        display:block;
-    }
+@media(max-width:800px){
+  header{
+    height:auto;
+    min-height:70px;
+    padding:10px 14px;
+    gap:10px;
+  }
 
-    .panel{
-        border-right:none;
-        border-bottom:1px solid var(--line);
-    }
+  .header-status{
+    display:none;
+  }
 
-    main>.panel:last-child{
-        display:block;
-    }
+  .main{
+    grid-template-columns:1fr;
+  }
 
-    .media-grid{
-        grid-template-columns:1fr;
-    }
+  .right-column{
+    display:block;
+  }
 
-    .header-right{
-        display:none;
-    }
+  .right-column .panel{
+    margin-top:14px;
+  }
+
+  .knowledge-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:500px){
+  .main{
+    padding:8px;
+  }
+
+  .console{
+    height:320px;
+  }
+
+  .command-list{
+    columns:1;
+  }
+
+  .btn-grid{
+    grid-template-columns:1fr 1fr;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <header>
+
+  <div class="brand">
+    <div class="brand-mark">CC</div>
+
     <div>
-        <div class="logo">DANGERUSS VOICE</div>
-        <div class="subtitle">COMMAND CENTER • VOICE • SERIAL • MEDIA • DIAGNOSTICS</div>
+      <h1>COMMAND CENTER</h1>
+      <small>AMOMII ONE CONTROL SYSTEM</small>
+    </div>
+  </div>
+
+  <div class="header-status">
+
+    <div class="status-item">
+      <span id="boardDot" class="dot"></span>
+      <span id="boardHeaderStatus">AMOMII OFFLINE</span>
     </div>
 
-    <div class="header-right">
-        <div class="status-light">
-            <span id="connectionDot" class="dot"></span>
-            <span id="connectionText">DISCONNECTED</span>
-        </div>
-
-        <div class="status-light">
-            <span id="voiceDot" class="dot"></span>
-            <span id="voiceText">VOICE OFF</span>
-        </div>
+    <div class="status-item">
+      <span id="trainerDot" class="dot"></span>
+      <span id="trainerHeaderStatus">TRAINER OFFLINE</span>
     </div>
+
+    <div class="status-item">
+      <span id="voiceDot" class="dot"></span>
+      <span id="voiceHeaderStatus">VOICE OFF</span>
+    </div>
+
+  </div>
+
 </header>
 
-<main>
 
-<!-- LEFT -->
+<div class="main">
 
-<section class="panel">
+<!-- =========================================================
+     LEFT COLUMN
+========================================================= -->
 
-<div class="panel-title">CONTROL</div>
+<div class="column left-column">
 
-<button class="primary" onclick="connectSerial()">CONNECT</button>
-<button onclick="disconnectSerial()">DISCONNECT</button>
-<button onclick="requestStatus()">STATUS</button>
-<button onclick="runSystemTest()">SYSTEM TEST</button>
-<button onclick="showHelp()">HELP</button>
+  <div class="panel">
 
-<br>
+    <div class="panel-title">
+      <strong>AMOMII ONE</strong>
+      <span class="dot" id="boardPanelDot"></span>
+    </div>
 
-<div class="panel-title">LED</div>
+    <div class="panel-body">
 
-<button onclick="sendCommand('on')">LED ON</button>
-<button onclick="sendCommand('off')">LED OFF</button>
-<button onclick="sendCommand('toggle')">TOGGLE</button>
-<button onclick="sendCommand('blink')">BLINK</button>
-<button onclick="sendCommand('blink 5')">BLINK 5</button>
-<button class="danger" onclick="sendCommand('sos')">SOS</button>
-<button onclick="sendCommand('stop')">STOP</button>
+      <div class="btn-grid">
 
-<br>
+        <button class="btn primary" onclick="connectBoard()">
+          CONNECT
+        </button>
 
-<div class="panel-title">VOICE</div>
+        <button class="btn red" onclick="disconnectBoard()">
+          DISCONNECT
+        </button>
 
-<button id="voiceButton" class="voice" onclick="toggleVoice()">
-START VOICE
-</button>
+      </div>
 
-<button onclick="speakHelp()">SPEAK HELP</button>
-<button onclick="speakAllCommands()">SPEAK COMMANDS</button>
+      <div class="section-label">SYSTEM</div>
 
-</section>
+      <div class="btn-grid">
 
+        <button class="btn" onclick="sendBoardCommand('status')">
+          STATUS
+        </button>
 
-<!-- CENTER -->
+        <button class="btn yellow" onclick="runSystemTest()">
+          SYSTEM TEST
+        </button>
 
-<section class="console">
+        <button class="btn" onclick="showHelp()">
+          HELP
+        </button>
 
-<div id="consoleOutput" class="console-output"></div>
+        <button class="btn purple" onclick="openAssistantSettings()">
+          ASSISTANT
+        </button>
 
-<div class="input-area">
-<input
-id="commandInput"
-placeholder="Enter serial command..."
-autocomplete="off">
-<button onclick="sendManualCommand()">SEND</button>
-</div>
+      </div>
 
+      <div class="section-label">LED CONTROL</div>
 
-<!-- MEDIA CENTER -->
+      <div class="btn-grid">
 
-<div class="media-center">
+        <button class="btn green" onclick="sendBoardCommand('led on')">
+          LED ON
+        </button>
 
-<div class="media-header">
-<div class="media-title">MEDIA CENTER</div>
-<div id="mediaMode" class="media-mode">READY</div>
-</div>
+        <button class="btn red" onclick="sendBoardCommand('led off')">
+          LED OFF
+        </button>
 
-<div class="media-grid">
+        <button class="btn yellow" onclick="sendBoardCommand('toggle')">
+          TOGGLE
+        </button>
 
-<!-- MUSIC -->
+        <button class="btn yellow" onclick="sendBoardCommand('blink 5')">
+          BLINK 5
+        </button>
 
-<div class="media-box">
+        <button class="btn purple" onclick="sendBoardCommand('sos')">
+          SOS
+        </button>
 
-<h3>♪ MUSIC LIBRARY</h3>
+        <button class="btn red" onclick="sendBoardCommand('stop')">
+          STOP
+        </button>
 
-<div class="file-row">
-<input
-id="musicFiles"
-type="file"
-accept="audio/*"
-multiple
-onchange="loadMusicFiles(this.files)">
-</div>
+      </div>
 
-<div id="musicLibrary" class="library">
-No music loaded.
-</div>
+      <div class="section-label">VOICE</div>
 
-<audio id="musicPlayer" preload="metadata"></audio>
+      <button
+        class="btn green full"
+        id="voiceButton"
+        onclick="toggleVoice()">
+        START VOICE
+      </button>
 
-<div class="media-controls">
-<button onclick="musicPrevious()">◀◀</button>
-<button onclick="musicPlayPause()">PLAY</button>
-<button onclick="musicStop()">STOP</button>
-<button onclick="musicNext()">▶▶</button>
-<button onclick="toggleMusicShuffle()">SHUF</button>
-</div>
+      <button
+        class="btn full"
+        onclick="speakHelp()">
+        SPEAK COMMANDS
+      </button>
 
-<div class="media-meta">
-<span id="musicTrack">No track</span>
-<span id="musicMode">NORMAL</span>
-</div>
+    </div>
 
-<div class="volume-row">
-<span>VOL</span>
-<input
-id="musicVolume"
-type="range"
-min="0"
-max="1"
-step=".01"
-value=".8"
-oninput="setMusicVolume(this.value)">
-</div>
-
-</div>
+  </div>
 
 
-<!-- VIDEO -->
+  <div class="panel">
 
-<div class="media-box">
+    <div class="panel-title">
+      <strong>TRAINER</strong>
+      <span class="dot" id="trainerPanelDot"></span>
+    </div>
 
-<h3>▶ VIDEO LIBRARY</h3>
+    <div class="panel-body">
 
-<div class="file-row">
-<input
-id="videoFiles"
-type="file"
-accept="video/*"
-multiple
-onchange="loadVideoFiles(this.files)">
-</div>
+      <div class="btn-grid">
 
-<div id="videoLibrary" class="library">
-No videos loaded.
-</div>
+        <button class="btn primary" onclick="connectTrainer()">
+          CONNECT
+        </button>
 
-<video
-id="videoPlayer"
-controls
-preload="metadata"
-style="width:100%;margin-top:8px;background:#000;max-height:160px;">
-</video>
+        <button class="btn red" onclick="disconnectTrainer()">
+          DISCONNECT
+        </button>
 
-<div class="media-controls">
-<button onclick="videoPrevious()">◀◀</button>
-<button onclick="videoPlayPause()">PLAY</button>
-<button onclick="videoStop()">STOP</button>
-<button onclick="videoNext()">▶▶</button>
-<button onclick="videoFullscreen()">FULL</button>
-</div>
+      </div>
 
-<div class="media-meta">
-<span id="videoTrack">No video</span>
-<span id="videoMode">NORMAL</span>
-</div>
+      <div class="section-label">TRAINER COMMAND</div>
 
-<div class="volume-row">
-<span>VOL</span>
-<input
-id="videoVolume"
-type="range"
-min="0"
-max="1"
-step=".01"
-value=".8"
-oninput="setVideoVolume(this.value)">
-</div>
+      <input
+        id="trainerCommand"
+        placeholder="Trainer serial command">
 
-</div>
+      <button
+        class="btn purple full"
+        onclick="sendTrainerCommand()">
+        SEND TO TRAINER
+      </button>
 
-</div>
+      <div class="item-meta" style="margin-top:10px">
+        Trainer communication is isolated from AMOMII ONE.
+      </div>
+
+    </div>
+
+  </div>
 
 
-<!-- YOUTUBE -->
+  <div class="panel">
 
-<div class="youtube-box">
+    <div class="panel-title">
+      <strong>PROFILE</strong>
+    </div>
 
-<div class="panel-title" style="margin-top:0">
-YOUTUBE PLAYER
-</div>
+    <div class="panel-body">
 
-<div class="youtube-input">
-<input
-id="youtubeInput"
-placeholder="Paste YouTube URL or video ID...">
-<button class="media" onclick="loadYouTube()">LOAD</button>
-</div>
+      <div class="assistant-card">
 
-<div class="youtube-frame">
-<iframe
-id="youtubeFrame"
-allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-allowfullscreen>
-</iframe>
-</div>
+        <div class="avatar" id="assistantAvatar">
+          A
+        </div>
 
-</div>
+        <div class="assistant-name" id="assistantNameDisplay">
+          Assistant
+        </div>
 
-</div>
+        <div class="assistant-role">
+          Command Center Voice Assistant
+        </div>
 
-</section>
+        <div class="profile-row">
+          <span>User</span>
+          <span id="userNameDisplay">Not set</span>
+        </div>
 
+        <div class="profile-row">
+          <span>Voice</span>
+          <span id="profileVoiceState">OFF</span>
+        </div>
 
-<!-- RIGHT -->
+      </div>
 
-<section class="panel">
+    </div>
 
-<div class="panel-title">ASSISTANT</div>
-
-<div class="profile-card">
-
-<div class="status-label">USER PROFILE</div>
-
-<div id="profileName" class="profile-name">
-UNKNOWN
-</div>
-
-<div class="profile-small">
-Assistant: AMOMII
-</div>
-
-<div class="profile-small">
-Voice: <span id="profileVoice">OFFLINE</span>
-</div>
+  </div>
 
 </div>
 
 
-<div class="activity">
+<!-- =========================================================
+     CENTER COLUMN
+========================================================= -->
 
-<div class="status-label">ACTIVITY</div>
+<div class="column center-column">
 
-<div id="activityValue" class="activity-value">
-IDLE
+  <div class="panel">
+
+    <div class="tabs">
+
+      <button class="tab active" onclick="switchTab('console',this)">
+        CONSOLE
+      </button>
+
+      <button class="tab" onclick="switchTab('knowledge',this)">
+        KNOWLEDGE
+      </button>
+
+      <button class="tab" onclick="switchTab('tasks',this)">
+        TASKS
+      </button>
+
+      <button class="tab" onclick="switchTab('calendar',this)">
+        CALENDAR
+      </button>
+
+      <button class="tab" onclick="switchTab('reminders',this)">
+        REMINDERS
+      </button>
+
+      <button class="tab" onclick="switchTab('media',this)">
+        MEDIA
+      </button>
+
+    </div>
+
+
+    <!-- ================= CONSOLE ================= -->
+
+    <div class="tab-content active" id="tab-console">
+
+      <div class="panel-title" style="margin:-14px -14px 14px">
+        <strong>SERIAL CONSOLE</strong>
+
+        <span id="consoleTarget">
+          AMOMII ONE
+        </span>
+      </div>
+
+      <div
+        class="console"
+        id="console"></div>
+
+      <div class="serial-input">
+
+        <input
+          id="serialCommand"
+          placeholder="Enter AMOMII ONE command..."
+          autocomplete="off">
+
+        <button
+          class="btn primary"
+          onclick="sendManualCommand()">
+          SEND
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= KNOWLEDGE ================= -->
+
+    <div class="tab-content" id="tab-knowledge">
+
+      <div class="panel-title" style="margin:-14px -14px 14px">
+        <strong>KNOWLEDGE CENTER</strong>
+      </div>
+
+      <p class="item-meta">
+        Expandable knowledge modules for the assistant.
+        Each module can later contain documents, procedures,
+        commands, reference data and specialized training.
+      </p>
+
+      <div class="knowledge-grid">
+
+        <div class="knowledge-item">
+          <div class="knowledge-icon">⚡</div>
+          <strong>Residential Electrical</strong>
+          <span>
+            Circuits, breakers, panels, receptacles,
+            switches, troubleshooting and reference material.
+          </span>
+        </div>
+
+        <div class="knowledge-item">
+          <div class="knowledge-icon">🤖</div>
+          <strong>AMOMII ONE</strong>
+          <span>
+            Board commands, hardware behavior,
+            serial protocol and system diagnostics.
+          </span>
+        </div>
+
+        <div class="knowledge-item">
+          <div class="knowledge-icon">🎓</div>
+          <strong>Trainer</strong>
+          <span>
+            Dedicated trainer-board knowledge and
+            training workflows.
+          </span>
+        </div>
+
+        <div class="knowledge-item">
+          <div class="knowledge-icon">🔧</div>
+          <strong>Tools & Procedures</strong>
+          <span>
+            Future workspace for procedures,
+            checklists and equipment reference.
+          </span>
+        </div>
+
+        <div class="knowledge-item">
+          <div class="knowledge-icon">📚</div>
+          <strong>Documents</strong>
+          <span>
+            Future document library for manuals,
+            notes and imported reference material.
+          </span>
+        </div>
+
+        <div class="knowledge-item">
+          <div class="knowledge-icon">🧠</div>
+          <strong>Assistant Knowledge</strong>
+          <span>
+            Future custom knowledge and behavioral
+            instructions for the assistant.
+          </span>
+        </div>
+
+      </div>
+
+      <button
+        class="btn primary full"
+        onclick="speakText('The Knowledge Center is ready for expansion.')">
+        SPEAK KNOWLEDGE STATUS
+      </button>
+
+    </div>
+
+
+    <!-- ================= TASKS ================= -->
+
+    <div class="tab-content" id="tab-tasks">
+
+      <div class="panel-title" style="margin:-14px -14px 14px">
+        <strong>TASKS / TO-DO</strong>
+      </div>
+
+      <div class="add-row">
+
+        <input
+          id="taskInput"
+          placeholder="Add a task...">
+
+        <button
+          class="btn green"
+          onclick="addTask()">
+          ADD
+        </button>
+
+      </div>
+
+      <div
+        class="item-list"
+        id="taskList"></div>
+
+    </div>
+
+
+    <!-- ================= CALENDAR ================= -->
+
+    <div class="tab-content" id="tab-calendar">
+
+      <div class="panel-title" style="margin:-14px -14px 14px">
+        <strong>CALENDAR</strong>
+      </div>
+
+      <div class="add-row">
+
+        <input
+          id="calendarTitle"
+          placeholder="Event title...">
+
+        <input
+          id="calendarDate"
+          type="datetime-local">
+
+        <button
+          class="btn primary"
+          onclick="addCalendarEvent()">
+          ADD
+        </button>
+
+      </div>
+
+      <div
+        class="item-list"
+        id="calendarList"></div>
+
+      <div class="item-meta" style="margin-top:12px">
+        Browser-local calendar foundation.
+        Outlook integration can be connected later.
+      </div>
+
+    </div>
+
+
+    <!-- ================= REMINDERS ================= -->
+
+    <div class="tab-content" id="tab-reminders">
+
+      <div class="panel-title" style="margin:-14px -14px 14px">
+        <strong>REMINDERS</strong>
+      </div>
+
+      <div class="add-row">
+
+        <input
+          id="reminderText"
+          placeholder="Reminder...">
+
+        <input
+          id="reminderTime"
+          type="datetime-local">
+
+        <button
+          class="btn yellow"
+          onclick="addReminder()">
+          ADD
+        </button>
+
+      </div>
+
+      <div
+        class="item-list"
+        id="reminderList"></div>
+
+    </div>
+
+
+    <!-- ================= MEDIA ================= -->
+
+    <div class="tab-content" id="tab-media">
+
+      <div class="panel-title" style="margin:-14px -14px 14px">
+        <strong>MEDIA CENTER</strong>
+      </div>
+
+      <div class="media-toolbar">
+
+        <button
+          class="btn primary"
+          onclick="document.getElementById('musicFiles').click()">
+          LOAD MUSIC
+        </button>
+
+        <button
+          class="btn purple"
+          onclick="document.getElementById('videoFiles').click()">
+          LOAD VIDEO
+        </button>
+
+      </div>
+
+      <input
+        id="musicFiles"
+        type="file"
+        accept="audio/*"
+        multiple
+        hidden
+        onchange="loadMusicFiles(event)">
+
+      <input
+        id="videoFiles"
+        type="file"
+        accept="video/*"
+        multiple
+        hidden
+        onchange="loadVideoFiles(event)">
+
+
+      <div class="section-label">
+        MUSIC
+      </div>
+
+      <audio
+        id="audioPlayer"
+        class="media-player"
+        controls>
+      </audio>
+
+      <div class="media-controls">
+
+        <button class="btn" onclick="previousMusic()">
+          PREV
+        </button>
+
+        <button class="btn green" onclick="toggleMusic()">
+          PLAY / PAUSE
+        </button>
+
+        <button class="btn red" onclick="stopMusic()">
+          STOP
+        </button>
+
+        <button class="btn" onclick="nextMusic()">
+          NEXT
+        </button>
+
+        <button
+          class="btn"
+          id="shuffleButton"
+          onclick="toggleShuffle()">
+          SHUFFLE OFF
+        </button>
+
+        <button
+          class="btn"
+          id="repeatButton"
+          onclick="toggleRepeat()">
+          REPEAT OFF
+        </button>
+
+        <label style="font-size:9px;color:var(--muted)">
+          VOL
+          <input
+            id="musicVolume"
+            class="volume"
+            type="range"
+            min="0"
+            max="1"
+            step=".01"
+            value=".8"
+            oninput="setMusicVolume(this.value)">
+        </label>
+
+      </div>
+
+      <div
+        class="library"
+        id="musicLibrary">
+      </div>
+
+
+      <div class="section-label">
+        VIDEO
+      </div>
+
+      <video
+        id="videoPlayer"
+        class="media-player"
+        controls>
+      </video>
+
+      <div class="media-controls">
+
+        <button class="btn" onclick="previousVideo()">
+          PREV
+        </button>
+
+        <button class="btn green" onclick="toggleVideo()">
+          PLAY / PAUSE
+        </button>
+
+        <button class="btn red" onclick="stopVideo()">
+          STOP
+        </button>
+
+        <button class="btn" onclick="nextVideo()">
+          NEXT
+        </button>
+
+        <label style="font-size:9px;color:var(--muted)">
+          VOL
+          <input
+            id="videoVolume"
+            class="volume"
+            type="range"
+            min="0"
+            max="1"
+            step=".01"
+            value=".8"
+            oninput="setVideoVolume(this.value)">
+        </label>
+
+      </div>
+
+      <div
+        class="library"
+        id="videoLibrary">
+      </div>
+
+
+      <div class="section-label">
+        YOUTUBE
+      </div>
+
+      <div class="add-row">
+
+        <input
+          id="youtubeUrl"
+          placeholder="YouTube URL or video ID">
+
+        <button
+          class="btn purple"
+          onclick="loadYouTube()">
+          LOAD
+        </button>
+
+      </div>
+
+      <iframe
+        id="youtubeFrame"
+        class="youtube-frame"
+        src="about:blank"
+        allow="autoplay; encrypted-media"
+        allowfullscreen>
+      </iframe>
+
+      <div class="media-controls">
+
+        <button
+          class="btn green"
+          onclick="youtubeCommand('playVideo')">
+          PLAY
+        </button>
+
+        <button
+          class="btn"
+          onclick="youtubeCommand('pauseVideo')">
+          PAUSE
+        </button>
+
+        <button
+          class="btn red"
+          onclick="youtubeCommand('stopVideo')">
+          STOP
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     RIGHT COLUMN
+========================================================= -->
+
+<div class="column right-column">
+
+  <!-- VOICE -->
+
+  <div class="panel">
+
+    <div class="panel-title">
+      <strong>VOICE ENGINE</strong>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="voice-box">
+
+        <div class="voice-last" id="lastHeard">
+          Waiting for voice...
+        </div>
+
+        <div class="voice-state" id="voiceState">
+          Voice engine stopped.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- SYSTEM STATUS -->
+
+  <div class="panel">
+
+    <div class="panel-title">
+      <strong>SYSTEM STATUS</strong>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="status-grid">
+
+        <div class="status-box">
+          <label>BOARD</label>
+          <span id="statusBoard">
+            OFFLINE
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>TRAINER</label>
+          <span id="statusTrainer">
+            OFFLINE
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>SYSTEM</label>
+          <span id="statusSystem">
+            UNKNOWN
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>LED</label>
+          <span id="statusLed">
+            UNKNOWN
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>BLINKING</label>
+          <span id="statusBlink">
+            NO
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>COMMANDS</label>
+          <span id="statusCommands">
+            0
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>UPTIME</label>
+          <span id="statusUptime">
+            00:00:00
+          </span>
+        </div>
+
+        <div class="status-box">
+          <label>USER</label>
+          <span id="statusUser">
+            Not set
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- DIAGNOSTICS -->
+
+  <div class="panel">
+
+    <div class="panel-title">
+      <strong>SYSTEM TEST</strong>
+      <span id="testResultSmall" class="unknown">
+        READY
+      </span>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="diag-row">
+        <span>Serial</span>
+        <span id="diagSerial" class="diag-state unknown">---</span>
+      </div>
+
+      <div class="diag-row">
+        <span>LED</span>
+        <span id="diagLed" class="diag-state unknown">---</span>
+      </div>
+
+      <div class="diag-row">
+        <span>Timing</span>
+        <span id="diagTiming" class="diag-state unknown">---</span>
+      </div>
+
+      <div class="diag-row">
+        <span>Memory</span>
+        <span id="diagMemory" class="diag-state unknown">---</span>
+      </div>
+
+      <div class="diag-row">
+        <span>Commands</span>
+        <span id="diagCommands" class="diag-state unknown">---</span>
+      </div>
+
+      <div class="diag-row">
+        <span>System</span>
+        <span id="diagSystem" class="diag-state unknown">---</span>
+      </div>
+
+      <div
+        id="diagnosticResult"
+        class="result-banner unknown">
+        NOT TESTED
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- HISTORY -->
+
+  <div class="panel">
+
+    <div class="panel-title">
+      <strong>COMMAND HISTORY</strong>
+    </div>
+
+    <div class="panel-body">
+
+      <div
+        id="historyList"
+        class="item-list">
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- VOICE COMMANDS -->
+
+  <div class="panel">
+
+    <div class="panel-title">
+      <strong>VOICE COMMANDS</strong>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="command-list">
+
+        <div>• connect</div>
+        <div>• disconnect</div>
+        <div>• status</div>
+        <div>• system test</div>
+        <div>• led on</div>
+        <div>• led off</div>
+        <div>• toggle</div>
+        <div>• blink five</div>
+        <div>• sos</div>
+        <div>• stop</div>
+        <div>• what time is it</div>
+        <div>• what date is it</div>
+        <div>• what's my name</div>
+        <div>• my name is...</div>
+        <div>• change my name</div>
+        <div>• forget my name</div>
+        <div>• who are you</div>
+        <div>• what can you do</div>
+        <div>• play music</div>
+        <div>• pause music</div>
+        <div>• stop music</div>
+        <div>• next song</div>
+        <div>• previous song</div>
+        <div>• play video</div>
+        <div>• pause video</div>
+        <div>• stop video</div>
+        <div>• next video</div>
+        <div>• previous video</div>
+        <div>• play YouTube</div>
+        <div>• pause YouTube</div>
+        <div>• media help</div>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </div>
 
 </div>
-
-
-<div class="voice-box">
-
-<div class="status-label">VOICE ENGINE</div>
-
-<div id="lastHeard">
-Waiting for voice...
-</div>
-
 </div>
 
 
-<div class="panel-title">SYSTEM STATUS</div>
+<!-- =========================================================
+     ASSISTANT SETTINGS MODAL
+========================================================= -->
 
-<div class="status-card">
+<div
+  id="assistantModal"
+  class="modal">
 
-<div class="status-row">
-<span class="status-label">Board</span>
-<span id="statusBoard" class="status-value">---</span>
-</div>
+  <div class="modal-card">
 
-<div class="status-row">
-<span class="status-label">Connection</span>
-<span id="statusConnection" class="status-value">---</span>
-</div>
+    <div class="modal-header">
 
-<div class="status-row">
-<span class="status-label">System</span>
-<span id="statusSystem" class="status-value">---</span>
-</div>
+      <strong>
+        ASSISTANT SETTINGS
+      </strong>
 
-<div class="status-row">
-<span class="status-label">LED</span>
-<span id="statusLED" class="status-value">---</span>
-</div>
+      <button
+        class="delete-btn"
+        onclick="closeAssistantSettings()">
+        ×
+      </button>
 
-<div class="status-row">
-<span class="status-label">Blinking</span>
-<span id="statusBlinking" class="status-value">---</span>
-</div>
+    </div>
 
-<div class="status-row">
-<span class="status-label">Blink speed</span>
-<span id="statusSpeed" class="status-value">---</span>
-</div>
+    <div class="modal-body">
 
-<div class="status-row">
-<span class="status-label">Commands</span>
-<span id="statusCommands" class="status-value">---</span>
-</div>
+      <div class="section-label">
+        ASSISTANT NAME
+      </div>
 
-<div class="status-row">
-<span class="status-label">Uptime</span>
-<span id="statusUptime" class="status-value">---</span>
-</div>
+      <input
+        id="assistantNameInput"
+        placeholder="Assistant">
 
-</div>
+      <div class="section-label">
+        USER NAME
+      </div>
 
+      <input
+        id="userNameInput"
+        placeholder="Your name">
 
-<div class="panel-title">SYSTEM TEST</div>
+      <div class="item-meta" style="margin-top:10px">
+        These settings are stored locally in this browser.
+      </div>
 
-<div class="diagnostic-card">
+    </div>
 
-<div class="test-row">
-<span>Serial</span>
-<span id="testSerial" class="test-result test-waiting">WAITING</span>
-</div>
+    <div class="modal-footer">
 
-<div class="test-row">
-<span>LED</span>
-<span id="testLED" class="test-result test-waiting">WAITING</span>
-</div>
+      <button
+        class="btn"
+        onclick="closeAssistantSettings()">
+        CANCEL
+      </button>
 
-<div class="test-row">
-<span>Timing</span>
-<span id="testTiming" class="test-result test-waiting">WAITING</span>
-</div>
+      <button
+        class="btn primary"
+        onclick="saveAssistantSettings()">
+        SAVE
+      </button>
 
-<div class="test-row">
-<span>Memory</span>
-<span id="testMemory" class="test-result test-waiting">WAITING</span>
-</div>
+    </div>
 
-<div class="test-row">
-<span>Commands</span>
-<span id="testCommands" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>System</span>
-<span id="testSystem" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>Result</span>
-<span id="testResult" class="test-result test-waiting">WAITING</span>
-</div>
+  </div>
 
 </div>
-
-
-<div class="panel-title">MORSE</div>
-
-<div class="morse-box">
-<div id="morseStatus">
-No Morse transmission.
-</div>
-</div>
-
-
-<br>
-
-<div class="panel-title">COMMAND HISTORY</div>
-
-<div id="commandHistory" class="command-list"></div>
-
-</section>
-
-</main>
 
 
 <script>
+"use strict";
 
-/* ============================================================
-   DANGERUSS VOICE v1.5
-   VOICE + PERSONAL ASSISTANT + DIAGNOSTICS + MEDIA
-   ============================================================ */
+/* =========================================================
+   COMMAND CENTER CORE
+========================================================= */
 
+/*
+  Architecture:
 
-/* ============================================================
-   SERIAL
-   ============================================================ */
+  COMMAND CENTER
+      |
+      +-- Assistant
+      |
+      +-- User Profile
+      |
+      +-- AMOMII ONE Serial
+      |
+      +-- TRAINER Serial
+      |
+      +-- Knowledge Center
+      |
+      +-- Tasks
+      |
+      +-- Calendar
+      |
+      +-- Reminders
+      |
+      +-- Media Center
+      |
+      +-- Voice Engine
 
-let port=null;
-let reader=null;
-let writer=null;
-let serialConnected=false;
-let serialBuffer="";
-
-
-/* ============================================================
-   VOICE
-   ============================================================ */
-
-let recognition=null;
-let voiceEnabled=false;
-let recognitionRunning=false;
-let restartingRecognition=false;
-
-let isSpeaking=false;
-let speechQueue=[];
-
-let speechResumeTimer=null;
-let speechCooldownTimer=null;
-
-
-/* ============================================================
-   PERSONAL ASSISTANT
-   ============================================================ */
-
-let userName="";
-let awaitingName=false;
+  This separation is intentional so future modules can
+  be added without changing the basic architecture.
+*/
 
 
-/* ============================================================
-   STATUS
-   ============================================================ */
+/* =========================================================
+   CONFIGURATION
+========================================================= */
 
-let collectingStatus=false;
-let statusLines=[];
-let statusTimer=null;
+const BOARD_NAME = "AMOMII ONE";
+const TRAINER_NAME = "TRAINER";
+
+const BAUD_RATE = 9600;
+
+const STORAGE_KEY = "amomii_command_center_v2";
 
 
-/* ============================================================
-   SYSTEM TEST
-   ============================================================ */
+/* =========================================================
+   APPLICATION STATE
+========================================================= */
 
-let systemTestState={
-    active:false,
-    serial:null,
-    led:null,
-    timing:null,
-    memory:null,
-    commands:null,
-    system:null
+let state = {
+
+  assistantName: "Assistant",
+
+  userName: "",
+
+  voiceEnabled: false,
+
+  boardConnected: false,
+
+  trainerConnected: false,
+
+  commandCount: 0,
+
+  ledState: "UNKNOWN",
+
+  blinking: false,
+
+  systemState: "UNKNOWN",
+
+  tasks: [],
+
+  calendar: [],
+
+  reminders: [],
+
+  history: []
+
 };
 
-let systemTestFinishTimer=null;
+
+/* =========================================================
+   SERIAL STATE
+========================================================= */
+
+let boardPort = null;
+let boardReader = null;
+let boardWriter = null;
+let boardKeepReading = false;
+
+let trainerPort = null;
+let trainerReader = null;
+let trainerWriter = null;
+let trainerKeepReading = false;
 
 
-/* ============================================================
-   COMMAND HISTORY
-   ============================================================ */
+/* =========================================================
+   VOICE STATE
+========================================================= */
 
-let commandCount=0;
+let recognition = null;
 
+let recognitionRunning = false;
 
-/* ============================================================
-   MUSIC
-   ============================================================ */
+let restartingRecognition = false;
 
-let musicFiles=[];
-let musicUrls=[];
-let musicIndex=-1;
-let musicShuffle=false;
-let musicRepeat=false;
+let isSpeaking = false;
 
+let awaitingName = false;
 
-/* ============================================================
-   VIDEO
-   ============================================================ */
+let resumeVoiceTimer = null;
 
-let videoFiles=[];
-let videoUrls=[];
-let videoIndex=-1;
-let videoShuffle=false;
-let videoRepeat=false;
+let speechQueue = [];
 
 
-/* ============================================================
-   DOM
-   ============================================================ */
+/* =========================================================
+   DIAGNOSTIC STATE
+========================================================= */
 
-const consoleOutput=document.getElementById("consoleOutput");
-const commandInput=document.getElementById("commandInput");
+let systemTestState = {
 
-const connectionDot=document.getElementById("connectionDot");
-const connectionText=document.getElementById("connectionText");
+  active:false,
 
-const voiceDot=document.getElementById("voiceDot");
-const voiceText=document.getElementById("voiceText");
+  serial:null,
 
-const voiceButton=document.getElementById("voiceButton");
+  led:null,
 
-const activityValue=document.getElementById("activityValue");
-const lastHeard=document.getElementById("lastHeard");
+  timing:null,
 
-const profileName=document.getElementById("profileName");
-const profileVoice=document.getElementById("profileVoice");
+  memory:null,
 
-const musicPlayer=document.getElementById("musicPlayer");
-const videoPlayer=document.getElementById("videoPlayer");
+  commands:null,
+
+  system:null
+
+};
 
 
-/* ============================================================
+/* =========================================================
+   MEDIA STATE
+========================================================= */
+
+let musicLibrary = [];
+let videoLibrary = [];
+
+let musicIndex = -1;
+let videoIndex = -1;
+
+let musicShuffle = false;
+let musicRepeat = false;
+
+let musicObjectUrls = [];
+let videoObjectUrls = [];
+
+
+/* =========================================================
+   START TIME
+========================================================= */
+
+const startTime = Date.now();
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  loadState();
+
+  initializeVoice();
+
+  initializeMedia();
+
+  renderTasks();
+
+  renderCalendar();
+
+  renderReminders();
+
+  renderHistory();
+
+  updateProfile();
+
+  updateAllStatus();
+
+  log("Command Center initialized.", "system");
+
+  log("AMOMII ONE is the primary board interface.", "system");
+
+  log("TRAINER communication is isolated.", "system");
+
+  log(
+    `Assistant identity: ${state.assistantName}`,
+    "system"
+  );
+
+  document
+    .getElementById("serialCommand")
+    .addEventListener("keydown", event => {
+
+      if(event.key === "Enter"){
+        sendManualCommand();
+      }
+
+    });
+
+  document
+    .getElementById("trainerCommand")
+    .addEventListener("keydown", event => {
+
+      if(event.key === "Enter"){
+        sendTrainerCommand();
+      }
+
+    });
+
+  setInterval(updateUptime,1000);
+
+  setInterval(checkReminders,1000);
+
+});
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function saveState(){
+
+  try{
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(state)
+    );
+
+  }catch(error){
+
+    console.error("Unable to save state:",error);
+
+  }
+
+}
+
+
+function loadState(){
+
+  try{
+
+    const saved =
+      localStorage.getItem(STORAGE_KEY);
+
+    if(!saved) return;
+
+    const parsed = JSON.parse(saved);
+
+    state = {
+      ...state,
+      ...parsed
+    };
+
+  }catch(error){
+
+    console.error("Unable to load state:",error);
+
+  }
+
+}
+
+
+/* =========================================================
    LOGGING
-   ============================================================ */
+========================================================= */
 
 function timestamp(){
-    return new Date().toLocaleTimeString();
+
+  return new Date().toLocaleTimeString();
+
 }
 
-function log(message,type="info"){
 
-    const line=document.createElement("div");
-    line.className="log-line";
+function log(message,type=""){
 
-    let cls="log-info";
+  const consoleEl =
+    document.getElementById("console");
 
-    if(type==="command") cls="log-command";
-    if(type==="voice") cls="log-voice";
-    if(type==="speech") cls="log-speech";
-    if(type==="error") cls="log-error";
+  if(!consoleEl) return;
 
-    line.innerHTML=
-        `<span class="log-time">[${timestamp()}]</span> `+
-        `<span class="${cls}">${escapeHtml(message)}</span>`;
+  const line =
+    document.createElement("div");
 
-    consoleOutput.appendChild(line);
-    consoleOutput.scrollTop=consoleOutput.scrollHeight;
+  line.className =
+    "log-line " +
+    (
+      type === "success"
+      ? "log-success"
+      : type === "warning"
+      ? "log-warning"
+      : type === "error"
+      ? "log-error"
+      : type === "system"
+      ? "log-system"
+      : ""
+    );
+
+  line.innerHTML =
+    `<span class="log-time">[${timestamp()}]</span> ${escapeHtml(message)}`;
+
+  consoleEl.appendChild(line);
+
+  consoleEl.scrollTop =
+    consoleEl.scrollHeight;
+
 }
+
 
 function escapeHtml(text){
-    return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
 }
 
 
-/* ============================================================
-   ACTIVITY
-   ============================================================ */
+/* =========================================================
+   TAB SYSTEM
+========================================================= */
 
-function setActivity(text){
-    activityValue.textContent=text;
+function switchTab(name,button){
+
+  document
+    .querySelectorAll(".tab-content")
+    .forEach(el => {
+      el.classList.remove("active");
+    });
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(el => {
+      el.classList.remove("active");
+    });
+
+  const target =
+    document.getElementById("tab-" + name);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  if(button){
+    button.classList.add("active");
+  }
+
 }
 
 
-/* ============================================================
-   CONNECTION UI
-   ============================================================ */
+/* =========================================================
+   AMOMII ONE SERIAL
+========================================================= */
 
-function setConnectionUI(connected){
+async function connectBoard(){
 
-    serialConnected=connected;
-
-    if(connected){
-        connectionDot.classList.add("online");
-        connectionText.textContent="CONNECTED";
-    }else{
-        connectionDot.classList.remove("online");
-        connectionText.textContent="DISCONNECTED";
-    }
-}
-
-
-/* ============================================================
-   VOICE UI
-   ============================================================ */
-
-function setVoiceUI(state){
-
-    voiceDot.className="dot";
-
-    if(state==="listening"){
-        voiceDot.classList.add("voice");
-        voiceText.textContent="LISTENING";
-    }
-    else if(state==="speaking"){
-        voiceDot.classList.add("speaking");
-        voiceText.textContent="SPEAKING";
-    }
-    else{
-        voiceText.textContent="VOICE OFF";
-    }
-
-    profileVoice.textContent=
-        state==="listening" ? "READY" :
-        state==="speaking" ? "SPEAKING" :
-        "OFFLINE";
-}
-
-
-/* ============================================================
-   PERSONAL ASSISTANT
-   ============================================================ */
-
-function cleanName(name){
-
-    name=name
-        .replace(/[.!?,]/g," ")
-        .replace(/\s+/g," ")
-        .trim();
-
-    name=name.replace(
-        /^(my name is|my name's|call me|i am|i'm)\s+/i,
-        ""
-    );
-
-    if(name.length>30){
-        name=name.substring(0,30);
-    }
-
-    return name.trim();
-}
-
-
-function setUserName(name){
-
-    name=cleanName(name);
-
-    if(!name){
-        speak("I didn't catch your name. Please tell me your name.");
-        awaitingName=true;
-        return;
-    }
-
-    userName=name;
-    awaitingName=false;
-
-    profileName.textContent=userName.toUpperCase();
-
-    log("User identified as "+userName+".");
-
-    speak(
-        "Nice to meet you, "+
-        userName+
-        ". I'm ready."
-    );
-}
-
-
-function addressUser(text){
-
-    if(userName){
-        return userName+", "+text;
-    }
-
-    return text;
-}
-
-
-function askForName(){
-
-    awaitingName=true;
-
-    speak(
-        "Voice control enabled. "+
-        "Before we begin, what is your name?"
-    );
-}
-
-
-function forgetName(){
-
-    const oldName=userName;
-
-    userName="";
-    awaitingName=false;
-
-    profileName.textContent="UNKNOWN";
+  if(!("serial" in navigator)){
 
     log(
-        oldName
-            ? "User name cleared for this session."
-            : "No user name was stored."
+      "Web Serial is not supported by this browser.",
+      "error"
     );
 
-    speak(
-        oldName
-            ? "Okay. I've forgotten your name for this session."
-            : "You haven't given me a name yet."
+    speakText(
+      "Web Serial is not supported by this browser."
     );
+
+    return;
+
+  }
+
+  try{
+
+    boardPort =
+      await navigator.serial.requestPort();
+
+    await boardPort.open({
+      baudRate: BAUD_RATE
+    });
+
+    boardWriter =
+      boardPort.writable.getWriter();
+
+    boardKeepReading = true;
+
+    state.boardConnected = true;
+
+    updateAllStatus();
+
+    log(
+      `${BOARD_NAME} connected at ${BAUD_RATE} baud.`,
+      "success"
+    );
+
+    speakText(
+      `${BOARD_NAME} connected.`
+    );
+
+    readBoardLoop();
+
+  }catch(error){
+
+    log(
+      `AMOMII connection failed: ${error.message}`,
+      "error"
+    );
+
+  }
+
 }
 
 
-/* ============================================================
-   SERIAL CONNECT
-   ============================================================ */
+async function disconnectBoard(){
 
-async function connectSerial(){
+  boardKeepReading = false;
 
-    if(!("serial" in navigator)){
+  try{
 
-        log(
-            "Web Serial is not supported by this browser.",
-            "error"
-        );
-
-        speak("Web Serial is not supported by this browser.");
-
-        return;
+    if(boardReader){
+      await boardReader.cancel();
     }
+
+  }catch(error){}
+
+  try{
+
+    if(boardWriter){
+      boardWriter.releaseLock();
+      boardWriter = null;
+    }
+
+  }catch(error){}
+
+  try{
+
+    if(boardPort){
+      await boardPort.close();
+    }
+
+  }catch(error){}
+
+  boardReader = null;
+  boardPort = null;
+
+  state.boardConnected = false;
+
+  updateAllStatus();
+
+  log(
+    `${BOARD_NAME} disconnected.`,
+    "warning"
+  );
+
+}
+
+
+async function readBoardLoop(){
+
+  if(!boardPort || !boardPort.readable){
+    return;
+  }
+
+  const decoder =
+    new TextDecoder();
+
+  boardReader =
+    boardPort.readable.getReader();
+
+  let buffer = "";
+
+  try{
+
+    while(boardKeepReading){
+
+      const {value,done} =
+        await boardReader.read();
+
+      if(done) break;
+
+      if(value){
+
+        buffer +=
+          decoder.decode(
+            value,
+            {stream:true}
+          );
+
+        const lines =
+          buffer.split(/\r?\n/);
+
+        buffer =
+          lines.pop() || "";
+
+        for(const line of lines){
+
+          if(line.trim()){
+            handleBoardLine(line.trim());
+          }
+
+        }
+
+      }
+
+    }
+
+  }catch(error){
+
+    if(boardKeepReading){
+
+      log(
+        `Serial read error: ${error.message}`,
+        "error"
+      );
+
+    }
+
+  }finally{
 
     try{
+      boardReader.releaseLock();
+    }catch(error){}
 
-        port=await navigator.serial.requestPort();
+    boardReader = null;
 
-        await port.open({
-            baudRate:9600
-        });
+  }
 
-        writer=port.writable.getWriter();
-
-        setConnectionUI(true);
-
-        log("Serial connection established.");
-
-        speak(
-            userName
-                ? addressUser("AMOMII ONE is connected.")
-                : "AMOMII ONE connected."
-        );
-
-        readSerialLoop();
-
-    }catch(error){
-
-        log(
-            "Connection failed: "+error.message,
-            "error"
-        );
-    }
 }
 
 
-/* ============================================================
-   DISCONNECT
-   ============================================================ */
+async function sendBoardCommand(command){
 
-async function disconnectSerial(){
+  if(!boardConnected()){
 
-    try{
+    log(
+      `${BOARD_NAME} is not connected.`,
+      "warning"
+    );
 
-        if(reader){
+    speakText(
+      `${BOARD_NAME} is not connected.`
+    );
 
-            try{
-                await reader.cancel();
-            }catch(e){}
+    return;
 
-            try{
-                reader.releaseLock();
-            }catch(e){}
+  }
 
-            reader=null;
-        }
+  try{
 
-        if(writer){
+    const text =
+      String(command).trim() + "\n";
 
-            try{
-                writer.releaseLock();
-            }catch(e){}
+    await boardWriter.write(
+      new TextEncoder().encode(text)
+    );
 
-            writer=null;
-        }
+    state.commandCount++;
 
-        if(port){
+    saveState();
 
-            try{
-                await port.close();
-            }catch(e){}
+    renderHistoryEntry(
+      `${BOARD_NAME}: ${command}`
+    );
 
-            port=null;
-        }
+    log(
+      `> ${command}`,
+      "system"
+    );
 
-        setConnectionUI(false);
+  }catch(error){
 
-        log("Serial connection closed.");
+    log(
+      `Send error: ${error.message}`,
+      "error"
+    );
 
-        speak(
-            userName
-                ? addressUser("AMOMII ONE is disconnected.")
-                : "AMOMII ONE disconnected."
-        );
+  }
 
-    }catch(error){
-
-        log(
-            "Disconnect error: "+error.message,
-            "error"
-        );
-    }
 }
 
 
-/* ============================================================
-   SERIAL READER
-   ============================================================ */
+function boardConnected(){
 
-async function readSerialLoop(){
+  return (
+    !!boardPort &&
+    !!boardWriter &&
+    state.boardConnected
+  );
 
-    if(!port || !port.readable) return;
-
-    const decoder=new TextDecoder();
-
-    try{
-
-        reader=port.readable.getReader();
-
-        while(true){
-
-            const {value,done}=await reader.read();
-
-            if(done) break;
-
-            if(value){
-                processSerialData(
-                    decoder.decode(value)
-                );
-            }
-        }
-
-    }catch(error){
-
-        if(serialConnected){
-
-            log(
-                "Serial read error: "+error.message,
-                "error"
-            );
-        }
-
-    }finally{
-
-        if(reader){
-
-            try{
-                reader.releaseLock();
-            }catch(e){}
-
-            reader=null;
-        }
-    }
 }
 
-
-/* ============================================================
-   SERIAL PROCESSING
-   ============================================================ */
-
-function processSerialData(text){
-
-    serialBuffer+=text;
-
-    const lines=serialBuffer.split(/\r?\n/);
-
-    serialBuffer=lines.pop()||"";
-
-    for(const rawLine of lines){
-
-        const clean=rawLine.replace(/\r/g,"").trim();
-
-        if(!clean) continue;
-
-        log(clean);
-
-        if(collectingStatus){
-            collectStatusLine(clean);
-        }
-
-        parseSerialResponse(clean);
-    }
-}
-
-
-/* ============================================================
-   SEND SERIAL
-   ============================================================ */
-
-async function sendCommand(command){
-
-    command=String(command).trim();
-
-    if(!command) return;
-
-    addHistory("SERIAL",command);
-
-    log("> "+command,"command");
-
-    if(!writer){
-
-        log(
-            "Not connected to AMOMII ONE.",
-            "error"
-        );
-
-        return;
-    }
-
-    try{
-
-        const data=new TextEncoder().encode(
-            command+"\n"
-        );
-
-        await writer.write(data);
-
-    }catch(error){
-
-        log(
-            "Send error: "+error.message,
-            "error"
-        );
-    }
-}
-
-
-/* ============================================================
-   MANUAL COMMAND
-   ============================================================ */
 
 function sendManualCommand(){
 
-    const command=commandInput.value.trim();
+  const input =
+    document.getElementById("serialCommand");
 
-    if(!command) return;
+  const command =
+    input.value.trim();
 
-    commandInput.value="";
+  if(!command) return;
 
-    sendCommand(command);
+  input.value = "";
+
+  sendBoardCommand(command);
+
 }
 
-commandInput.addEventListener(
-    "keydown",
-    event=>{
-        if(event.key==="Enter"){
-            sendManualCommand();
-        }
-    }
-);
 
+/* =========================================================
+   TRAINER SERIAL
+========================================================= */
 
-/* ============================================================
-   HISTORY
-   ============================================================ */
+async function connectTrainer(){
 
-function addHistory(type,command){
+  if(!("serial" in navigator)){
 
-    commandCount++;
-
-    const history=document.getElementById(
-        "commandHistory"
+    log(
+      "Web Serial is not supported.",
+      "error"
     );
 
-    const item=document.createElement("div");
+    return;
 
-    item.className="command-item";
+  }
 
-    item.innerHTML=
-        `<span class="time">${timestamp()}</span> `+
-        `<span class="type">${escapeHtml(type)}</span> `+
-        `${escapeHtml(command)}`;
+  try{
 
-    history.prepend(item);
+    trainerPort =
+      await navigator.serial.requestPort();
 
-    while(history.children.length>50){
-        history.removeChild(history.lastChild);
-    }
+    await trainerPort.open({
+      baudRate: BAUD_RATE
+    });
+
+    trainerWriter =
+      trainerPort.writable.getWriter();
+
+    trainerKeepReading = true;
+
+    state.trainerConnected = true;
+
+    updateAllStatus();
+
+    log(
+      `${TRAINER_NAME} connected at ${BAUD_RATE} baud.`,
+      "success"
+    );
+
+    readTrainerLoop();
+
+  }catch(error){
+
+    log(
+      `Trainer connection failed: ${error.message}`,
+      "error"
+    );
+
+  }
+
 }
 
 
-/* ============================================================
-   STATUS
-   ============================================================ */
+async function disconnectTrainer(){
 
-function requestStatus(options={}){
+  trainerKeepReading = false;
 
-    if(!serialConnected){
+  try{
 
-        log(
-            "Cannot request status: board is not connected.",
-            "error"
-        );
+    if(trainerReader){
+      await trainerReader.cancel();
+    }
 
-        if(options.speakError!==false){
-            speak(
-                userName
-                    ? addressUser("AMOMII ONE is not connected.")
-                    : "AMOMII ONE is not connected."
+  }catch(error){}
+
+  try{
+
+    if(trainerWriter){
+      trainerWriter.releaseLock();
+      trainerWriter = null;
+    }
+
+  }catch(error){}
+
+  try{
+
+    if(trainerPort){
+      await trainerPort.close();
+    }
+
+  }catch(error){}
+
+  trainerReader = null;
+  trainerPort = null;
+
+  state.trainerConnected = false;
+
+  updateAllStatus();
+
+  log(
+    `${TRAINER_NAME} disconnected.`,
+    "warning"
+  );
+
+}
+
+
+async function readTrainerLoop(){
+
+  if(!trainerPort || !trainerPort.readable){
+    return;
+  }
+
+  const decoder =
+    new TextDecoder();
+
+  trainerReader =
+    trainerPort.readable.getReader();
+
+  let buffer = "";
+
+  try{
+
+    while(trainerKeepReading){
+
+      const {value,done} =
+        await trainerReader.read();
+
+      if(done) break;
+
+      if(value){
+
+        buffer +=
+          decoder.decode(
+            value,
+            {stream:true}
+          );
+
+        const lines =
+          buffer.split(/\r?\n/);
+
+        buffer =
+          lines.pop() || "";
+
+        for(const line of lines){
+
+          if(line.trim()){
+
+            log(
+              `[TRAINER] ${line.trim()}`,
+              "system"
             );
+
+          }
+
         }
 
-        return;
+      }
+
     }
 
-    collectingStatus=true;
-    statusLines=[];
+  }catch(error){
 
-    clearTimeout(statusTimer);
+    if(trainerKeepReading){
 
-    setActivity("REQUESTING STATUS");
+      log(
+        `Trainer read error: ${error.message}`,
+        "error"
+      );
 
-    sendCommand("status");
+    }
 
-    statusTimer=setTimeout(
-        finishStatusReading,
-        1200
+  }finally{
+
+    try{
+      trainerReader.releaseLock();
+    }catch(error){}
+
+    trainerReader = null;
+
+  }
+
+}
+
+
+async function sendTrainerCommand(){
+
+  const input =
+    document.getElementById("trainerCommand");
+
+  const command =
+    input.value.trim();
+
+  if(!command) return;
+
+  if(
+    !trainerPort ||
+    !trainerWriter ||
+    !state.trainerConnected
+  ){
+
+    log(
+      `${TRAINER_NAME} is not connected.`,
+      "warning"
     );
-}
 
+    return;
 
-function collectStatusLine(line){
+  }
 
-    statusLines.push(line);
+  input.value = "";
 
-    clearTimeout(statusTimer);
+  try{
 
-    statusTimer=setTimeout(
-        finishStatusReading,
-        900
-    );
-}
-
-
-function finishStatusReading(){
-
-    if(!collectingStatus) return;
-
-    collectingStatus=false;
-
-    clearTimeout(statusTimer);
-
-    parseStatusText(
-        statusLines.join("\n")
+    await trainerWriter.write(
+      new TextEncoder().encode(
+        command + "\n"
+      )
     );
 
-    setActivity("IDLE");
+    log(
+      `[TRAINER] > ${command}`,
+      "system"
+    );
+
+  }catch(error){
+
+    log(
+      `Trainer send error: ${error.message}`,
+      "error"
+    );
+
+  }
+
 }
 
 
-/* ============================================================
-   STATUS PARSER
-   ============================================================ */
+/* =========================================================
+   BOARD LINE PARSER
+========================================================= */
 
-function parseStatusText(text){
+function handleBoardLine(line){
 
-    const lines=text.split(/\r?\n/);
+  log(line);
 
-    let found=false;
+  parseSystemTestLine(line);
 
-    for(const line of lines){
+  const lower =
+    line.toLowerCase();
 
-        const match=line.match(
-            /^\s*([^:]+):\s*(.*?)\s*$/
-        );
+  if(lower.includes("led:")){
 
-        if(!match) continue;
-
-        const label=match[1]
-            .trim()
-            .toLowerCase();
-
-        const value=match[2].trim();
-
-        found=true;
-
-        if(label==="board")
-            document.getElementById("statusBoard").textContent=value;
-
-        if(label==="connection")
-            document.getElementById("statusConnection").textContent=value;
-
-        if(label==="system")
-            document.getElementById("statusSystem").textContent=value;
-
-        if(label==="led")
-            document.getElementById("statusLED").textContent=value;
-
-        if(label==="blinking")
-            document.getElementById("statusBlinking").textContent=value;
-
-        if(label==="blink speed")
-            document.getElementById("statusSpeed").textContent=value;
-
-        if(label==="commands")
-            document.getElementById("statusCommands").textContent=value;
-
-        if(label==="uptime")
-            document.getElementById("statusUptime").textContent=value;
+    if(lower.includes("on")){
+      state.ledState = "ON";
     }
 
-    if(found){
-
-        const spoken=buildSpokenStatus();
-
-        if(spoken){
-            speak(spoken);
-        }
+    if(lower.includes("off")){
+      state.ledState = "OFF";
     }
+
+    if(lower.includes("testing")){
+      state.ledState = "TESTING";
+    }
+
+  }
+
+  if(
+    lower.includes("blink") &&
+    !lower.includes("complete")
+  ){
+
+    state.blinking = true;
+
+  }
+
+  if(
+    lower.includes("stop") ||
+    lower.includes("stopped")
+  ){
+
+    state.blinking = false;
+
+  }
+
+  if(lower.includes("system: ok")){
+
+    state.systemState = "OK";
+
+  }
+
+  saveState();
+
+  updateAllStatus();
+
 }
 
 
-function getStatus(id){
-
-    return document.getElementById(id)
-        .textContent
-        .trim();
-}
-
-
-function formatCommands(value){
-
-    const number=parseInt(value,10);
-
-    if(!isNaN(number)){
-
-        return number+
-            (number===1
-                ? " command has been processed"
-                : " commands have been processed");
-    }
-
-    return value+" commands processed";
-}
-
-
-function buildSpokenStatus(){
-
-    const board=getStatus("statusBoard");
-    const connection=getStatus("statusConnection");
-    const system=getStatus("statusSystem");
-    const led=getStatus("statusLED");
-    const blinking=getStatus("statusBlinking");
-    const speed=getStatus("statusSpeed");
-    const commands=getStatus("statusCommands");
-    const uptime=getStatus("statusUptime");
-
-    if(board==="---" && system==="---"){
-        return null;
-    }
-
-    let text="";
-
-    if(userName){
-        text+=userName+", ";
-    }
-
-    if(board!=="---")
-        text+=board+". ";
-
-    if(system!=="---")
-        text+="The system is "+system.toLowerCase()+". ";
-
-    if(connection!=="---")
-        text+="The connection is "+connection.toLowerCase()+". ";
-
-    if(led!=="---")
-        text+="The LED is "+led.toLowerCase()+". ";
-
-    if(blinking!=="---"){
-
-        if(
-            blinking.toLowerCase()==="no" ||
-            blinking.toLowerCase()==="off"
-        ){
-            text+="Blinking is disabled. ";
-        }else{
-            text+="Blinking is enabled. ";
-        }
-    }
-
-    if(speed!=="---")
-        text+="Blink speed is "+speed+". ";
-
-    if(commands!=="---")
-        text+=formatCommands(commands)+". ";
-
-    if(uptime!=="---")
-        text+="Uptime is "+uptime+".";
-
-    return text.trim();
-}
-
-
-/* ============================================================
+/* =========================================================
    SYSTEM TEST
-   ============================================================ */
+========================================================= */
 
 function resetSystemTest(){
 
-    systemTestState={
-        active:false,
-        serial:null,
-        led:null,
-        timing:null,
-        memory:null,
-        commands:null,
-        system:null
-    };
+  systemTestState = {
 
-    setTestUI("testSerial","WAITING");
-    setTestUI("testLED","WAITING");
-    setTestUI("testTiming","WAITING");
-    setTestUI("testMemory","WAITING");
-    setTestUI("testCommands","WAITING");
-    setTestUI("testSystem","WAITING");
-    setTestUI("testResult","WAITING");
-}
+    active:true,
 
+    serial:null,
 
-function setTestUI(id,value){
+    led:null,
 
-    const el=document.getElementById(id);
+    timing:null,
 
-    el.textContent=value;
+    memory:null,
 
-    el.className="test-result";
+    commands:null,
 
-    if(value==="OK")
-        el.classList.add("test-ok");
+    system:null
 
-    else if(value==="FAIL")
-        el.classList.add("test-fail");
+  };
 
-    else if(value==="TESTING")
-        el.classList.add("test-testing");
+  updateDiagnostics();
 
-    else if(value==="PASS")
-        el.classList.add("test-ok");
-
-    else if(value==="INCOMPLETE")
-        el.classList.add("test-fail");
-
-    else
-        el.classList.add("test-waiting");
 }
 
 
 function runSystemTest(){
 
-    if(!serialConnected){
+  resetSystemTest();
 
-        speak(
-            userName
-                ? addressUser(
-                    "AMOMII ONE is not connected. "+
-                    "Connect the board before running a system test."
-                  )
-                : "AMOMII ONE is not connected. Connect the board before running a system test."
-        );
+  if(!boardConnected()){
 
-        return;
-    }
-
-    clearTimeout(systemTestFinishTimer);
-
-    resetSystemTest();
-
-    systemTestState.active=true;
-
-    setActivity("SYSTEM TEST");
-
-    addHistory("SYSTEM","test");
-
-    log("Starting system test...");
-
-    speak(
-        userName
-            ? addressUser("Starting the system test.")
-            : "Starting system test."
+    log(
+      "Cannot run system test: AMOMII ONE is not connected.",
+      "warning"
     );
 
-    sendCommand("test");
-
-    systemTestFinishTimer=setTimeout(
-        ()=>{
-            if(systemTestState.active){
-                finishSystemTest();
-            }
-        },
-        15000
+    speakText(
+      `${BOARD_NAME} is not connected.`
     );
+
+    return;
+
+  }
+
+  log(
+    "Starting system test...",
+    "system"
+  );
+
+  speakText(
+    "Starting system test."
+  );
+
+  sendBoardCommand("test");
+
 }
 
 
-function finishSystemTest(){
+function parseSystemTestLine(line){
 
-    if(!systemTestState.active) return;
+  if(!systemTestState.active){
+    return;
+  }
 
-    systemTestState.active=false;
+  const testMatch =
+    line.match(
+      /^\s*(Serial|LED|Timing|Memory|Commands|System):\s*(OK|FAIL|TESTING)\s*$/i
+    );
 
-    clearTimeout(systemTestFinishTimer);
+  if(testMatch){
 
-    const keys=[
-        "serial",
-        "led",
-        "timing",
-        "memory",
-        "commands",
-        "system"
-    ];
+    const label =
+      testMatch[1].toLowerCase();
 
-    const labels={
-        serial:"Serial",
-        led:"LED",
-        timing:"timing",
-        memory:"memory",
-        commands:"commands",
-        system:"system"
+    const result =
+      testMatch[2].toUpperCase();
+
+    const keyMap = {
+
+      serial:"serial",
+
+      led:"led",
+
+      timing:"timing",
+
+      memory:"memory",
+
+      commands:"commands",
+
+      system:"system"
+
     };
 
-    const failures=[];
-    const incomplete=[];
+    const key =
+      keyMap[label];
 
-    for(const key of keys){
+    if(key){
 
-        if(systemTestState[key]==="FAIL"){
-            failures.push(labels[key]);
-        }
+      systemTestState[key] =
+        result;
 
-        if(systemTestState[key]===null){
-            incomplete.push(labels[key]);
-        }
+      updateDiagnostics();
+
     }
 
-    if(failures.length===0 && incomplete.length===0){
+    return;
 
-        setTestUI("testResult","PASS");
-        setActivity("TEST PASSED");
+  }
 
-        speak(
-            userName
-                ? userName+
-                  ", system test complete. Serial, LED, timing, memory, commands, and system checks all passed."
-                : "System test complete. Serial, LED, timing, memory, commands, and system checks all passed."
-        );
+  if(
+    line.includes(
+      "================================="
+    )
+  ){
 
-    }else if(failures.length>0){
+    finalizeSystemTest();
 
-        setTestUI("testResult","FAIL");
-        setActivity("TEST FAILED");
+  }
 
-        speak(
-            userName
-                ? userName+
-                  ", system test complete. The following checks failed: "+
-                  failures.join(", ")+"."
-                : "System test complete. The following checks failed: "+
-                  failures.join(", ")+"."
-        );
-
-    }else{
-
-        setTestUI("testResult","INCOMPLETE");
-        setActivity("TEST INCOMPLETE");
-
-        speak(
-            userName
-                ? userName+
-                  ", the system test finished, but I could not verify every check."
-                : "The system test finished, but I could not verify every check."
-        );
-    }
 }
 
 
-/* ============================================================
-   SERIAL RESPONSE
-   ============================================================ */
+function finalizeSystemTest(){
 
-function parseSerialResponse(line){
+  if(!systemTestState.active){
+    return;
+  }
 
-    const trimmed=line.trim();
+  systemTestState.active = false;
 
-    const testMatch=trimmed.match(
-        /^\s*(Serial|LED|Timing|Memory|Commands|System):\s*(OK|FAIL|TESTING)\s*$/i
+  const keys = [
+
+    "serial",
+    "led",
+    "timing",
+    "memory",
+    "commands",
+    "system"
+
+  ];
+
+  const allOk =
+    keys.every(
+      key =>
+        systemTestState[key] === "OK"
     );
 
-    if(testMatch && systemTestState.active){
+  const failed =
+    keys.filter(
+      key =>
+        systemTestState[key] === "FAIL"
+    );
 
-        const label=testMatch[1].toLowerCase();
-        const value=testMatch[2].toUpperCase();
+  updateDiagnostics();
 
-        const map={
-            serial:"serial",
-            led:"led",
-            timing:"timing",
-            memory:"memory",
-            commands:"commands",
-            system:"system"
-        };
+  if(allOk){
 
-        const key=map[label];
+    state.systemState = "OK";
 
-        if(key){
+    log(
+      "System test complete. All checks passed.",
+      "success"
+    );
 
-            systemTestState[key]=value;
+    speakText(
+      "System test complete. Serial, LED, timing, memory, commands, and system checks all passed."
+    );
 
-            const uiMap={
-                serial:"testSerial",
-                led:"testLED",
-                timing:"testTiming",
-                memory:"testMemory",
-                commands:"testCommands",
-                system:"testSystem"
-            };
+  }else if(failed.length){
 
-            setTestUI(
-                uiMap[key],
-                value
-            );
+    const names =
+      failed.map(
+        key =>
+          key.charAt(0).toUpperCase() +
+          key.slice(1)
+      );
 
-            setActivity(
-                label.toUpperCase()+
-                " "+value
-            );
-        }
+    log(
+      `System test failed: ${names.join(", ")}.`,
+      "error"
+    );
 
-        return;
-    }
+    speakText(
+      `System test complete. The following checks failed: ${names.join(", ")}.`
+    );
 
+  }else{
 
-    if(
-        /^=+\s*$/.test(trimmed) &&
-        systemTestState.active
-    ){
-        finishSystemTest();
-        return;
-    }
+    log(
+      "System test finished, but not every check could be verified.",
+      "warning"
+    );
 
+    speakText(
+      "System test finished, but I could not verify every check."
+    );
 
-    const text=trimmed.toLowerCase();
+  }
 
+  saveState();
 
-    if(text.includes("flash complete")){
-        setActivity("LED TEST COMPLETE");
-        return;
-    }
-
-
-    if(
-        text.includes("led is now on") ||
-        text.includes("led: on") ||
-        text.includes("led turned on")
-    ){
-
-        setActivity("LED ON");
-
-        document.getElementById(
-            "statusLED"
-        ).textContent="ON";
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("The LED is now on.")
-                    : "The LED is now on."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("led is now off") ||
-        text.includes("led: off") ||
-        text.includes("led turned off")
-    ){
-
-        setActivity("LED OFF");
-
-        document.getElementById(
-            "statusLED"
-        ).textContent="OFF";
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("The LED is now off.")
-                    : "The LED is now off."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("blink complete") ||
-        text.includes("blinking complete") ||
-        text.includes("blink finished")
-    ){
-
-        setActivity("BLINK COMPLETE");
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("Blink sequence complete.")
-                    : "Blink sequence complete."
-            );
-        }
-
-        setTimeout(
-            ()=>setActivity("IDLE"),
-            1200
-        );
-
-        return;
-    }
-
-
-    if(
-        text.includes("sos complete") ||
-        text.includes("sos finished") ||
-        text.includes("sos sent")
-    ){
-
-        setActivity("SOS COMPLETE");
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("SOS transmission complete.")
-                    : "SOS transmission complete."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("stopped") ||
-        text.includes("operation stopped")
-    ){
-
-        setActivity("STOPPED");
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("Operation stopped.")
-                    : "Operation stopped."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("morse") &&
-        (
-            text.includes("start") ||
-            text.includes("sending") ||
-            text.includes("transmitting")
-        )
-    ){
-
-        document.getElementById(
-            "morseStatus"
-        ).textContent="Morse transmission active.";
-
-        setActivity("MORSE ACTIVE");
-
-        return;
-    }
-
-
-    if(
-        text.includes("morse") &&
-        (
-            text.includes("complete") ||
-            text.includes("finished") ||
-            text.includes("done")
-        )
-    ){
-
-        document.getElementById(
-            "morseStatus"
-        ).textContent="Morse transmission complete.";
-
-        setActivity("MORSE COMPLETE");
-
-        if(!isSpeaking){
-            speak("Morse transmission complete.");
-        }
-    }
 }
 
 
-/* ============================================================
-   SPEECH
-   ============================================================ */
+/* =========================================================
+   DIAGNOSTICS UI
+========================================================= */
 
-function speak(text){
+function setDiag(id,value){
 
-    if(!text) return;
+  const el =
+    document.getElementById(id);
 
-    speechQueue.push(text);
+  if(!el) return;
 
-    processSpeechQueue();
+  el.textContent =
+    value || "---";
+
+  el.className =
+    "diag-state " +
+    (
+      value === "OK"
+      ? "pass"
+      : value === "FAIL"
+      ? "fail"
+      : value === "TESTING"
+      ? "testing"
+      : "unknown"
+    );
+
+}
+
+
+function updateDiagnostics(){
+
+  setDiag(
+    "diagSerial",
+    systemTestState.serial
+  );
+
+  setDiag(
+    "diagLed",
+    systemTestState.led
+  );
+
+  setDiag(
+    "diagTiming",
+    systemTestState.timing
+  );
+
+  setDiag(
+    "diagMemory",
+    systemTestState.memory
+  );
+
+  setDiag(
+    "diagCommands",
+    systemTestState.commands
+  );
+
+  setDiag(
+    "diagSystem",
+    systemTestState.system
+  );
+
+  const result =
+    document.getElementById(
+      "diagnosticResult"
+    );
+
+  const small =
+    document.getElementById(
+      "testResultSmall"
+    );
+
+  if(!result || !small) return;
+
+  const values = [
+
+    systemTestState.serial,
+    systemTestState.led,
+    systemTestState.timing,
+    systemTestState.memory,
+    systemTestState.commands,
+    systemTestState.system
+
+  ];
+
+  if(systemTestState.active){
+
+    result.textContent = "TESTING";
+
+    result.className =
+      "result-banner testing";
+
+    small.textContent = "TESTING";
+
+    small.className = "testing";
+
+    return;
+
+  }
+
+  if(
+    values.every(value => value === "OK")
+  ){
+
+    result.textContent = "PASS";
+
+    result.className =
+      "result-banner pass";
+
+    small.textContent = "PASS";
+
+    small.className = "pass";
+
+  }else if(
+    values.includes("FAIL")
+  ){
+
+    result.textContent = "FAIL";
+
+    result.className =
+      "result-banner fail";
+
+    small.textContent = "FAIL";
+
+    small.className = "fail";
+
+  }else{
+
+    result.textContent = "NOT TESTED";
+
+    result.className =
+      "result-banner unknown";
+
+    small.textContent = "READY";
+
+    small.className = "unknown";
+
+  }
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function updateAllStatus(){
+
+  const boardOnline =
+    state.boardConnected;
+
+  const trainerOnline =
+    state.trainerConnected;
+
+  setConnectionUI(
+    "boardDot",
+    "boardHeaderStatus",
+    boardOnline,
+    "AMOMII ONLINE",
+    "AMOMII OFFLINE"
+  );
+
+  setConnectionUI(
+    "trainerDot",
+    "trainerHeaderStatus",
+    trainerOnline,
+    "TRAINER ONLINE",
+    "TRAINER OFFLINE"
+  );
+
+  setConnectionUI(
+    "boardPanelDot",
+    null,
+    boardOnline
+  );
+
+  setConnectionUI(
+    "trainerPanelDot",
+    null,
+    trainerOnline
+  );
+
+  const voiceDot =
+    document.getElementById("voiceDot");
+
+  const voiceHeader =
+    document.getElementById(
+      "voiceHeaderStatus"
+    );
+
+  if(state.voiceEnabled){
+
+    voiceDot.className =
+      "dot ok";
+
+    voiceHeader.textContent =
+      "VOICE READY";
+
+  }else{
+
+    voiceDot.className =
+      "dot";
+
+    voiceHeader.textContent =
+      "VOICE OFF";
+
+  }
+
+  document.getElementById(
+    "profileVoiceState"
+  ).textContent =
+    state.voiceEnabled
+      ? "READY"
+      : "OFF";
+
+  document.getElementById(
+    "statusBoard"
+  ).textContent =
+    boardOnline
+      ? "ONLINE"
+      : "OFFLINE";
+
+  document.getElementById(
+    "statusTrainer"
+  ).textContent =
+    trainerOnline
+      ? "ONLINE"
+      : "OFFLINE";
+
+  document.getElementById(
+    "statusSystem"
+  ).textContent =
+    state.systemState;
+
+  document.getElementById(
+    "statusLed"
+  ).textContent =
+    state.ledState;
+
+  document.getElementById(
+    "statusBlink"
+  ).textContent =
+    state.blinking
+      ? "YES"
+      : "NO";
+
+  document.getElementById(
+    "statusCommands"
+  ).textContent =
+    state.commandCount;
+
+  document.getElementById(
+    "statusUser"
+  ).textContent =
+    state.userName || "Not set";
+
+}
+
+
+function setConnectionUI(
+  dotId,
+  textId,
+  online,
+  onlineText,
+  offlineText
+){
+
+  const dot =
+    document.getElementById(dotId);
+
+  if(dot){
+
+    dot.className =
+      online
+        ? "dot ok"
+        : "dot";
+
+  }
+
+  if(textId){
+
+    const text =
+      document.getElementById(textId);
+
+    if(text){
+
+      text.textContent =
+        online
+          ? onlineText
+          : offlineText;
+
+    }
+
+  }
+
+}
+
+
+function updateUptime(){
+
+  const seconds =
+    Math.floor(
+      (Date.now() - startTime) / 1000
+    );
+
+  const h =
+    String(
+      Math.floor(seconds / 3600)
+    ).padStart(2,"0");
+
+  const m =
+    String(
+      Math.floor((seconds % 3600) / 60)
+    ).padStart(2,"0");
+
+  const s =
+    String(
+      seconds % 60
+    ).padStart(2,"0");
+
+  document.getElementById(
+    "statusUptime"
+  ).textContent =
+    `${h}:${m}:${s}`;
+
+}
+
+
+/* =========================================================
+   ASSISTANT PROFILE
+========================================================= */
+
+function updateProfile(){
+
+  const name =
+    state.assistantName ||
+    "Assistant";
+
+  document.getElementById(
+    "assistantNameDisplay"
+  ).textContent =
+    name;
+
+  document.getElementById(
+    "assistantAvatar"
+  ).textContent =
+    name
+      .charAt(0)
+      .toUpperCase();
+
+  document.getElementById(
+    "userNameDisplay"
+  ).textContent =
+    state.userName || "Not set";
+
+}
+
+
+function openAssistantSettings(){
+
+  document.getElementById(
+    "assistantNameInput"
+  ).value =
+    state.assistantName;
+
+  document.getElementById(
+    "userNameInput"
+  ).value =
+    state.userName;
+
+  document.getElementById(
+    "assistantModal"
+  ).classList.add("show");
+
+}
+
+
+function closeAssistantSettings(){
+
+  document.getElementById(
+    "assistantModal"
+  ).classList.remove("show");
+
+}
+
+
+function saveAssistantSettings(){
+
+  const assistant =
+    document.getElementById(
+      "assistantNameInput"
+    ).value.trim();
+
+  const user =
+    document.getElementById(
+      "userNameInput"
+    ).value.trim();
+
+  state.assistantName =
+    assistant || "Assistant";
+
+  state.userName =
+    cleanName(user);
+
+  saveState();
+
+  updateProfile();
+
+  updateAllStatus();
+
+  closeAssistantSettings();
+
+  log(
+    `Assistant identity updated to "${state.assistantName}".`,
+    "success"
+  );
+
+  speakText(
+    `I am now ${state.assistantName}.`
+  );
+
+}
+
+
+/* =========================================================
+   NAME HANDLING
+========================================================= */
+
+function cleanName(name){
+
+  let value =
+    String(name || "")
+      .trim()
+      .replace(/[.!?,]+$/g,"");
+
+  value =
+    value.replace(
+      /^(my name is|i am|i'm|call me)\s+/i,
+      ""
+    );
+
+  return value
+    .split(/\s+/)
+    .slice(0,4)
+    .join(" ");
+
+}
+
+
+function setUserName(name){
+
+  const cleaned =
+    cleanName(name);
+
+  if(!cleaned){
+
+    speakText(
+      "I didn't catch your name."
+    );
+
+    return;
+
+  }
+
+  state.userName =
+    cleaned;
+
+  awaitingName = false;
+
+  saveState();
+
+  updateProfile();
+
+  updateAllStatus();
+
+  log(
+    `User name set to ${cleaned}.`,
+    "success"
+  );
+
+  speakText(
+    `Nice to meet you, ${cleaned}. I'm ready.`
+  );
+
+}
+
+
+/* =========================================================
+   SPEECH SYNTHESIS
+========================================================= */
+
+function initializeSpeech(){
+
+  if(!("speechSynthesis" in window)){
+
+    log(
+      "Speech synthesis is not available.",
+      "warning"
+    );
+
+    return;
+
+  }
+
+}
+
+
+function getPreferredVoice(){
+
+  const voices =
+    speechSynthesis.getVoices();
+
+  return (
+    voices.find(
+      v =>
+        /en-US/i.test(v.lang) &&
+        /Google|Microsoft|Samantha|Alex/i.test(v.name)
+    ) ||
+    voices.find(
+      v =>
+        /en-US/i.test(v.lang)
+    ) ||
+    voices[0] ||
+    null
+  );
+
+}
+
+
+function speakText(text){
+
+  if(!text) return;
+
+  speechQueue.push(text);
+
+  processSpeechQueue();
+
 }
 
 
 function processSpeechQueue(){
 
-    if(isSpeaking) return;
+  if(isSpeaking) return;
 
-    if(speechQueue.length===0){
+  if(!speechQueue.length) return;
 
-        setActivity(
-            voiceEnabled
-                ? "LISTENING"
-                : "IDLE"
-        );
+  if(!("speechSynthesis" in window)){
 
-        return;
-    }
+    speechQueue = [];
 
-    const text=speechQueue.shift();
+    return;
 
-    stopRecognitionForSpeech();
+  }
 
-    clearTimeout(speechCooldownTimer);
-    clearTimeout(speechResumeTimer);
+  const text =
+    speechQueue.shift();
 
-    isSpeaking=true;
+  isSpeaking = true;
 
-    setActivity("SPEAKING");
-    setVoiceUI("speaking");
+  stopRecognitionForSpeech();
 
-    log(
-        'Speaking: "'+text+'"',
-        "speech"
-    );
+  const utterance =
+    new SpeechSynthesisUtterance(text);
 
-    if(!("speechSynthesis" in window)){
+  const voice =
+    getPreferredVoice();
 
-        isSpeaking=false;
-        processSpeechQueue();
-        return;
-    }
+  if(voice){
+    utterance.voice = voice;
+  }
 
-    speechSynthesis.cancel();
+  utterance.rate = .95;
+  utterance.pitch = 1;
+  utterance.volume = 1;
 
-    const utterance=
-        new SpeechSynthesisUtterance(text);
+  utterance.onend = () => {
 
-    utterance.rate=.95;
-    utterance.pitch=1;
-    utterance.volume=1;
+    isSpeaking = false;
 
-    const voices=
-        speechSynthesis.getVoices();
+    resumeRecognitionAfterSpeech();
 
-    const preferred=
-        voices.find(
-            v=>v.lang &&
-            v.lang.toLowerCase().startsWith("en-us")
-        )||
-        voices.find(
-            v=>v.lang &&
-            v.lang.toLowerCase().startsWith("en")
-        );
+    processSpeechQueue();
 
-    if(preferred){
-        utterance.voice=preferred;
-    }
+  };
 
-    utterance.onstart=()=>{
-        isSpeaking=true;
-        setActivity("SPEAKING");
-        setVoiceUI("speaking");
-    };
+  utterance.onerror = () => {
 
-    utterance.onend=()=>{
+    isSpeaking = false;
 
-        isSpeaking=false;
+    resumeRecognitionAfterSpeech();
 
-        setActivity(
-            voiceEnabled
-                ? "VOICE READY"
-                : "IDLE"
-        );
+    processSpeechQueue();
 
-        log("Speech complete.","speech");
+  };
 
-        speechCooldownTimer=setTimeout(
-            ()=>{
+  log(
+    `Speaking: "${text}"`,
+    "system"
+  );
 
-                if(speechQueue.length>0){
-                    processSpeechQueue();
-                }else{
-                    resumeRecognitionAfterSpeech();
-                }
+  speechSynthesis.speak(
+    utterance
+  );
 
-            },
-            650
-        );
-    };
-
-    utterance.onerror=event=>{
-
-        isSpeaking=false;
-
-        if(
-            event.error!=="canceled" &&
-            event.error!=="interrupted"
-        ){
-
-            log(
-                "Speech error: "+event.error,
-                "error"
-            );
-        }
-
-        speechCooldownTimer=setTimeout(
-            ()=>{
-                if(speechQueue.length>0){
-                    processSpeechQueue();
-                }else{
-                    resumeRecognitionAfterSpeech();
-                }
-            },
-            650
-        );
-    };
-
-    speechSynthesis.speak(utterance);
 }
 
 
-/* ============================================================
-   SPEECH / RECOGNITION PROTECTION
-   ============================================================ */
-
 function stopRecognitionForSpeech(){
 
-    if(!recognition) return;
+  if(
+    recognition &&
+    recognitionRunning
+  ){
 
-    restartingRecognition=false;
+    restartingRecognition = true;
 
-    if(recognitionRunning){
+    try{
+      recognition.stop();
+    }catch(error){}
 
-        try{
-            recognition.abort();
-        }catch(e){}
+    recognitionRunning = false;
 
-        recognitionRunning=false;
-    }
+  }
 
-    setVoiceUI("off");
 }
 
 
 function resumeRecognitionAfterSpeech(){
 
-    if(!voiceEnabled) return;
+  clearTimeout(
+    resumeVoiceTimer
+  );
 
-    clearTimeout(speechResumeTimer);
+  if(!state.voiceEnabled) return;
 
-    speechResumeTimer=setTimeout(
-        ()=>{
+  resumeVoiceTimer =
+    setTimeout(() => {
 
-            if(
-                !voiceEnabled ||
-                isSpeaking ||
-                recognitionRunning
-            ){
-                return;
-            }
+      restartingRecognition = false;
 
-            startRecognition();
+      startRecognition();
 
-        },
-        500
-    );
+    },650);
+
 }
 
 
-/* ============================================================
-   VOICE INITIALIZATION
-   ============================================================ */
+/* =========================================================
+   SPEECH RECOGNITION
+========================================================= */
 
 function initializeVoice(){
 
-    const SpeechRecognition=
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+  initializeSpeech();
 
-    if(!SpeechRecognition){
+  const Recognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-        log(
-            "Speech recognition is not supported in this browser.",
-            "error"
-        );
+  if(!Recognition){
 
-        voiceButton.disabled=true;
+    log(
+      "Speech recognition is not supported by this browser.",
+      "warning"
+    );
 
-        return false;
+    document.getElementById(
+      "voiceState"
+    ).textContent =
+      "Speech recognition unavailable.";
+
+    return;
+
+  }
+
+  recognition =
+    new Recognition();
+
+  recognition.continuous = false;
+
+  recognition.interimResults = false;
+
+  recognition.lang = "en-US";
+
+  recognition.maxAlternatives = 1;
+
+
+  recognition.onstart = () => {
+
+    recognitionRunning = true;
+
+    document.getElementById(
+      "voiceState"
+    ).textContent =
+      "Listening...";
+
+  };
+
+
+  recognition.onresult = event => {
+
+    const transcript =
+      event.results[
+        event.results.length - 1
+      ][0].transcript.trim();
+
+    handleVoiceInput(transcript);
+
+  };
+
+
+  recognition.onerror = event => {
+
+    recognitionRunning = false;
+
+    if(
+      event.error !== "aborted" &&
+      event.error !== "no-speech"
+    ){
+
+      log(
+        `Voice error: ${event.error}`,
+        "warning"
+      );
+
     }
 
-    recognition=new SpeechRecognition();
+    document.getElementById(
+      "voiceState"
+    ).textContent =
+      "Voice engine ready.";
 
-    recognition.continuous=false;
-    recognition.interimResults=false;
-    recognition.lang="en-US";
-    recognition.maxAlternatives=1;
-
-    recognition.onstart=()=>{
-
-        recognitionRunning=true;
-
-        if(voiceEnabled && !isSpeaking){
-
-            setVoiceUI("listening");
-            setActivity(
-                awaitingName
-                    ? "WAITING FOR NAME"
-                    : "LISTENING"
-            );
-        }
-    };
+  };
 
 
-    recognition.onresult=event=>{
+  recognition.onend = () => {
 
-        if(isSpeaking) return;
+    recognitionRunning = false;
 
-        const result=
-            event.results[
-                event.results.length-1
-            ];
+    if(
+      state.voiceEnabled &&
+      !isSpeaking &&
+      !restartingRecognition
+    ){
 
-        if(!result || !result[0]) return;
+      setTimeout(
+        startRecognition,
+        250
+      );
 
-        const transcript=
-            result[0].transcript.trim();
+    }
 
-        if(!transcript) return;
+  };
 
-        lastHeard.textContent=
-            '"'+transcript+'"';
-
-        log(
-            'Voice: "'+transcript+'"',
-            "voice"
-        );
-
-        executeVoiceCommand(transcript);
-    };
+}
 
 
-    recognition.onerror=event=>{
+function toggleVoice(){
 
-        recognitionRunning=false;
+  if(state.voiceEnabled){
 
-        if(event.error==="no-speech"){
+    stopVoice();
 
-            if(voiceEnabled){
-                restartRecognitionSoon();
-            }
+  }else{
 
-            return;
-        }
+    startVoice();
 
-        if(event.error==="aborted"){
-            return;
-        }
+  }
 
-        log(
-            "Voice recognition error: "+event.error,
-            "error"
-        );
-
-        if(voiceEnabled){
-            restartRecognitionSoon();
-        }
-    };
+}
 
 
-    recognition.onend=()=>{
+function startVoice(){
 
-        recognitionRunning=false;
+  if(!recognition){
 
-        if(
-            voiceEnabled &&
-            !isSpeaking
-        ){
-            restartRecognitionSoon();
-        }
-    };
+    log(
+      "Voice recognition is unavailable.",
+      "error"
+    );
 
-    return true;
+    return;
+
+  }
+
+  state.voiceEnabled = true;
+
+  saveState();
+
+  updateAllStatus();
+
+  document.getElementById(
+    "voiceButton"
+  ).textContent =
+    "STOP VOICE";
+
+  log(
+    "Voice control enabled.",
+    "success"
+  );
+
+  if(!state.userName){
+
+    awaitingName = true;
+
+    speakText(
+      "Voice control enabled. Before we begin, what's your name?"
+    );
+
+  }else{
+
+    speakText(
+      `Voice control enabled. Welcome back, ${state.userName}.`
+    );
+
+  }
+
+  startRecognition();
+
+}
+
+
+function stopVoice(){
+
+  state.voiceEnabled = false;
+
+  awaitingName = false;
+
+  restartingRecognition = false;
+
+  clearTimeout(
+    resumeVoiceTimer
+  );
+
+  if(recognition){
+
+    try{
+      recognition.stop();
+    }catch(error){}
+
+  }
+
+  recognitionRunning = false;
+
+  speechQueue = [];
+
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+  }
+
+  isSpeaking = false;
+
+  updateAllStatus();
+
+  document.getElementById(
+    "voiceButton"
+  ).textContent =
+    "START VOICE";
+
+  document.getElementById(
+    "voiceState"
+  ).textContent =
+    "Voice engine stopped.";
+
+  log(
+    "Voice control disabled.",
+    "warning"
+  );
+
 }
 
 
 function startRecognition(){
 
-    if(
-        !recognition ||
-        !voiceEnabled ||
-        isSpeaking ||
-        recognitionRunning
-    ){
-        return;
-    }
+  if(
+    !recognition ||
+    !state.voiceEnabled ||
+    isSpeaking ||
+    recognitionRunning
+  ){
 
-    try{
+    return;
 
-        restartingRecognition=false;
+  }
 
-        recognition.start();
+  try{
 
-    }catch(error){
+    recognition.start();
 
-        recognitionRunning=false;
-        restartRecognitionSoon();
-    }
+  }catch(error){
+
+    recognitionRunning = false;
+
+  }
+
 }
 
 
-function restartRecognitionSoon(){
+/* =========================================================
+   VOICE COMMAND PROCESSOR
+========================================================= */
+
+function handleVoiceInput(transcript){
+
+  const raw =
+    transcript.trim();
+
+  const text =
+    raw.toLowerCase();
+
+  document.getElementById(
+    "lastHeard"
+  ).textContent =
+    `"${raw}"`;
+
+  log(
+    `Voice: "${raw}"`,
+    "system"
+  );
+
+
+  /* -----------------------------------------
+     NAME COLLECTION
+  ----------------------------------------- */
+
+  if(awaitingName){
 
     if(
-        !voiceEnabled ||
-        isSpeaking ||
-        restartingRecognition
+      text.includes("my name is") ||
+      text.startsWith("i am ") ||
+      text.startsWith("i'm ") ||
+      text.startsWith("call me ")
     ){
-        return;
+
+      setUserName(raw);
+
+      return;
+
     }
 
-    restartingRecognition=true;
+    if(
+      raw.length > 0 &&
+      raw.length < 40 &&
+      !looksLikeCommand(text)
+    ){
 
-    setTimeout(
-        ()=>{
+      setUserName(raw);
 
-            restartingRecognition=false;
+      return;
 
-            if(
-                voiceEnabled &&
-                !isSpeaking &&
-                !recognitionRunning
-            ){
-                startRecognition();
-            }
+    }
 
-        },
-        700
+  }
+
+
+  /* -----------------------------------------
+     NAME SETTING
+  ----------------------------------------- */
+
+  const nameMatch =
+    raw.match(
+      /(?:my name is|call me|i am|i'm)\s+(.+)/i
     );
-}
+
+  if(nameMatch){
+
+    setUserName(
+      nameMatch[1]
+    );
+
+    return;
+
+  }
 
 
-/* ============================================================
-   VOICE TOGGLE
-   ============================================================ */
+  if(
+    text.includes("what's my name") ||
+    text.includes("what is my name")
+  ){
 
-function toggleVoice(){
+    if(state.userName){
 
-    if(!recognition){
-
-        if(!initializeVoice()){
-            return;
-        }
-    }
-
-    if(voiceEnabled){
-
-        voiceEnabled=false;
-        restartingRecognition=false;
-
-        clearTimeout(speechResumeTimer);
-        clearTimeout(speechCooldownTimer);
-
-        try{
-            recognition.abort();
-        }catch(e){}
-
-        recognitionRunning=false;
-
-        voiceButton.textContent="START VOICE";
-
-        setVoiceUI("off");
-        setActivity("IDLE");
-
-        log("Voice control disabled.");
-
-        return;
-    }
-
-    voiceEnabled=true;
-
-    voiceButton.textContent="STOP VOICE";
-
-    log("Voice control enabled.");
-
-    if(userName){
-
-        speak(
-            "Voice control enabled. "+
-            "Welcome back, "+
-            userName+"."
-        );
+      speakText(
+        `Your name is ${state.userName}.`
+      );
 
     }else{
 
-        askForName();
-    }
-}
+      speakText(
+        "I don't have your name yet."
+      );
 
-
-/* ============================================================
-   VOICE COMMAND ENGINE
-   ============================================================ */
-
-function executeVoiceCommand(rawCommand){
-
-    const original=rawCommand.trim();
-
-    const command=normalizeVoiceCommand(original);
-
-    if(!command) return;
-
-    addHistory("VOICE",original);
-
-
-    /* NAME COLLECTION */
-
-    if(awaitingName){
-
-        if(
-            command.includes("change my name") ||
-            command.includes("change name")
-        ){
-
-            speak(
-                "What would you like me to call you?"
-            );
-
-            awaitingName=true;
-            return;
-        }
-
-        if(
-            command.includes("forget my name") ||
-            command.includes("forget name")
-        ){
-
-            forgetName();
-            return;
-        }
-
-        if(
-            command==="help" ||
-            command.includes("what can you do")
-        ){
-
-            speak(
-                "Before we begin, I need to know what you'd like me to call you."
-            );
-
-            return;
-        }
-
-        setUserName(original);
-        return;
     }
 
+    return;
 
-    /* NAME */
+  }
 
-    if(
-        command.includes("what is my name") ||
-        command.includes("whats my name") ||
-        command.includes("what's my name") ||
-        command.includes("what should you call me") ||
-        command.includes("what do you call me")
-    ){
 
-        if(userName){
+  if(
+    text.includes("change my name")
+  ){
 
-            speak(
-                "Your name is "+userName+"."
-            );
+    awaitingName = true;
 
-        }else{
-
-            speak(
-                "You haven't told me your name yet."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        command.includes("change my name") ||
-        command.includes("change name")
-    ){
-
-        awaitingName=true;
-
-        speak(
-            "What would you like me to call you?"
-        );
-
-        return;
-    }
-
-
-    if(
-        command.includes("forget my name") ||
-        command.includes("forget name")
-    ){
-
-        forgetName();
-        return;
-    }
-
-
-    /* ASSISTANT IDENTITY */
-
-    if(
-        command==="who are you" ||
-        command.includes("what is your name") ||
-        command.includes("whats your name") ||
-        command.includes("what's your name")
-    ){
-
-        speak(
-            userName
-                ? "I'm AMOMII, your command center assistant, "+userName+"."
-                : "I'm AMOMII, your command center assistant."
-        );
-
-        return;
-    }
-
-
-    /* HELP */
-
-    if(
-        command==="help" ||
-        command.includes("give me help") ||
-        command.includes("need help") ||
-        command.includes("show me the commands") ||
-        command.includes("what commands do you have")
-    ){
-
-        speakHelp();
-        return;
-    }
-
-
-    /* CAPABILITIES */
-
-    if(
-        command.includes("what can you do") ||
-        command.includes("what are your capabilities") ||
-        command.includes("what do you do") ||
-        command.includes("what can you control")
-    ){
-
-        speak(
-            userName
-                ? "I can control AMOMII ONE, operate the LED, run diagnostics, manage your music and video libraries, load YouTube videos, report system status, tell you the time and date, and communicate with the trainer pad, "+userName+"."
-                : "I can control AMOMII ONE, operate the LED, run diagnostics, manage your music and video libraries, load YouTube videos, report system status, tell you the time and date, and communicate with the trainer pad."
-        );
-
-        return;
-    }
-
-
-    /* ALL COMMANDS */
-
-    if(
-        command.includes("all commands") ||
-        command.includes("all voice commands") ||
-        command.includes("list commands") ||
-        command.includes("complete command list")
-    ){
-
-        speakAllCommands();
-        return;
-    }
-
-
-    /* TIME */
-
-    if(
-        command.includes("what time is it") ||
-        command.includes("what is the time") ||
-        command.includes("current time") ||
-        command==="time" ||
-        command.includes("tell me the time")
-    ){
-
-        speakTime();
-        return;
-    }
-
-
-    /* DATE TIME */
-
-    if(
-        command.includes("date and time") ||
-        command.includes("time and date")
-    ){
-
-        speakDateTime();
-        return;
-    }
-
-
-    /* DATE */
-
-    if(
-        command.includes("what is today's date") ||
-        command.includes("what is todays date") ||
-        command.includes("what date is it") ||
-        command.includes("current date") ||
-        command==="date"
-    ){
-
-        speakDate();
-        return;
-    }
-
-
-    /* DAY */
-
-    if(
-        command==="day" ||
-        command.includes("what day is it") ||
-        command.includes("day of the week")
-    ){
-
-        speakDay();
-        return;
-    }
-
-
-    /* MONTH */
-
-    if(
-        command==="month" ||
-        command.includes("what month is it") ||
-        command.includes("current month")
-    ){
-
-        speakMonth();
-        return;
-    }
-
-
-    /* YEAR */
-
-    if(
-        command==="year" ||
-        command.includes("what year is it") ||
-        command.includes("current year")
-    ){
-
-        speakYear();
-        return;
-    }
-
-
-    /* STATUS */
-
-    if(
-        command==="status" ||
-        command.includes("system status") ||
-        command.includes("give me status") ||
-        command.includes("how is the system") ||
-        command.includes("are you online")
-    ){
-
-        requestStatus();
-        return;
-    }
-
-
-    /* DIAGNOSTICS */
-
-    if(
-        command==="test" ||
-        command.includes("system test") ||
-        command.includes("run a test") ||
-        command.includes("test the system") ||
-        command.includes("diagnostic") ||
-        command.includes("run diagnostics") ||
-        command.includes("diagnostic test")
-    ){
-
-        runSystemTest();
-        return;
-    }
-
-
-    /* LED ON */
-
-    if(
-        command==="on" ||
-        command==="led on" ||
-        command.includes("turn the led on") ||
-        command.includes("turn led on") ||
-        command.includes("turn the light on") ||
-        command.includes("lights on") ||
-        command.includes("light on")
-    ){
-
-        voiceLEDOn();
-        return;
-    }
-
-
-    /* LED OFF */
-
-    if(
-        command==="off" ||
-        command==="led off" ||
-        command.includes("turn the led off") ||
-        command.includes("turn led off") ||
-        command.includes("turn the light off") ||
-        command.includes("lights off") ||
-        command.includes("light off")
-    ){
-
-        voiceLEDOff();
-        return;
-    }
-
-
-    /* TOGGLE */
-
-    if(
-        command==="toggle" ||
-        command==="toggle led" ||
-        command.includes("toggle the led") ||
-        command.includes("toggle the light")
-    ){
-
-        voiceToggle();
-        return;
-    }
-
-
-    /* BLINK FIVE */
-
-    if(
-        command.includes("blink five") ||
-        command.includes("blink 5")
-    ){
-
-        voiceBlinkFive();
-        return;
-    }
-
-
-    /* BLINK */
-
-    if(
-        command==="blink" ||
-        command.includes("start blinking") ||
-        command.includes("make it blink") ||
-        command.includes("make the led blink") ||
-        command.includes("blink the led")
-    ){
-
-        voiceBlink();
-        return;
-    }
-
-
-    /* SOS */
-
-    if(
-        command==="sos" ||
-        command.includes("send sos") ||
-        command.includes("transmit sos") ||
-        command.includes("send an sos")
-    ){
-
-        voiceSOS();
-        return;
-    }
-
-
-    /* STOP */
-
-    if(
-        command==="stop" ||
-        command==="stop everything" ||
-        command==="stop blinking" ||
-        command==="cancel" ||
-        command==="abort"
-    ){
-
-        voiceStop();
-        return;
-    }
-
-
-    /* CONNECT */
-
-    if(
-        command==="connect" ||
-        command.includes("connect to amomii") ||
-        command.includes("connect to the board")
-    ){
-
-        voiceConnect();
-        return;
-    }
-
-
-    /* DISCONNECT */
-
-    if(
-        command==="disconnect" ||
-        command.includes("disconnect from amomii") ||
-        command.includes("disconnect the board")
-    ){
-
-        voiceDisconnect();
-        return;
-    }
-
-
-    /* MUSIC */
-
-    if(
-        command.includes("play music") ||
-        command.includes("start music") ||
-        command==="music"
-    ){
-
-        musicPlay();
-        return;
-    }
-
-    if(
-        command.includes("pause music") ||
-        command.includes("pause the music")
-    ){
-
-        musicPlayer.pause();
-        setActivity("MUSIC PAUSED");
-        return;
-    }
-
-    if(
-        command.includes("stop music") ||
-        command.includes("stop the music")
-    ){
-
-        musicStop();
-        return;
-    }
-
-    if(
-        command.includes("next song") ||
-        command.includes("next track") ||
-        command.includes("next music")
-    ){
-
-        musicNext();
-        return;
-    }
-
-    if(
-        command.includes("previous song") ||
-        command.includes("previous track") ||
-        command.includes("previous music")
-    ){
-
-        musicPrevious();
-        return;
-    }
-
-
-    /* VIDEO */
-
-    if(
-        command.includes("play video") ||
-        command.includes("start video") ||
-        command==="video"
-    ){
-
-        videoPlay();
-        return;
-    }
-
-    if(
-        command.includes("pause video") ||
-        command.includes("pause the video")
-    ){
-
-        videoPlayer.pause();
-        setActivity("VIDEO PAUSED");
-        return;
-    }
-
-    if(
-        command.includes("stop video") ||
-        command.includes("stop the video")
-    ){
-
-        videoStop();
-        return;
-    }
-
-    if(
-        command.includes("next video")
-    ){
-
-        videoNext();
-        return;
-    }
-
-    if(
-        command.includes("previous video") ||
-        command.includes("previous video")
-    ){
-
-        videoPrevious();
-        return;
-    }
-
-    if(
-        command.includes("fullscreen video") ||
-        command.includes("full screen video")
-    ){
-
-        videoFullscreen();
-        return;
-    }
-
-
-    /* YOUTUBE */
-
-    if(
-        command.includes("youtube") &&
-        (
-            command.includes("pause") ||
-            command.includes("stop")
-        )
-    ){
-
-        youtubeCommand(
-            command.includes("pause")
-            ? "pause"
-            : "stop"
-        );
-
-        return;
-    }
-
-
-    /* MEDIA HELP */
-
-    if(
-        command.includes("media help") ||
-        command.includes("music help") ||
-        command.includes("video help")
-    ){
-
-        speakMediaHelp();
-        return;
-    }
-
-
-    /* UNKNOWN */
-
-    log(
-        'Voice command not recognized: "'+
-        original+
-        '"',
-        "error"
+    speakText(
+      "What would you like me to call you?"
     );
 
-    setActivity("UNKNOWN COMMAND");
+    return;
 
-    setTimeout(
-        ()=>{
-            if(voiceEnabled && !isSpeaking){
-                setActivity("LISTENING");
-            }
-        },
-        1000
-    );
-}
+  }
 
 
-/* ============================================================
-   NORMALIZE VOICE
-   ============================================================ */
+  if(
+    text.includes("forget my name")
+  ){
 
-function normalizeVoiceCommand(text){
+    state.userName = "";
 
-    let command=text.toLowerCase().trim();
+    awaitingName = false;
 
-    command=command.replace(
-        /^hey\s+amomii[\s,]*/i,
-        ""
+    saveState();
+
+    updateProfile();
+
+    updateAllStatus();
+
+    speakText(
+      "I won't use your name for the rest of this session."
     );
 
-    command=command.replace(
-        /^amomii\s+one[\s,]*/i,
-        ""
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     ASSISTANT IDENTITY
+  ----------------------------------------- */
+
+  if(
+    text.includes("who are you") ||
+    text.includes("what is your name") ||
+    text.includes("what's your name")
+  ){
+
+    speakText(
+      `I'm ${state.assistantName}, your Command Center assistant.`
     );
 
-    command=command.replace(
-        /^amomii[\s,]*/i,
-        ""
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     HELP
+  ----------------------------------------- */
+
+  if(
+    text.includes("what can you do") ||
+    text.includes("capabilities") ||
+    text.includes("all commands")
+  ){
+
+    speakHelp();
+
+    return;
+
+  }
+
+
+  if(
+    text === "help" ||
+    text.includes("help me")
+  ){
+
+    speakHelp();
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     TIME
+  ----------------------------------------- */
+
+  if(
+    text.includes("what time") ||
+    text === "time"
+  ){
+
+    const now =
+      new Date();
+
+    speakText(
+      `It is ${now.toLocaleTimeString([],{
+        hour:"numeric",
+        minute:"2-digit"
+      })}.`
     );
 
-    command=command
-        .replace(/[!?.,]/g,"")
-        .replace(/\s+/g," ")
-        .trim();
+    return;
 
-    return command;
-}
+  }
 
 
-/* ============================================================
-   VOICE COMMAND RESPONSES
-   ============================================================ */
+  /* -----------------------------------------
+     DATE
+  ----------------------------------------- */
 
-function voiceLEDOn(){
-    speak("Turning the LED on.");
-    sendCommand("on");
-}
+  if(
+    text.includes("what date") ||
+    text.includes("today's date") ||
+    text === "date"
+  ){
 
-function voiceLEDOff(){
-    speak("Turning the LED off.");
-    sendCommand("off");
-}
+    const now =
+      new Date();
 
-function voiceToggle(){
-    speak("Toggling the LED.");
-    sendCommand("toggle");
-}
-
-function voiceBlink(){
-    speak("Starting the blink sequence.");
-    sendCommand("blink");
-}
-
-function voiceBlinkFive(){
-    speak("Blinking five times.");
-    sendCommand("blink 5");
-}
-
-function voiceSOS(){
-    speak("Transmitting SOS.");
-    sendCommand("sos");
-}
-
-function voiceStop(){
-    speak("Stopping the current operation.");
-    sendCommand("stop");
-}
-
-function voiceConnect(){
-    speak("Opening the serial connection.");
-    connectSerial();
-}
-
-function voiceDisconnect(){
-    speak("Disconnecting from AMOMII ONE.");
-    disconnectSerial();
-}
-
-
-/* ============================================================
-   HELP
-   ============================================================ */
-
-function showHelp(){
-
-    log("AMOMII ONE VOICE COMMANDS:");
-
-    log("STATUS");
-    log("HELP");
-    log("WHAT CAN YOU DO");
-    log("ALL COMMANDS");
-
-    log("WHAT'S MY NAME");
-    log("CHANGE MY NAME");
-    log("FORGET MY NAME");
-    log("WHO ARE YOU");
-
-    log("TIME");
-    log("DATE");
-    log("DAY");
-    log("MONTH");
-    log("YEAR");
-    log("DATE AND TIME");
-
-    log("LED ON");
-    log("LED OFF");
-    log("TOGGLE");
-    log("BLINK");
-    log("BLINK FIVE");
-    log("SOS");
-    log("STOP");
-
-    log("SYSTEM TEST");
-    log("RUN DIAGNOSTICS");
-
-    log("PLAY MUSIC");
-    log("PAUSE MUSIC");
-    log("STOP MUSIC");
-    log("NEXT SONG");
-    log("PREVIOUS SONG");
-
-    log("PLAY VIDEO");
-    log("PAUSE VIDEO");
-    log("STOP VIDEO");
-    log("NEXT VIDEO");
-    log("PREVIOUS VIDEO");
-    log("FULLSCREEN VIDEO");
-
-    log("MEDIA HELP");
-
-    log(
-        "Voice recognition pauses while AMOMII is speaking."
+    speakText(
+      `Today is ${now.toLocaleDateString([],{
+        weekday:"long",
+        month:"long",
+        day:"numeric",
+        year:"numeric"
+      })}.`
     );
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     AMOMII CONNECTION
+  ----------------------------------------- */
+
+  if(
+    text === "connect" ||
+    text.includes("connect amomii")
+  ){
+
+    connectBoard();
+
+    return;
+
+  }
+
+
+  if(
+    text === "disconnect" ||
+    text.includes("disconnect amomii")
+  ){
+
+    disconnectBoard();
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     STATUS
+  ----------------------------------------- */
+
+  if(
+    text === "status" ||
+    text.includes("system status")
+  ){
+
+    speakStatus();
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     SYSTEM TEST
+  ----------------------------------------- */
+
+  if(
+    text.includes("system test") ||
+    text.includes("run diagnostics") ||
+    text.includes("diagnostic test") ||
+    text.includes("diagnostics")
+  ){
+
+    runSystemTest();
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     LED
+  ----------------------------------------- */
+
+  if(
+    text.includes("led on") ||
+    text === "turn on the led" ||
+    text === "turn the led on"
+  ){
+
+    sendBoardCommand("led on");
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("led off") ||
+    text === "turn off the led" ||
+    text === "turn the led off"
+  ){
+
+    sendBoardCommand("led off");
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("toggle")
+  ){
+
+    sendBoardCommand("toggle");
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("blink")
+  ){
+
+    let command =
+      "blink 5";
+
+    const number =
+      text.match(
+        /\b(\d+)\b/
+      );
+
+    if(number){
+
+      command =
+        `blink ${number[1]}`;
+
+    }
+
+    sendBoardCommand(command);
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("sos")
+  ){
+
+    sendBoardCommand("sos");
+
+    return;
+
+  }
+
+
+  if(
+    text === "stop" ||
+    text.includes("stop blinking")
+  ){
+
+    sendBoardCommand("stop");
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     MEDIA
+  ----------------------------------------- */
+
+  if(
+    text.includes("media help")
+  ){
+
+    speakMediaHelp();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("play music") ||
+    text.includes("start music")
+  ){
+
+    playMusic();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("pause music")
+  ){
+
+    pauseMusic();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("stop music")
+  ){
+
+    stopMusic();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("next song") ||
+    text.includes("next track")
+  ){
+
+    nextMusic();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("previous song") ||
+    text.includes("previous track")
+  ){
+
+    previousMusic();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("play video") ||
+    text.includes("start video")
+  ){
+
+    playVideo();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("pause video")
+  ){
+
+    pauseVideo();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("stop video")
+  ){
+
+    stopVideo();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("next video")
+  ){
+
+    nextVideo();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("previous video")
+  ){
+
+    previousVideo();
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("play youtube")
+  ){
+
+    youtubeCommand("playVideo");
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("pause youtube")
+  ){
+
+    youtubeCommand("pauseVideo");
+
+    return;
+
+  }
+
+
+  if(
+    text.includes("stop youtube")
+  ){
+
+    youtubeCommand("stopVideo");
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     UNKNOWN COMMAND
+  ----------------------------------------- */
+
+  log(
+    `Unrecognized voice command: "${raw}"`,
+    "warning"
+  );
+
+  // Deliberately do not speak unknown commands.
+  // This prevents speech-recognition feedback loops.
+
 }
 
+
+/* =========================================================
+   COMMAND DETECTION
+========================================================= */
+
+function looksLikeCommand(text){
+
+  const commands = [
+
+    "connect",
+    "disconnect",
+    "status",
+    "help",
+    "led",
+    "blink",
+    "sos",
+    "stop",
+    "time",
+    "date",
+    "music",
+    "video",
+    "youtube",
+    "system test",
+    "diagnostics",
+    "what can you do"
+
+  ];
+
+  return commands.some(
+    command =>
+      text.includes(command)
+  );
+
+}
+
+
+/* =========================================================
+   SPOKEN HELP
+========================================================= */
 
 function speakHelp(){
 
-    speak(
-        "AMOMII ONE can control the LED, "+
-        "blinking, SOS, system status and diagnostics. "+
-        "I can also manage your music library, "+
-        "video library, and YouTube videos. "+
-        "You can ask me the time or date, "+
-        "ask what I can do, ask for all commands, "+
-        "or ask me to identify myself."
-    );
-}
+  const name =
+    state.userName
+      ? `, ${state.userName}`
+      : "";
 
+  speakText(
+    `Here's what I can do${name}. I can control AMOMII ONE, connect and disconnect the board, report status, run system diagnostics, control the LED, blink patterns, SOS and stop commands. I can also tell you the time and date, remember your name for this session, manage music and video, control YouTube, and work with the Command Center knowledge, tasks, calendar and reminders.`
+  );
 
-function speakAllCommands(){
-
-    speak(
-        "AMOMII ONE commands include status, help, "+
-        "what can you do, all commands, "+
-        "what's my name, change my name, forget my name, "+
-        "who are you, time, date, day, month, year, "+
-        "date and time, LED on, LED off, toggle, blink, "+
-        "blink five, SOS, stop, system test, "+
-        "run diagnostics, connect, disconnect, "+
-        "play music, pause music, stop music, next song, "+
-        "previous song, play video, pause video, stop video, "+
-        "next video, previous video, fullscreen video, "+
-        "and media help."
-    );
 }
 
 
 function speakMediaHelp(){
 
-    speak(
-        "For music, say play music, pause music, "+
-        "stop music, next song, or previous song. "+
-        "For video, say play video, pause video, "+
-        "stop video, next video, previous video, "+
-        "or fullscreen video. "+
-        "You can also load a YouTube video using the YouTube player."
-    );
+  speakText(
+    "For media, say play music, pause music, stop music, next song, previous song, play video, pause video, stop video, next video, previous video, play YouTube, pause YouTube, stop YouTube, or media help."
+  );
+
 }
 
 
-/* ============================================================
-   DATE / TIME
-   ============================================================ */
+/* =========================================================
+   SPOKEN STATUS
+========================================================= */
 
-function speakTime(){
+function speakStatus(){
 
-    const time=new Date().toLocaleTimeString(
-        undefined,
-        {
-            hour:"numeric",
-            minute:"2-digit"
-        }
-    );
+  const board =
+    state.boardConnected
+      ? "connected"
+      : "disconnected";
 
-    speak(
-        userName
-            ? userName+", the current time is "+time+"."
-            : "The current time is "+time+"."
-    );
+  const trainer =
+    state.trainerConnected
+      ? "connected"
+      : "disconnected";
+
+  speakText(
+    `${BOARD_NAME} is ${board}. The trainer is ${trainer}. The system is ${String(state.systemState).toLowerCase()}. The LED is ${String(state.ledState).toLowerCase()}.`
+  );
+
 }
 
 
-function speakDate(){
+function showHelp(){
 
-    const date=new Date().toLocaleDateString(
-        undefined,
-        {
-            weekday:"long",
-            year:"numeric",
-            month:"long",
-            day:"numeric"
-        }
-    );
+  switchTab(
+    "console",
+    document.querySelector(".tab")
+  );
 
-    speak(
-        userName
-            ? userName+", today is "+date+"."
-            : "Today is "+date+"."
-    );
+  log(
+    "Available: connect, disconnect, status, system test, LED controls, blink, SOS, stop, voice, media, tasks, calendar and reminders.",
+    "system"
+  );
+
 }
 
 
-function speakDay(){
+/* =========================================================
+   TASKS
+========================================================= */
 
-    const day=new Date().toLocaleDateString(
-        undefined,
-        {weekday:"long"}
-    );
+function addTask(){
 
-    speak("Today is "+day+".");
+  const input =
+    document.getElementById("taskInput");
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+  state.tasks.push({
+
+    id:Date.now(),
+
+    title:text,
+
+    completed:false
+
+  });
+
+  input.value = "";
+
+  saveState();
+
+  renderTasks();
+
+  log(
+    `Task added: ${text}`,
+    "success"
+  );
+
 }
 
 
-function speakMonth(){
+function renderTasks(){
 
-    const month=new Date().toLocaleDateString(
-        undefined,
-        {month:"long"}
-    );
+  const list =
+    document.getElementById("taskList");
 
-    speak("The current month is "+month+".");
+  if(!list) return;
+
+  list.innerHTML = "";
+
+  if(!state.tasks.length){
+
+    list.innerHTML =
+      `<div class="item-meta">No tasks yet.</div>`;
+
+    return;
+
+  }
+
+  state.tasks.forEach(task => {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "todo-item " +
+      (
+        task.completed
+          ? "completed"
+          : ""
+      );
+
+    row.innerHTML = `
+
+      <input
+        type="checkbox"
+        ${task.completed ? "checked" : ""}
+        onchange="toggleTask(${task.id})">
+
+      <div class="item-main">
+
+        <div class="item-title">
+          ${escapeHtml(task.title)}
+        </div>
+
+      </div>
+
+      <button
+        class="delete-btn"
+        onclick="deleteTask(${task.id})">
+        ×
+      </button>
+
+    `;
+
+    list.appendChild(row);
+
+  });
+
 }
 
 
-function speakYear(){
+function toggleTask(id){
 
-    const year=new Date().toLocaleDateString(
-        undefined,
-        {year:"numeric"}
+  const task =
+    state.tasks.find(
+      t => t.id === id
     );
 
-    speak("The current year is "+year+".");
+  if(!task) return;
+
+  task.completed =
+    !task.completed;
+
+  saveState();
+
+  renderTasks();
+
 }
 
 
-function speakDateTime(){
+function deleteTask(id){
 
-    const now=new Date();
-
-    const date=now.toLocaleDateString(
-        undefined,
-        {
-            weekday:"long",
-            year:"numeric",
-            month:"long",
-            day:"numeric"
-        }
+  state.tasks =
+    state.tasks.filter(
+      task =>
+        task.id !== id
     );
 
-    const time=now.toLocaleTimeString(
-        undefined,
-        {
-            hour:"numeric",
-            minute:"2-digit"
-        }
-    );
+  saveState();
 
-    speak(
-        userName
-            ? userName+", it is "+time+" on "+date+"."
-            : "It is "+time+" on "+date+"."
-    );
+  renderTasks();
+
 }
 
 
-/* ============================================================
-   MUSIC LIBRARY
-   ============================================================ */
+/* =========================================================
+   CALENDAR
+========================================================= */
 
-function revokeUrls(urls){
+function addCalendarEvent(){
 
-    for(const url of urls){
-        try{
-            URL.revokeObjectURL(url);
-        }catch(e){}
+  const title =
+    document.getElementById(
+      "calendarTitle"
+    ).value.trim();
+
+  const date =
+    document.getElementById(
+      "calendarDate"
+    ).value;
+
+  if(!title || !date) return;
+
+  state.calendar.push({
+
+    id:Date.now(),
+
+    title,
+
+    date
+
+  });
+
+  document.getElementById(
+    "calendarTitle"
+  ).value = "";
+
+  document.getElementById(
+    "calendarDate"
+  ).value = "";
+
+  saveState();
+
+  renderCalendar();
+
+  log(
+    `Calendar event added: ${title}`,
+    "success"
+  );
+
+}
+
+
+function renderCalendar(){
+
+  const list =
+    document.getElementById(
+      "calendarList"
+    );
+
+  if(!list) return;
+
+  list.innerHTML = "";
+
+  const events =
+    [...state.calendar]
+      .sort(
+        (a,b) =>
+          new Date(a.date) -
+          new Date(b.date)
+      );
+
+  if(!events.length){
+
+    list.innerHTML =
+      `<div class="item-meta">No calendar events.</div>`;
+
+    return;
+
+  }
+
+  events.forEach(event => {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "calendar-item";
+
+    row.innerHTML = `
+
+      <div class="item-main">
+
+        <div class="item-title">
+          ${escapeHtml(event.title)}
+        </div>
+
+        <div class="item-meta">
+          ${new Date(event.date).toLocaleString()}
+        </div>
+
+      </div>
+
+      <button
+        class="delete-btn"
+        onclick="deleteCalendarEvent(${event.id})">
+        ×
+      </button>
+
+    `;
+
+    list.appendChild(row);
+
+  });
+
+}
+
+
+function deleteCalendarEvent(id){
+
+  state.calendar =
+    state.calendar.filter(
+      event =>
+        event.id !== id
+    );
+
+  saveState();
+
+  renderCalendar();
+
+}
+
+
+/* =========================================================
+   REMINDERS
+========================================================= */
+
+function addReminder(){
+
+  const text =
+    document.getElementById(
+      "reminderText"
+    ).value.trim();
+
+  const time =
+    document.getElementById(
+      "reminderTime"
+    ).value;
+
+  if(!text || !time) return;
+
+  state.reminders.push({
+
+    id:Date.now(),
+
+    text,
+
+    time,
+
+    fired:false
+
+  });
+
+  document.getElementById(
+    "reminderText"
+  ).value = "";
+
+  document.getElementById(
+    "reminderTime"
+  ).value = "";
+
+  saveState();
+
+  renderReminders();
+
+  log(
+    `Reminder added: ${text}`,
+    "success"
+  );
+
+}
+
+
+function renderReminders(){
+
+  const list =
+    document.getElementById(
+      "reminderList"
+    );
+
+  if(!list) return;
+
+  list.innerHTML = "";
+
+  const reminders =
+    [...state.reminders]
+      .sort(
+        (a,b) =>
+          new Date(a.time) -
+          new Date(b.time)
+      );
+
+  if(!reminders.length){
+
+    list.innerHTML =
+      `<div class="item-meta">No reminders.</div>`;
+
+    return;
+
+  }
+
+  reminders.forEach(reminder => {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "reminder-item";
+
+    row.innerHTML = `
+
+      <div class="item-main">
+
+        <div class="item-title">
+          ${escapeHtml(reminder.text)}
+        </div>
+
+        <div class="item-meta">
+          ${new Date(reminder.time).toLocaleString()}
+          ${reminder.fired ? " • FIRED" : ""}
+        </div>
+
+      </div>
+
+      <button
+        class="delete-btn"
+        onclick="deleteReminder(${reminder.id})">
+        ×
+      </button>
+
+    `;
+
+    list.appendChild(row);
+
+  });
+
+}
+
+
+function deleteReminder(id){
+
+  state.reminders =
+    state.reminders.filter(
+      reminder =>
+        reminder.id !== id
+    );
+
+  saveState();
+
+  renderReminders();
+
+}
+
+
+function checkReminders(){
+
+  const now =
+    Date.now();
+
+  let changed = false;
+
+  state.reminders.forEach(reminder => {
+
+    if(
+      !reminder.fired &&
+      new Date(reminder.time).getTime() <= now
+    ){
+
+      reminder.fired = true;
+
+      changed = true;
+
+      log(
+        `REMINDER: ${reminder.text}`,
+        "warning"
+      );
+
+      const name =
+        state.userName
+          ? `, ${state.userName}`
+          : "";
+
+      speakText(
+        `Reminder${name}: ${reminder.text}`
+      );
+
     }
+
+  });
+
+  if(changed){
+
+    saveState();
+
+    renderReminders();
+
+  }
+
 }
 
 
-function loadMusicFiles(files){
+/* =========================================================
+   HISTORY
+========================================================= */
 
-    revokeUrls(musicUrls);
+function renderHistoryEntry(text){
 
-    musicFiles=Array.from(files||[]);
-    musicUrls=musicFiles.map(
-        file=>URL.createObjectURL(file)
+  state.history.unshift({
+
+    id:Date.now(),
+
+    text,
+
+    time:new Date().toLocaleTimeString()
+
+  });
+
+  state.history =
+    state.history.slice(0,20);
+
+  saveState();
+
+  renderHistory();
+
+}
+
+
+function renderHistory(){
+
+  const list =
+    document.getElementById(
+      "historyList"
     );
 
-    musicIndex=musicFiles.length ? 0 : -1;
+  if(!list) return;
 
-    renderMusicLibrary();
+  list.innerHTML = "";
 
-    if(musicIndex>=0){
-        selectMusic(musicIndex,false);
+  if(!state.history.length){
+
+    list.innerHTML =
+      `<div class="item-meta">No commands yet.</div>`;
+
+    return;
+
+  }
+
+  state.history
+    .slice(0,12)
+    .forEach(item => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "calendar-item";
+
+      row.innerHTML = `
+
+        <div class="item-main">
+
+          <div class="item-title">
+            ${escapeHtml(item.text)}
+          </div>
+
+          <div class="item-meta">
+            ${escapeHtml(item.time)}
+          </div>
+
+        </div>
+
+      `;
+
+      list.appendChild(row);
+
+    });
+
+}
+
+
+/* =========================================================
+   MUSIC
+========================================================= */
+
+function initializeMedia(){
+
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
+
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
+
+  audio.volume = .8;
+
+  video.volume = .8;
+
+  audio.addEventListener(
+    "ended",
+    () => {
+
+      if(musicRepeat){
+
+        audio.currentTime = 0;
+
+        audio.play();
+
+      }else{
+
+        nextMusic();
+
+      }
+
     }
+  );
 
-    log(
-        musicFiles.length+
-        " music file"+
-        (musicFiles.length===1?"":"s")+
-        " loaded."
+  video.addEventListener(
+    "ended",
+    () => {
+
+      nextVideo();
+
+    }
+  );
+
+}
+
+
+function loadMusicFiles(event){
+
+  musicObjectUrls.forEach(
+    url => URL.revokeObjectURL(url)
+  );
+
+  musicObjectUrls = [];
+
+  musicLibrary =
+    Array.from(
+      event.target.files
     );
+
+  musicIndex =
+    musicLibrary.length
+      ? 0
+      : -1;
+
+  musicLibrary.forEach(file => {
+
+    const url =
+      URL.createObjectURL(file);
+
+    musicObjectUrls.push(url);
+
+  });
+
+  renderMusicLibrary();
+
+  if(musicIndex >= 0){
+
+    loadMusicIndex(
+      musicIndex,
+      false
+    );
+
+  }
+
+  log(
+    `${musicLibrary.length} music file(s) loaded.`,
+    "success"
+  );
+
 }
 
 
 function renderMusicLibrary(){
 
-    const library=document.getElementById(
-        "musicLibrary"
-    );
-
-    library.innerHTML="";
-
-    if(!musicFiles.length){
-
-        library.textContent="No music loaded.";
-        return;
-    }
-
-    musicFiles.forEach(
-        (file,index)=>{
-
-            const item=document.createElement("div");
-
-            item.className=
-                "library-item"+
-                (index===musicIndex ? " active":"");
-
-            item.textContent=
-                (index+1)+". "+file.name;
-
-            item.onclick=()=>{
-                selectMusic(index,true);
-            };
-
-            library.appendChild(item);
-        }
-    );
-}
-
-
-function selectMusic(index,autoPlay=true){
-
-    if(
-        index<0 ||
-        index>=musicFiles.length
-    ){
-        return;
-    }
-
-    musicIndex=index;
-
-    musicPlayer.src=musicUrls[index];
-
+  const list =
     document.getElementById(
-        "musicTrack"
-    ).textContent=musicFiles[index].name;
-
-    renderMusicLibrary();
-
-    document.getElementById(
-        "mediaMode"
-    ).textContent="MUSIC";
-
-    setActivity(
-        "MUSIC: "+musicFiles[index].name
+      "musicLibrary"
     );
 
-    if(autoPlay){
-        musicPlayer.play().catch(()=>{});
-    }
-}
+  list.innerHTML = "";
 
+  if(!musicLibrary.length){
 
-function musicPlay(){
+    list.innerHTML =
+      `<div class="item-meta" style="padding:10px">
+        No music loaded.
+      </div>`;
 
-    if(!musicFiles.length){
+    return;
 
-        speak("No music is loaded. Select music files first.");
-        return;
-    }
+  }
 
-    if(musicIndex<0){
-        selectMusic(0,false);
-    }
+  musicLibrary.forEach(
+    (file,index) => {
 
-    musicPlayer.play().catch(()=>{});
+      const row =
+        document.createElement("div");
 
-    setActivity("MUSIC PLAYING");
-}
-
-
-function musicPlayPause(){
-
-    if(!musicFiles.length){
-
-        speak("No music is loaded. Select music files first.");
-        return;
-    }
-
-    if(musicPlayer.paused){
-        musicPlay();
-    }else{
-        musicPlayer.pause();
-        setActivity("MUSIC PAUSED");
-    }
-}
-
-
-function musicStop(){
-
-    musicPlayer.pause();
-    musicPlayer.currentTime=0;
-
-    setActivity("MUSIC STOPPED");
-}
-
-
-function musicNext(){
-
-    if(!musicFiles.length){
-
-        speak("No music is loaded.");
-        return;
-    }
-
-    let next;
-
-    if(musicShuffle){
-
-        next=Math.floor(
-            Math.random()*musicFiles.length
+      row.className =
+        "library-item " +
+        (
+          index === musicIndex
+            ? "active"
+            : ""
         );
 
-        if(
-            musicFiles.length>1 &&
-            next===musicIndex
-        ){
-            next=(next+1)%musicFiles.length;
-        }
+      row.innerHTML = `
 
-    }else{
+        <span>
+          ${escapeHtml(file.name)}
+        </span>
 
-        next=musicIndex+1;
+        <button
+          onclick="loadMusicIndex(${index},true)">
+          PLAY
+        </button>
 
-        if(next>=musicFiles.length){
+      `;
 
-            if(musicRepeat){
-                next=0;
-            }else{
-                next=0;
-            }
-        }
+      list.appendChild(row);
+
     }
+  );
 
-    selectMusic(next,true);
 }
 
 
-function musicPrevious(){
+function loadMusicIndex(index,autoPlay){
 
-    if(!musicFiles.length){
+  if(
+    index < 0 ||
+    index >= musicLibrary.length
+  ) return;
 
-        speak("No music is loaded.");
-        return;
-    }
+  musicIndex = index;
 
-    let previous=musicIndex-1;
-
-    if(previous<0){
-        previous=musicFiles.length-1;
-    }
-
-    selectMusic(previous,true);
-}
-
-
-function toggleMusicShuffle(){
-
-    musicShuffle=!musicShuffle;
-
+  const audio =
     document.getElementById(
-        "musicMode"
-    ).textContent=
-        musicShuffle
-            ? "SHUFFLE"
-            : "NORMAL";
-
-    log(
-        "Music shuffle "+
-        (musicShuffle?"enabled.":"disabled.")
+      "audioPlayer"
     );
+
+  audio.src =
+    musicObjectUrls[index];
+
+  audio.load();
+
+  renderMusicLibrary();
+
+  if(autoPlay){
+
+    audio.play().catch(
+      () => {}
+    );
+
+  }
+
+}
+
+
+function playMusic(){
+
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
+
+  if(!musicLibrary.length){
+
+    speakText(
+      "No music is loaded. Select music files first."
+    );
+
+    return;
+
+  }
+
+  audio.play().catch(
+    () => {}
+  );
+
+}
+
+
+function pauseMusic(){
+
+  document
+    .getElementById(
+      "audioPlayer"
+    )
+    .pause();
+
+}
+
+
+function stopMusic(){
+
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
+
+  audio.pause();
+
+  audio.currentTime = 0;
+
+}
+
+
+function nextMusic(){
+
+  if(!musicLibrary.length){
+
+    speakText(
+      "No music is loaded."
+    );
+
+    return;
+
+  }
+
+  let next;
+
+  if(musicShuffle){
+
+    next =
+      Math.floor(
+        Math.random() *
+        musicLibrary.length
+      );
+
+  }else{
+
+    next =
+      (musicIndex + 1) %
+      musicLibrary.length;
+
+  }
+
+  loadMusicIndex(
+    next,
+    true
+  );
+
+}
+
+
+function previousMusic(){
+
+  if(!musicLibrary.length){
+
+    speakText(
+      "No music is loaded."
+    );
+
+    return;
+
+  }
+
+  const previous =
+    (
+      musicIndex - 1 +
+      musicLibrary.length
+    ) %
+    musicLibrary.length;
+
+  loadMusicIndex(
+    previous,
+    true
+  );
+
+}
+
+
+function toggleMusic(){
+
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
+
+  if(audio.paused){
+
+    playMusic();
+
+  }else{
+
+    pauseMusic();
+
+  }
+
 }
 
 
 function setMusicVolume(value){
 
-    musicPlayer.volume=parseFloat(value);
+  document.getElementById(
+    "audioPlayer"
+  ).volume =
+    Number(value);
+
 }
 
 
-musicPlayer.addEventListener(
-    "ended",
-    ()=>{
-        if(musicRepeat || musicFiles.length>1){
-            musicNext();
-        }else{
-            setActivity("MUSIC COMPLETE");
-        }
-    }
-);
+function toggleShuffle(){
+
+  musicShuffle =
+    !musicShuffle;
+
+  document.getElementById(
+    "shuffleButton"
+  ).textContent =
+    musicShuffle
+      ? "SHUFFLE ON"
+      : "SHUFFLE OFF";
+
+}
 
 
-/* ============================================================
-   VIDEO LIBRARY
-   ============================================================ */
+function toggleRepeat(){
 
-function loadVideoFiles(files){
+  musicRepeat =
+    !musicRepeat;
 
-    revokeUrls(videoUrls);
+  document.getElementById(
+    "repeatButton"
+  ).textContent =
+    musicRepeat
+      ? "REPEAT ON"
+      : "REPEAT OFF";
 
-    videoFiles=Array.from(files||[]);
-    videoUrls=videoFiles.map(
-        file=>URL.createObjectURL(file)
+}
+
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+function loadVideoFiles(event){
+
+  videoObjectUrls.forEach(
+    url => URL.revokeObjectURL(url)
+  );
+
+  videoObjectUrls = [];
+
+  videoLibrary =
+    Array.from(
+      event.target.files
     );
 
-    videoIndex=videoFiles.length ? 0 : -1;
+  videoIndex =
+    videoLibrary.length
+      ? 0
+      : -1;
 
-    renderVideoLibrary();
+  videoLibrary.forEach(file => {
 
-    if(videoIndex>=0){
-        selectVideo(videoIndex,false);
-    }
-
-    log(
-        videoFiles.length+
-        " video file"+
-        (videoFiles.length===1?"":"s")+
-        " loaded."
+    videoObjectUrls.push(
+      URL.createObjectURL(file)
     );
+
+  });
+
+  renderVideoLibrary();
+
+  if(videoIndex >= 0){
+
+    loadVideoIndex(
+      videoIndex,
+      false
+    );
+
+  }
+
+  log(
+    `${videoLibrary.length} video file(s) loaded.`,
+    "success"
+  );
+
 }
 
 
 function renderVideoLibrary(){
 
-    const library=document.getElementById(
-        "videoLibrary"
-    );
-
-    library.innerHTML="";
-
-    if(!videoFiles.length){
-
-        library.textContent="No videos loaded.";
-        return;
-    }
-
-    videoFiles.forEach(
-        (file,index)=>{
-
-            const item=document.createElement("div");
-
-            item.className=
-                "library-item"+
-                (index===videoIndex ? " active":"");
-
-            item.textContent=
-                (index+1)+". "+file.name;
-
-            item.onclick=()=>{
-                selectVideo(index,true);
-            };
-
-            library.appendChild(item);
-        }
-    );
-}
-
-
-function selectVideo(index,autoPlay=true){
-
-    if(
-        index<0 ||
-        index>=videoFiles.length
-    ){
-        return;
-    }
-
-    videoIndex=index;
-
-    videoPlayer.src=videoUrls[index];
-    videoPlayer.load();
-
+  const list =
     document.getElementById(
-        "videoTrack"
-    ).textContent=videoFiles[index].name;
-
-    renderVideoLibrary();
-
-    document.getElementById(
-        "mediaMode"
-    ).textContent="VIDEO";
-
-    setActivity(
-        "VIDEO: "+videoFiles[index].name
+      "videoLibrary"
     );
 
-    if(autoPlay){
-        videoPlayer.play().catch(()=>{});
-    }
-}
+  list.innerHTML = "";
 
+  if(!videoLibrary.length){
 
-function videoPlay(){
+    list.innerHTML =
+      `<div class="item-meta" style="padding:10px">
+        No video loaded.
+      </div>`;
 
-    if(!videoFiles.length){
+    return;
 
-        speak("No video is loaded. Select video files first.");
-        return;
-    }
+  }
 
-    if(videoIndex<0){
-        selectVideo(0,false);
-    }
+  videoLibrary.forEach(
+    (file,index) => {
 
-    videoPlayer.play().catch(()=>{});
+      const row =
+        document.createElement("div");
 
-    setActivity("VIDEO PLAYING");
-}
-
-
-function videoPlayPause(){
-
-    if(!videoFiles.length){
-
-        speak("No video is loaded. Select video files first.");
-        return;
-    }
-
-    if(videoPlayer.paused){
-        videoPlay();
-    }else{
-        videoPlayer.pause();
-        setActivity("VIDEO PAUSED");
-    }
-}
-
-
-function videoStop(){
-
-    videoPlayer.pause();
-    videoPlayer.currentTime=0;
-
-    setActivity("VIDEO STOPPED");
-}
-
-
-function videoNext(){
-
-    if(!videoFiles.length){
-
-        speak("No videos are loaded.");
-        return;
-    }
-
-    let next;
-
-    if(videoShuffle){
-
-        next=Math.floor(
-            Math.random()*videoFiles.length
+      row.className =
+        "library-item " +
+        (
+          index === videoIndex
+            ? "active"
+            : ""
         );
 
-        if(
-            videoFiles.length>1 &&
-            next===videoIndex
-        ){
-            next=(next+1)%videoFiles.length;
-        }
+      row.innerHTML = `
 
-    }else{
+        <span>
+          ${escapeHtml(file.name)}
+        </span>
 
-        next=videoIndex+1;
+        <button
+          onclick="loadVideoIndex(${index},true)">
+          PLAY
+        </button>
 
-        if(next>=videoFiles.length){
-            next=0;
-        }
+      `;
+
+      list.appendChild(row);
+
     }
+  );
 
-    selectVideo(next,true);
 }
 
 
-function videoPrevious(){
+function loadVideoIndex(index,autoPlay){
 
-    if(!videoFiles.length){
+  if(
+    index < 0 ||
+    index >= videoLibrary.length
+  ) return;
 
-        speak("No videos are loaded.");
-        return;
-    }
+  videoIndex = index;
 
-    let previous=videoIndex-1;
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
 
-    if(previous<0){
-        previous=videoFiles.length-1;
-    }
+  video.src =
+    videoObjectUrls[index];
 
-    selectVideo(previous,true);
+  video.load();
+
+  renderVideoLibrary();
+
+  if(autoPlay){
+
+    video.play().catch(
+      () => {}
+    );
+
+  }
+
 }
 
 
-function videoFullscreen(){
+function playVideo(){
 
-    if(!videoPlayer.src){
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
 
-        speak("No video is loaded.");
-        return;
-    }
+  if(!videoLibrary.length){
 
-    if(videoPlayer.requestFullscreen){
-        videoPlayer.requestFullscreen();
-    }else if(videoPlayer.webkitEnterFullscreen){
-        videoPlayer.webkitEnterFullscreen();
-    }
+    speakText(
+      "No video is loaded. Select video files first."
+    );
+
+    return;
+
+  }
+
+  video.play().catch(
+    () => {}
+  );
+
+}
+
+
+function pauseVideo(){
+
+  document
+    .getElementById(
+      "videoPlayer"
+    )
+    .pause();
+
+}
+
+
+function stopVideo(){
+
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
+
+  video.pause();
+
+  video.currentTime = 0;
+
+}
+
+
+function toggleVideo(){
+
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
+
+  if(video.paused){
+
+    playVideo();
+
+  }else{
+
+    pauseVideo();
+
+  }
+
+}
+
+
+function nextVideo(){
+
+  if(!videoLibrary.length){
+
+    speakText(
+      "No video is loaded."
+    );
+
+    return;
+
+  }
+
+  const next =
+    (videoIndex + 1) %
+    videoLibrary.length;
+
+  loadVideoIndex(
+    next,
+    true
+  );
+
+}
+
+
+function previousVideo(){
+
+  if(!videoLibrary.length){
+
+    speakText(
+      "No video is loaded."
+    );
+
+    return;
+
+  }
+
+  const previous =
+    (
+      videoIndex - 1 +
+      videoLibrary.length
+    ) %
+    videoLibrary.length;
+
+  loadVideoIndex(
+    previous,
+    true
+  );
+
 }
 
 
 function setVideoVolume(value){
 
-    videoPlayer.volume=parseFloat(value);
+  document.getElementById(
+    "videoPlayer"
+  ).volume =
+    Number(value);
+
 }
 
 
-videoPlayer.addEventListener(
-    "ended",
-    ()=>{
-        if(videoFiles.length>1 || videoRepeat){
-            videoNext();
-        }else{
-            setActivity("VIDEO COMPLETE");
-        }
-    }
-);
-
-
-/* ============================================================
+/* =========================================================
    YOUTUBE
-   ============================================================ */
+========================================================= */
 
-function extractYouTubeId(value){
+function extractYouTubeId(input){
 
-    value=value.trim();
+  const value =
+    String(input || "")
+      .trim();
 
-    if(/^[a-zA-Z0-9_-]{11}$/.test(value)){
-        return value;
+  if(
+    /^[a-zA-Z0-9_-]{11}$/.test(value)
+  ){
+
+    return value;
+
+  }
+
+  try{
+
+    const url =
+      new URL(value);
+
+    if(
+      url.hostname.includes("youtube.com")
+    ){
+
+      return (
+        url.searchParams.get("v") ||
+        null
+      );
+
     }
 
-    const patterns=[
-        /youtube\.com\/watch\?v=([^&]+)/i,
-        /youtu\.be\/([^?&]+)/i,
-        /youtube\.com\/embed\/([^?&]+)/i,
-        /youtube\.com\/shorts\/([^?&]+)/i
-    ];
+    if(
+      url.hostname.includes("youtu.be")
+    ){
 
-    for(const pattern of patterns){
+      return (
+        url.pathname
+          .replace("/","")
+          .slice(0,11)
+      );
 
-        const match=value.match(pattern);
-
-        if(match){
-            return match[1];
-        }
     }
 
-    return null;
+  }catch(error){}
+
+  return null;
+
 }
 
 
 function loadYouTube(){
 
-    const input=document.getElementById(
-        "youtubeInput"
-    );
-
-    const value=input.value.trim();
-
-    if(!value){
-
-        log(
-            "Enter a YouTube URL or video ID.",
-            "error"
-        );
-
-        return;
-    }
-
-    const id=extractYouTubeId(value);
-
-    if(!id){
-
-        log(
-            "Could not identify a YouTube video ID.",
-            "error"
-        );
-
-        speak(
-            "I couldn't identify that YouTube video."
-        );
-
-        return;
-    }
-
-    const frame=document.getElementById(
-        "youtubeFrame"
-    );
-
-    frame.src=
-        "https://www.youtube.com/embed/"+
-        encodeURIComponent(id)+
-        "?enablejsapi=1&rel=0";
-
+  const input =
     document.getElementById(
-        "mediaMode"
-    ).textContent="YOUTUBE";
+      "youtubeUrl"
+    );
 
-    setActivity("YOUTUBE LOADED");
+  const id =
+    extractYouTubeId(
+      input.value
+    );
+
+  if(!id){
 
     log(
-        "YouTube video loaded: "+id
+      "Invalid YouTube URL or video ID.",
+      "error"
     );
+
+    return;
+
+  }
+
+  const origin =
+    encodeURIComponent(
+      window.location.origin
+    );
+
+  document.getElementById(
+    "youtubeFrame"
+  ).src =
+    `https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${origin}`;
+
+  log(
+    "YouTube video loaded.",
+    "success"
+  );
+
 }
 
 
-function youtubeCommand(action){
+function youtubeCommand(command){
 
-    const frame=document.getElementById(
-        "youtubeFrame"
+  const frame =
+    document.getElementById(
+      "youtubeFrame"
     );
 
-    if(!frame.src){
+  if(
+    !frame.src ||
+    frame.src === "about:blank"
+  ){
 
-        speak("No YouTube video is loaded.");
-        return;
+    speakText(
+      "No YouTube video is loaded."
+    );
+
+    return;
+
+  }
+
+  frame.contentWindow.postMessage(
+    JSON.stringify({
+
+      event:"command",
+
+      func:command,
+
+      args:[]
+
+    }),
+    "*"
+  );
+
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.ctrlKey &&
+      event.key.toLowerCase() === "enter"
+    ){
+
+      sendManualCommand();
+
     }
 
-    frame.contentWindow.postMessage(
-        JSON.stringify({
-            event:"command",
-            func:
-                action==="pause"
-                    ? "pauseVideo"
-                    : "stopVideo",
-            args:[]
-        }),
-        "*"
-    );
+    if(
+      event.key === "Escape"
+    ){
 
-    setActivity(
-        action==="pause"
-            ? "YOUTUBE PAUSED"
-            : "YOUTUBE STOPPED"
-    );
-}
+      closeAssistantSettings();
 
+    }
 
-/* ============================================================
-   STARTUP
-   ============================================================ */
-
-log(
-    "================================================"
+  }
 );
 
-log(
-    "DANGERUSS VOICE COMMAND CENTER v1.5"
-);
 
-log(
-    "VOICE + PERSONAL ASSISTANT + DIAGNOSTICS + MEDIA"
-);
+/* =========================================================
+   VOICE HELP ON DEMAND
+========================================================= */
 
-log(
-    "================================================"
-);
-
-log(
-    "Web Serial: "+
-    (
-        "serial" in navigator
-            ? "AVAILABLE"
-            : "NOT AVAILABLE"
-    )
-);
-
-log(
-    "Voice recognition: "+
-    (
-        (
-            "SpeechRecognition" in window ||
-            "webkitSpeechRecognition" in window
-        )
-            ? "AVAILABLE"
-            : "NOT AVAILABLE"
-    )
-);
-
-log(
-    "Voice synthesis: "+
-    (
-        "speechSynthesis" in window
-            ? "AVAILABLE"
-            : "NOT AVAILABLE"
-    )
-);
-
-log("Music library: READY");
-log("Video library: READY");
-log("YouTube player: READY");
-log("Personal assistant: READY");
-log("System diagnostics: READY");
-log("AMOMII ONE READY.");
+window.speakStatus = speakStatus;
 
 
-/* ============================================================
-   INITIALIZATION
-   ============================================================ */
-
-initializeVoice();
-
-musicPlayer.volume=.8;
-videoPlayer.volume=.8;
-
+/* =========================================================
+   SPEECH VOICE LOAD
+========================================================= */
 
 if("speechSynthesis" in window){
 
-    speechSynthesis.onvoiceschanged=()=>{
-        speechSynthesis.getVoices();
-    };
+  speechSynthesis.onvoiceschanged =
+    () => {};
+
 }
 
 
-/* ============================================================
-   CLEANUP
-   ============================================================ */
+/* =========================================================
+   FINAL INITIAL STATUS
+========================================================= */
 
-window.addEventListener(
-    "beforeunload",
-    ()=>{
-        revokeUrls(musicUrls);
-        revokeUrls(videoUrls);
+updateDiagnostics();
 
-        try{
-            if(reader) reader.cancel();
-        }catch(e){}
-
-        try{
-            if(writer) writer.releaseLock();
-        }catch(e){}
-    }
-);
+updateAllStatus();
 
 </script>
 
