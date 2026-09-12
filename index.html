@@ -582,262 +582,66 @@ video{
 }
 
 /* CALENDAR */
-.calendarPanel{
-  margin-top:16px;
-}
-.calendarToolbar{
+
+.calendarHeader{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:12px;
+  gap:10px;
+  margin-bottom:10px;
 }
-.calendarToolbarGroup{
-  display:flex;
-  gap:6px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-.calendarToolbar button,
-.calendarToolbar select{
+
+.calendarHeader button{
   border:1px solid var(--border);
   background:#111923;
   color:var(--text);
-  padding:7px 9px;
-  border-radius:7px;
-  font-size:11px;
+  padding:6px 10px;
+  border-radius:6px;
 }
-.calendarToolbar button:hover,
-.calendarToolbar select:focus{
-  border-color:var(--cyan);
-}
-.calendarTitle{
+
+.calendarMonth{
   color:white;
   font-weight:700;
-  font-size:16px;
-  min-width:180px;
-  text-align:center;
 }
-.calendarViewButtons{
-  display:flex;
-  gap:4px;
-}
-.calendarViewButtons button.active{
-  color:var(--cyan);
-  border-color:rgba(54,217,255,.5);
-  background:#0d1b24;
-}
-.calendarLayout{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 300px;
-  gap:12px;
-}
-.calendarSurface{
-  min-width:0;
-}
+
 .calendarGrid{
   display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
-  gap:3px;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
 }
+
 .dayLabel{
   text-align:center;
   color:var(--muted);
   font-size:9px;
-  padding:6px 0;
-  font-weight:700;
+  padding:5px 0;
 }
+
 .day{
-  min-height:82px;
+  min-height:55px;
   border:1px solid #1c2732;
   border-radius:6px;
   padding:5px;
   background:#090e14;
   font-size:10px;
-  cursor:pointer;
-  overflow:hidden;
 }
-.day:hover{
-  border-color:rgba(54,217,255,.45);
-}
+
 .day.today{
   border-color:var(--cyan);
-  box-shadow:inset 0 0 12px rgba(54,217,255,.05);
 }
-.day.selected{
-  outline:1px solid var(--green);
-}
-.day.otherMonth{
-  opacity:.42;
-}
+
 .dayNumber{
   color:var(--muted);
-  font-weight:700;
 }
-.calendarEventChip{
-  display:block;
+
+.eventDot{
   margin-top:4px;
-  padding:3px 4px;
-  border-left:2px solid var(--green);
-  background:rgba(57,255,136,.07);
-  border-radius:3px;
-  color:#dfffea;
+  color:var(--green);
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  cursor:pointer;
 }
-.calendarEventChip:hover{
-  border-color:var(--cyan);
-}
-.calendarWeek,
-.calendarDayView{
-  display:grid;
-  gap:3px;
-}
-.calendarWeek{
-  grid-template-columns:64px repeat(7,minmax(0,1fr));
-}
-.calendarDayView{
-  grid-template-columns:64px minmax(0,1fr);
-}
-.timeHeader{
-  min-height:30px;
-  border:1px solid #1c2732;
-  background:#090e14;
-  color:var(--muted);
-  font-size:9px;
-  padding:7px 4px;
-  text-align:center;
-}
-.timeSlot{
-  min-height:52px;
-  border:1px solid #17212c;
-  background:#080c11;
-  position:relative;
-  cursor:pointer;
-}
-.timeSlot:hover{
-  background:#0b1118;
-  border-color:rgba(54,217,255,.3);
-}
-.timeLabel{
-  min-height:52px;
-  padding:7px 4px;
-  color:var(--muted);
-  font-size:9px;
-  text-align:right;
-}
-.weekEvent{
-  margin:3px;
-  padding:5px;
-  border-left:2px solid var(--green);
-  background:rgba(57,255,136,.08);
-  border-radius:4px;
-  font-size:9px;
-  overflow:hidden;
-  cursor:pointer;
-}
-.agendaList{
-  display:grid;
-  gap:7px;
-  max-height:510px;
-  overflow:auto;
-}
-.agendaDay{
-  color:var(--cyan);
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:1px;
-  margin-top:4px;
-}
-.calendarSide{
-  border:1px solid #1c2732;
-  background:#080c11;
-  border-radius:8px;
-  padding:10px;
-}
-.calendarSideTitle{
-  color:var(--cyan);
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:1px;
-  margin-bottom:8px;
-}
-.eventForm{
-  display:grid;
-  gap:7px;
-}
-.eventForm label{
-  color:var(--muted);
-  font-size:9px;
-}
-.eventForm input,
-.eventForm select,
-.eventForm textarea{
-  width:100%;
-  background:#0d141c;
-  border:1px solid var(--border);
-  color:white;
-  padding:8px;
-  border-radius:6px;
-  outline:none;
-  font-size:11px;
-}
-.eventForm textarea{
-  min-height:65px;
-  resize:vertical;
-}
-.eventForm input:focus,
-.eventForm select:focus,
-.eventForm textarea:focus{
-  border-color:var(--cyan);
-}
-.formTwo{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:7px;
-}
-.formActions{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-}
-.formActions button{
-  flex:1;
-  min-width:80px;
-}
-.calendarSelection{
-  margin-top:9px;
-  padding:8px;
-  border:1px solid #1c2732;
-  border-radius:6px;
-  color:var(--muted);
-  font-size:10px;
-}
-.calendarQuick{
-  display:flex;
-  gap:5px;
-  flex-wrap:wrap;
-  margin-top:8px;
-}
-.calendarQuick button{
-  border:1px solid var(--border);
-  background:#111923;
-  color:var(--text);
-  padding:6px 8px;
-  border-radius:6px;
-  font-size:10px;
-}
-.calendarQuick button:hover{
-  border-color:var(--cyan);
-}
-@media(max-width:1050px){
-  .calendarLayout{
-    grid-template-columns:1fr;
-  }
-}
+
 /* EVENT LIST */
 
 .eventList{
@@ -1324,103 +1128,59 @@ video{
 
 
   <!-- CALENDAR -->
-<div class="panel calendarPanel">
-  <div class="panelHeader">COMMAND CENTER CALENDAR</div>
-  <div class="panelBody">
 
-    <div class="calendarToolbar">
-      <div class="calendarToolbarGroup">
-        <button onclick="calendarToday()">TODAY</button>
-        <button onclick="changeCalendarPeriod(-1)">‹</button>
-        <div id="calendarTitle" class="calendarTitle"></div>
-        <button onclick="changeCalendarPeriod(1)">›</button>
-      </div>
+  <div class="panel mediaPanel">
 
-      <div class="calendarViewButtons">
-        <button id="calViewMonth" class="active" onclick="setCalendarView('month')">MONTH</button>
-        <button id="calViewWeek" onclick="setCalendarView('week')">WEEK</button>
-        <button id="calViewDay" onclick="setCalendarView('day')">DAY</button>
-        <button id="calViewAgenda" onclick="setCalendarView('agenda')">AGENDA</button>
-      </div>
+    <div class="panelHeader">
+      COMMAND CENTER CALENDAR
     </div>
 
-    <div class="calendarLayout">
-      <div class="calendarSurface">
-        <div id="calendarSurface"></div>
+    <div class="panelBody">
 
-        <div class="calendarQuick">
-          <button onclick="quickCalendarTime(9)">9 AM</button>
-          <button onclick="quickCalendarTime(12)">NOON</button>
-          <button onclick="quickCalendarTime(15)">3 PM</button>
-          <button onclick="quickCalendarTime(18)">6 PM</button>
-          <button onclick="voiceAddEvent()">🎙 ADD BY VOICE</button>
-        </div>
+      <div class="calendarHeader">
 
-        <div id="calendarSelection" class="calendarSelection">
-          Select a day or time slot to create an event.
-        </div>
+        <button onclick="changeMonth(-1)">‹</button>
+
+        <div id="calendarMonth" class="calendarMonth"></div>
+
+        <button onclick="changeMonth(1)">›</button>
+
       </div>
 
-      <div class="calendarSide">
-        <div class="calendarSideTitle">EVENT EDITOR</div>
-
-        <form id="eventForm" class="eventForm" onsubmit="saveCalendarEvent(event)">
-          <input id="eventId" type="hidden">
-
-          <label>TITLE
-            <input id="eventTitle" type="text" placeholder="Event title" required>
-          </label>
-
-          <div class="formTwo">
-            <label>START
-              <input id="eventStart" type="datetime-local" required>
-            </label>
-            <label>END
-              <input id="eventEnd" type="datetime-local" required>
-            </label>
-          </div>
-
-          <label>LOCATION
-            <input id="eventLocation" type="text" placeholder="Location">
-          </label>
-
-          <label>REPEAT
-            <select id="eventRepeat">
-              <option value="">Does not repeat</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </label>
-
-          <label>REMINDER
-            <select id="eventReminder">
-              <option value="0">None</option>
-              <option value="5">5 minutes before</option>
-              <option value="10">10 minutes before</option>
-              <option value="15">15 minutes before</option>
-              <option value="30">30 minutes before</option>
-              <option value="60">1 hour before</option>
-              <option value="1440">1 day before</option>
-            </select>
-          </label>
-
-          <label>NOTES
-            <textarea id="eventNotes" placeholder="Notes or description"></textarea>
-          </label>
-
-          <div class="formActions">
-            <button type="submit" class="control primary">SAVE EVENT</button>
-            <button type="button" class="control" onclick="newCalendarEvent()">NEW</button>
-            <button type="button" class="control danger" onclick="deleteSelectedEvent()">DELETE</button>
-          </div>
-        </form>
+      <div
+        id="calendarGrid"
+        class="calendarGrid">
       </div>
+
+      <div id="eventList" class="eventList"></div>
+
+      <div class="mediaControls">
+
+        <button
+          class="control primary"
+          onclick="voiceAddEvent()">
+          ADD EVENT BY VOICE
+        </button>
+
+        <button
+          class="control"
+          onclick="addTestEvent()">
+          TEST EVENT
+        </button>
+
+        <button
+          class="control danger"
+          onclick="clearEvents()">
+          CLEAR EVENTS
+        </button>
+
+      </div>
+
     </div>
-
   </div>
+
 </div>
+
 
 <!-- RIGHT COLUMN -->
 
@@ -1782,14 +1542,11 @@ let youtubeVideoId = "";
    ============================================================ */
 
 let calendarDate = new Date();
-let calendarView = "month";
-let calendarSelectedDate = new Date();
-let calendarSelectedEventId = "";
+
 let calendarEvents =
   JSON.parse(
     localStorage.getItem("amomiiCalendarEvents") || "[]"
   );
-let reminderTimers = new Map();
 
 
 /* ============================================================
@@ -1825,7 +1582,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateIdentityUI();
   initializeVoice();
   initializeMedia();
-  initCalendar();
+  renderCalendar();
   updateUptime();
 
   log(
@@ -3864,45 +3621,42 @@ function routeVoiceCommand(command,raw){
   /* CALENDAR */
 
   if(
-    /\b(delete|remove|cancel)\b.*\b(event|appointment|meeting|calendar)\b|\b(delete|remove|cancel)\b.+/i.test(raw) &&
-    /\b(calendar|event|appointment|meeting)\b/i.test(raw)
+    /\badd (an )?event\b|\bschedule\b/.test(command)
   ){
-    deleteByVoice(raw);
-    return;
-  }
 
-  if(
-    /\b(move|change|reschedule)\b.*\b(calendar|event|appointment|meeting)\b|\b(move|change|reschedule)\b.+\b(to|on|at)\b/i.test(raw)
-  ){
-    editByVoice(raw);
-    return;
-  }
-
-  if(
-    /\b(add|schedule|create|book|set up)\b.*\b(event|appointment|meeting|calendar|reminder)\b|\b(schedule|book)\b/i.test(raw)
-  ){
     createEventFromNaturalLanguage(raw);
+
     return;
   }
 
+
   if(
-    /\bwhat('?s| is) on my calendar\b|\bwhat events\b|\bmy events\b|\bcalendar today\b|\bwhat do i have today\b|\bwhat do i have tomorrow\b|\bcalendar tomorrow\b|\bwhat do i have this week\b|\bwhat'?s coming up\b/i.test(raw)
+    /\bwhat('?s| is) on my calendar\b|\bwhat events\b|\bmy events\b|\bcalendar today\b/.test(command)
   ){
-    calendarQuery(command);
+
+    speakTodaysEvents();
+
     return;
   }
 
+
   if(
-    /\b(open|show)\s+(the\s+)?calendar\b|\bcalendar\b/i.test(raw) &&
-    !/\b(add|schedule|create|delete|remove|cancel|move|change|reschedule)\b/i.test(raw)
+    /\bopen calendar\b|\bshow calendar\b/.test(command)
   ){
-    document.querySelector(".calendarPanel").scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
-    speak("The calendar is open.");
+
+    document
+      .querySelector(".calendarGrid")
+      .scrollIntoView({
+        behavior:"smooth"
+      });
+
+    speak(
+      "The calendar is open."
+    );
+
     return;
   }
+
 
   /* MEDIA TAB */
 
@@ -4015,7 +3769,7 @@ function speakHelp(){
 function speakCommands(){
 
   speak(
-    `You can say connect, disconnect, status, system test, LED on, LED off, blink five, SOS, stop, play music, pause music, next song, previous song, play video, pause video, next video, open calendar, schedule an appointment, move an appointment, delete an appointment, what do I have tomorrow, what is on my calendar this week, what is my name, change my name, what is your name, change your name, and what can you do.`
+    `You can say connect, disconnect, status, system test, LED on, LED off, blink five, SOS, stop, play music, pause music, next song, previous song, play video, pause video, next video, open calendar, add an event, what events do I have today, what is my name, change my name, what is your name, change your name, and what can you do.`
   );
 
 }
@@ -4861,912 +4615,613 @@ function youtubeCommand(command){
    ============================================================ */
 
 function saveEvents(){
+
   localStorage.setItem(
     "amomiiCalendarEvents",
     JSON.stringify(calendarEvents)
   );
+
 }
 
-function uid(){
-  return (crypto && crypto.randomUUID)
-    ? crypto.randomUUID()
-    : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
-}
-
-function localDateTimeValue(date){
-  const d = new Date(date);
-  const pad = n => String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function parseLocalDateTime(value){
-  if(!value) return null;
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function formatDateLong(date){
-  return new Date(date).toLocaleDateString([],{
-    weekday:"long",month:"long",day:"numeric",year:"numeric"
-  });
-}
-
-function formatTime(time){
-  const d = new Date(time);
-  if(isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString([],{
-    hour:"numeric",minute:"2-digit"
-  });
-}
-
-function eventDuration(event){
-  const start = new Date(event.start);
-  const end = new Date(event.end);
-  return Math.max(15, Math.round((end-start)/60000));
-}
-
-function makeEvent(title,start,end,options={}){
-  return {
-    id:uid(),
-    title:String(title || "Untitled event").trim(),
-    start:new Date(start).toISOString(),
-    end:new Date(end).toISOString(),
-    location:String(options.location || "").trim(),
-    notes:String(options.notes || "").trim(),
-    repeat:options.repeat || "",
-    reminder:Number(options.reminder || 0),
-    created:Date.now()
-  };
-}
-
-function normalizeStoredEvents(){
-  let changed = false;
-
-  calendarEvents = calendarEvents.map(e => {
-    if(e.start && e.end) return e;
-
-    // Upgrade the older date/time format used by the original calendar.
-    if(e.date){
-      const start = new Date(`${e.date}T${e.time || "09:00"}:00`);
-      const end = new Date(start.getTime() + 60*60000);
-      changed = true;
-      return makeEvent(e.title,start,end);
-    }
-
-    return e;
-  }).filter(e => e && e.start && e.end);
-
-  if(changed) saveEvents();
-}
-
-function calendarStartOfDay(date){
-  const d = new Date(date);
-  d.setHours(0,0,0,0);
-  return d;
-}
-
-function calendarStartOfWeek(date){
-  const d = calendarStartOfDay(date);
-  d.setDate(d.getDate() - d.getDay());
-  return d;
-}
-
-function addRepeat(date, repeat){
-  const d = new Date(date);
-  if(repeat === "daily") d.setDate(d.getDate()+1);
-  if(repeat === "weekly") d.setDate(d.getDate()+7);
-  if(repeat === "monthly") d.setMonth(d.getMonth()+1);
-  if(repeat === "yearly") d.setFullYear(d.getFullYear()+1);
-  return d;
-}
-
-function occurrencesBetween(event,rangeStart,rangeEnd){
-  const result = [];
-  let start = new Date(event.start);
-  const originalEnd = new Date(event.end);
-  const duration = originalEnd - start;
-
-  if(!event.repeat){
-    if(originalEnd > rangeStart && start < rangeEnd){
-      result.push({event,start,end:originalEnd});
-    }
-    return result;
-  }
-
-  // Protect the browser from pathological recurrence loops.
-  let guard = 0;
-  while(start < rangeEnd && guard < 5000){
-    const end = new Date(start.getTime()+duration);
-    if(end > rangeStart && start < rangeEnd){
-      result.push({event,start,end});
-    }
-    const next = addRepeat(start,event.repeat);
-    if(next <= start) break;
-    start = next;
-    guard++;
-  }
-  return result;
-}
-
-function getCalendarOccurrences(rangeStart,rangeEnd){
-  const out = [];
-  calendarEvents.forEach(event => {
-    occurrencesBetween(event,rangeStart,rangeEnd).forEach(o => out.push(o));
-  });
-  return out.sort((a,b)=>a.start-b.start);
-}
-
-function eventsForDay(date){
-  const start = calendarStartOfDay(date);
-  const end = new Date(start);
-  end.setDate(end.getDate()+1);
-  return getCalendarOccurrences(start,end);
-}
-
-function calendarToday(){
-  calendarDate = new Date();
-  calendarSelectedDate = new Date();
-  renderCalendar();
-}
-
-function setCalendarView(view){
-  calendarView = view;
-  ["Month","Week","Day","Agenda"].forEach(name => {
-    const el = document.getElementById("calView"+name);
-    if(el) el.classList.toggle("active",name.toLowerCase() === view);
-  });
-  renderCalendar();
-}
-
-function changeCalendarPeriod(amount){
-  if(calendarView === "month"){
-    calendarDate.setMonth(calendarDate.getMonth()+amount);
-  }else if(calendarView === "week"){
-    calendarDate.setDate(calendarDate.getDate()+amount*7);
-  }else if(calendarView === "day"){
-    calendarDate.setDate(calendarDate.getDate()+amount);
-  }else{
-    calendarDate.setDate(calendarDate.getDate()+amount*30);
-  }
-  renderCalendar();
-}
 
 function renderCalendar(){
-  normalizeStoredEvents();
 
-  const title = document.getElementById("calendarTitle");
-  if(calendarView === "month"){
-    title.textContent = calendarDate.toLocaleDateString([],{
-      month:"long",year:"numeric"
-    });
-  }else if(calendarView === "week"){
-    const s = calendarStartOfWeek(calendarDate);
-    const e = new Date(s); e.setDate(e.getDate()+6);
-    title.textContent = `${s.toLocaleDateString([],{
-      month:"short",day:"numeric"
-    })} – ${e.toLocaleDateString([],{
-      month:"short",day:"numeric",year:"numeric"
-    })}`;
-  }else if(calendarView === "day"){
-    title.textContent = formatDateLong(calendarDate);
-  }else{
-    title.textContent = "Upcoming Agenda";
-  }
+  const year =
+    calendarDate.getFullYear();
 
-  const surface = document.getElementById("calendarSurface");
-  surface.innerHTML = "";
+  const month =
+    calendarDate.getMonth();
 
-  if(calendarView === "month") renderMonthView(surface);
-  if(calendarView === "week") renderWeekView(surface);
-  if(calendarView === "day") renderDayView(surface);
-  if(calendarView === "agenda") renderAgendaView(surface);
+  document.getElementById(
+    "calendarMonth"
+  ).textContent =
+    calendarDate.toLocaleDateString(
+      [],
+      {
+        month:"long",
+        year:"numeric"
+      }
+    );
 
-  updateCalendarSelection();
-  scheduleCalendarReminders();
-}
+  const grid =
+    document.getElementById(
+      "calendarGrid"
+    );
 
-function renderMonthView(surface){
-  const grid = document.createElement("div");
-  grid.className = "calendarGrid";
+  grid.innerHTML = "";
 
-  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(day=>{
-    const label=document.createElement("div");
-    label.className="dayLabel";
-    label.textContent=day;
+  [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ].forEach(day => {
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "dayLabel";
+
+    label.textContent =
+      day;
+
     grid.appendChild(label);
+
   });
 
-  const first = new Date(calendarDate.getFullYear(),calendarDate.getMonth(),1);
-  const firstCell = new Date(first);
-  firstCell.setDate(firstCell.getDate()-firstCell.getDay());
+  const firstDay =
+    new Date(
+      year,
+      month,
+      1
+    ).getDay();
 
-  for(let i=0;i<42;i++){
-    const d=new Date(firstCell);
-    d.setDate(firstCell.getDate()+i);
+  const daysInMonth =
+    new Date(
+      year,
+      month + 1,
+      0
+    ).getDate();
 
-    const cell=document.createElement("div");
-    cell.className="day";
-    if(d.getMonth() !== calendarDate.getMonth()) cell.classList.add("otherMonth");
+  for(
+    let i=0;
+    i<firstDay;
+    i++
+  ){
 
-    const today=new Date();
-    if(dateKey(d)===dateKey(today)) cell.classList.add("today");
-    if(dateKey(d)===dateKey(calendarSelectedDate)) cell.classList.add("selected");
+    const blank =
+      document.createElement(
+        "div"
+      );
 
-    const num=document.createElement("div");
-    num.className="dayNumber";
-    num.textContent=d.getDate();
-    cell.appendChild(num);
+    grid.appendChild(blank);
 
-    eventsForDay(d).slice(0,4).forEach(o=>{
-      const chip=document.createElement("div");
-      chip.className="calendarEventChip";
-      chip.textContent=`${formatTime(o.start)} ${o.event.title}`;
-      chip.title=o.event.title;
-      chip.onclick=e=>{
-        e.stopPropagation();
-        editCalendarEvent(o.event.id);
-      };
-      cell.appendChild(chip);
-    });
-
-    cell.onclick=()=>selectCalendarDate(d);
-    grid.appendChild(cell);
   }
 
-  surface.appendChild(grid);
-}
+  const today =
+    new Date();
 
-function renderWeekView(surface){
-  const grid=document.createElement("div");
-  grid.className="calendarWeek";
+  for(
+    let day=1;
+    day<=daysInMonth;
+    day++
+  ){
 
-  const blank=document.createElement("div");
-  blank.className="timeHeader";
-  blank.textContent="TIME";
-  grid.appendChild(blank);
+    const cell =
+      document.createElement(
+        "div"
+      );
 
-  const weekStart=calendarStartOfWeek(calendarDate);
-  for(let i=0;i<7;i++){
-    const d=new Date(weekStart);
-    d.setDate(d.getDate()+i);
-    const h=document.createElement("div");
-    h.className="timeHeader";
-    h.textContent=d.toLocaleDateString([],{
-      weekday:"short",month:"numeric",day:"numeric"
-    });
-    grid.appendChild(h);
-  }
+    cell.className =
+      "day";
 
-  for(let hour=0;hour<24;hour++){
-    const label=document.createElement("div");
-    label.className="timeLabel";
-    const hd=new Date(); hd.setHours(hour,0,0,0);
-    label.textContent=hd.toLocaleTimeString([],{
-      hour:"numeric"
-    });
-    grid.appendChild(label);
+    if(
+      day === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    ){
 
-    for(let day=0;day<7;day++){
-      const d=new Date(weekStart);
-      d.setDate(d.getDate()+day);
-      d.setHours(hour,0,0,0);
+      cell.classList.add(
+        "today"
+      );
 
-      const slot=document.createElement("div");
-      slot.className="timeSlot";
+    }
 
-      const slotStart=new Date(d);
-      const slotEnd=new Date(d); slotEnd.setMinutes(60);
+    const number =
+      document.createElement(
+        "div"
+      );
 
-      getCalendarOccurrences(slotStart,slotEnd).forEach(o=>{
-        const ev=document.createElement("div");
-        ev.className="weekEvent";
-        ev.textContent=`${formatTime(o.start)} ${o.event.title}`;
-        ev.onclick=e=>{
-          e.stopPropagation();
-          editCalendarEvent(o.event.id);
-        };
-        slot.appendChild(ev);
+    number.className =
+      "dayNumber";
+
+    number.textContent =
+      day;
+
+    cell.appendChild(number);
+
+    const dayEvents =
+      getEventsForDate(
+        new Date(
+          year,
+          month,
+          day
+        )
+      );
+
+    dayEvents
+      .slice(0,3)
+      .forEach(event => {
+
+        const eventDiv =
+          document.createElement(
+            "div"
+          );
+
+        eventDiv.className =
+          "eventDot";
+
+        eventDiv.textContent =
+          event.title;
+
+        cell.appendChild(
+          eventDiv
+        );
+
       });
 
-      slot.onclick=()=>selectCalendarTime(d);
-      grid.appendChild(slot);
-    }
+    grid.appendChild(cell);
+
   }
 
-  surface.appendChild(grid);
+  renderEventList();
+
 }
 
-function renderDayView(surface){
-  const grid=document.createElement("div");
-  grid.className="calendarDayView";
 
-  const h1=document.createElement("div");
-  h1.className="timeHeader";
-  h1.textContent="TIME";
-  grid.appendChild(h1);
+function changeMonth(amount){
 
-  const h2=document.createElement("div");
-  h2.className="timeHeader";
-  h2.textContent=formatDateLong(calendarDate);
-  grid.appendChild(h2);
+  calendarDate.setMonth(
+    calendarDate.getMonth() + amount
+  );
 
-  for(let hour=0;hour<24;hour++){
-    const label=document.createElement("div");
-    label.className="timeLabel";
-    const hd=new Date(calendarDate); hd.setHours(hour,0,0,0);
-    label.textContent=hd.toLocaleTimeString([],{
-      hour:"numeric"
-    });
-    grid.appendChild(label);
-
-    const slot=document.createElement("div");
-    slot.className="timeSlot";
-
-    const start=new Date(calendarDate); start.setHours(hour,0,0,0);
-    const end=new Date(start); end.setHours(hour+1);
-
-    getCalendarOccurrences(start,end).forEach(o=>{
-      const ev=document.createElement("div");
-      ev.className="weekEvent";
-      ev.textContent=`${formatTime(o.start)} ${o.event.title}`;
-      ev.onclick=e=>{
-        e.stopPropagation();
-        editCalendarEvent(o.event.id);
-      };
-      slot.appendChild(ev);
-    });
-
-    slot.onclick=()=>selectCalendarTime(start);
-    grid.appendChild(slot);
-  }
-
-  surface.appendChild(grid);
-}
-
-function renderAgendaView(surface){
-  const list=document.createElement("div");
-  list.className="agendaList";
-
-  const start=calendarStartOfDay(new Date());
-  const end=new Date(start);
-  end.setDate(end.getDate()+90);
-
-  const items=getCalendarOccurrences(start,end);
-
-  if(!items.length){
-    const empty=document.createElement("div");
-    empty.className="calendarSelection";
-    empty.textContent="No upcoming events.";
-    list.appendChild(empty);
-  }
-
-  let lastDay="";
-  items.forEach(o=>{
-    const key=dateKey(o.start);
-
-    if(key!==lastDay){
-      const day=document.createElement("div");
-      day.className="agendaDay";
-      day.textContent=formatDateLong(o.start);
-      list.appendChild(day);
-      lastDay=key;
-    }
-
-    list.appendChild(buildEventCard(o.event,o.start,o.end));
-  });
-
-  surface.appendChild(list);
-}
-
-function buildEventCard(event,start,end){
-  const div=document.createElement("div");
-  div.className="event";
-
-  const title=document.createElement("div");
-  title.className="eventTitle";
-  title.textContent=event.title;
-  div.appendChild(title);
-
-  const meta=document.createElement("div");
-  meta.className="eventMeta";
-  meta.textContent =
-    `${formatTime(start)} – ${formatTime(end)}`
-    + (event.location ? ` • ${event.location}` : "")
-    + (event.repeat ? ` • repeats ${event.repeat}` : "");
-  div.appendChild(meta);
-
-  if(event.notes){
-    const notes=document.createElement("div");
-    notes.className="eventMeta";
-    notes.textContent=event.notes;
-    div.appendChild(notes);
-  }
-
-  const actions=document.createElement("div");
-  actions.className="mediaControls";
-
-  const edit=document.createElement("button");
-  edit.textContent="EDIT";
-  edit.onclick=()=>editCalendarEvent(event.id);
-
-  const del=document.createElement("button");
-  del.textContent="DELETE";
-  del.onclick=()=>deleteCalendarEvent(event.id);
-
-  actions.appendChild(edit);
-  actions.appendChild(del);
-  div.appendChild(actions);
-
-  return div;
-}
-
-function updateCalendarSelection(){
-  const el=document.getElementById("calendarSelection");
-  if(!el) return;
-
-  const day=calendarSelectedDate || calendarDate;
-  const count=eventsForDay(day).length;
-  el.textContent =
-    `${formatDateLong(day)} • ${count} event${count===1?"":"s"}`
-    + (calendarSelectedEventId ? " • event selected" : "");
-}
-
-function selectCalendarDate(date){
-  calendarSelectedDate=new Date(date);
-  calendarDate=new Date(date);
-  calendarSelectedEventId="";
-  updateCalendarSelection();
-  renderCalendar();
-}
-
-function selectCalendarTime(date){
-  calendarSelectedDate=new Date(date);
-  calendarDate=new Date(date);
-  calendarSelectedEventId="";
-  openNewCalendarEvent(date);
-}
-
-function quickCalendarTime(hour){
-  const d=new Date(calendarSelectedDate || calendarDate);
-  d.setHours(hour,0,0,0);
-  openNewCalendarEvent(d);
-}
-
-function openNewCalendarEvent(startDate){
-  const start=new Date(startDate || calendarSelectedDate || new Date());
-  const end=new Date(start);
-  end.setHours(end.getHours()+1);
-
-  document.getElementById("eventId").value="";
-  document.getElementById("eventTitle").value="";
-  document.getElementById("eventStart").value=localDateTimeValue(start);
-  document.getElementById("eventEnd").value=localDateTimeValue(end);
-  document.getElementById("eventLocation").value="";
-  document.getElementById("eventRepeat").value="";
-  document.getElementById("eventReminder").value="0";
-  document.getElementById("eventNotes").value="";
-  calendarSelectedEventId="";
-  updateCalendarSelection();
-  document.getElementById("eventTitle").focus();
-}
-
-function newCalendarEvent(){
-  openNewCalendarEvent(calendarSelectedDate || new Date());
-}
-
-function editCalendarEvent(id){
-  const event=calendarEvents.find(e=>e.id===id);
-  if(!event) return;
-
-  calendarSelectedEventId=id;
-  document.getElementById("eventId").value=event.id;
-  document.getElementById("eventTitle").value=event.title;
-  document.getElementById("eventStart").value=localDateTimeValue(event.start);
-  document.getElementById("eventEnd").value=localDateTimeValue(event.end);
-  document.getElementById("eventLocation").value=event.location || "";
-  document.getElementById("eventRepeat").value=event.repeat || "";
-  document.getElementById("eventReminder").value=String(event.reminder || 0);
-  document.getElementById("eventNotes").value=event.notes || "";
-  calendarSelectedDate=new Date(event.start);
-  calendarDate=new Date(event.start);
-  renderCalendar();
-  document.getElementById("eventTitle").focus();
-}
-
-function saveCalendarEvent(e){
-  e.preventDefault();
-
-  const title=document.getElementById("eventTitle").value.trim();
-  const start=parseLocalDateTime(document.getElementById("eventStart").value);
-  const end=parseLocalDateTime(document.getElementById("eventEnd").value);
-
-  if(!title || !start || !end){
-    speak("Please provide an event title, start time, and end time.");
-    return;
-  }
-
-  if(end <= start){
-    speak("The end time must be after the start time.");
-    return;
-  }
-
-  const data={
-    title,
-    start:start.toISOString(),
-    end:end.toISOString(),
-    location:document.getElementById("eventLocation").value.trim(),
-    repeat:document.getElementById("eventRepeat").value,
-    reminder:Number(document.getElementById("eventReminder").value || 0),
-    notes:document.getElementById("eventNotes").value.trim()
-  };
-
-  const id=document.getElementById("eventId").value;
-
-  if(id){
-    const index=calendarEvents.findIndex(e=>e.id===id);
-    if(index>=0){
-      calendarEvents[index]={...calendarEvents[index],...data};
-      log(`Calendar event updated: ${title}`,"success");
-      speak(`Updated ${title}.`);
-    }
-  }else{
-    calendarEvents.push({
-      id:uid(),
-      ...data,
-      created:Date.now()
-    });
-    log(`Calendar event added: ${title} on ${formatDateLong(start)}`,"success");
-    speak(
-      `I added ${title} for ${formatDateLong(start)} at ${formatTime(start)}.`
-    );
-  }
-
-  saveEvents();
-  calendarSelectedDate=new Date(start);
-  calendarDate=new Date(start);
-  calendarSelectedEventId=id || calendarEvents[calendarEvents.length-1].id;
-  renderCalendar();
-}
-
-function deleteCalendarEvent(id){
-  const event=calendarEvents.find(e=>e.id===id);
-  if(!event) return;
-
-  if(!confirm(`Delete "${event.title}"?`)) return;
-
-  calendarEvents=calendarEvents.filter(e=>e.id!==id);
-  saveEvents();
-  calendarSelectedEventId="";
   renderCalendar();
 
-  log(`Calendar event deleted: ${event.title}`,"warning");
-  speak(`Deleted ${event.title}.`);
 }
 
-function deleteSelectedEvent(){
-  const id=document.getElementById("eventId").value || calendarSelectedEventId;
-  if(!id){
-    speak("There is no calendar event selected.");
-    return;
-  }
-  deleteCalendarEvent(id);
-  newCalendarEvent();
-}
-
-function clearEvents(){
-  if(!calendarEvents.length){
-    speak("There are no calendar events to clear.");
-    return;
-  }
-
-  if(!confirm("Clear ALL Command Center calendar events?")) return;
-
-  calendarEvents=[];
-  saveEvents();
-  calendarSelectedEventId="";
-  renderCalendar();
-  speak("All calendar events have been cleared.");
-}
 
 function dateKey(date){
-  const d=new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
+  const y =
+    date.getFullYear();
+
+  const m =
+    String(
+      date.getMonth()+1
+    ).padStart(2,"0");
+
+  const d =
+    String(
+      date.getDate()
+    ).padStart(2,"0");
+
+  return `${y}-${m}-${d}`;
+
 }
 
-function parseSpokenDate(text,baseDate=new Date()){
-  const raw=text.toLowerCase();
-  const d=new Date(baseDate);
 
-  if(/\bday after tomorrow\b/.test(raw)){
-    d.setDate(d.getDate()+2);
-    return d;
-  }
-  if(/\btomorrow\b/.test(raw)){
-    d.setDate(d.getDate()+1);
-    return d;
-  }
-  if(/\btoday\b/.test(raw)){
-    return d;
+function getEventsForDate(date){
+
+  return calendarEvents.filter(
+    event =>
+      event.date === dateKey(date)
+  );
+
+}
+
+
+function renderEventList(){
+
+  const list =
+    document.getElementById(
+      "eventList"
+    );
+
+  list.innerHTML = "";
+
+  const today =
+    new Date();
+
+  const events =
+    getEventsForDate(today)
+      .sort(
+        (a,b) =>
+          String(a.time)
+            .localeCompare(
+              String(b.time)
+            )
+      );
+
+  if(!events.length){
+
+    const empty =
+      document.createElement(
+        "div"
+      );
+
+    empty.style.color =
+      "var(--muted)";
+
+    empty.style.fontSize =
+      "11px";
+
+    empty.textContent =
+      "No events today.";
+
+    list.appendChild(empty);
+
+    return;
   }
 
-  const days={
-    sunday:0,monday:1,tuesday:2,wednesday:3,
-    thursday:4,friday:5,saturday:6
-  };
+  events.forEach(
+    event => {
 
-  for(const [name,target] of Object.entries(days)){
-    if(new RegExp(`\\b${name}\\b`).test(raw)){
-      const current=d.getDay();
-      let delta=(target-current+7)%7;
-      if(delta===0) delta=7;
-      d.setDate(d.getDate()+delta);
-      return d;
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.className =
+        "event";
+
+      div.innerHTML =
+        `<div class="eventTitle">
+          ${escapeHtml(event.title)}
+        </div>
+        <div class="eventMeta">
+          ${escapeHtml(event.date)}
+          ${event.time
+            ? " • " + escapeHtml(event.time)
+            : ""}
+        </div>`;
+
+      list.appendChild(div);
+
     }
-  }
+  );
 
-  const numeric=raw.match(/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/);
-  if(numeric){
-    let year=numeric[3] ? Number(numeric[3]) : d.getFullYear();
-    if(year<100) year+=2000;
-    return new Date(year,Number(numeric[1])-1,Number(numeric[2]));
-  }
+}
 
-  const months={
-    january:0,february:1,march:2,april:3,may:4,june:5,
-    july:6,august:7,september:8,october:9,november:10,december:11
+
+function addEvent(
+  title,
+  date,
+  time=""
+){
+
+  const event = {
+    id:
+      Date.now() +
+      Math.random(),
+
+    title:
+      title.trim(),
+
+    date,
+
+    time
   };
-  const named=raw.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:\s+(\d{4}))?\b/);
-  if(named){
-    const year=named[3] ? Number(named[3]) : d.getFullYear();
-    return new Date(year,months[named[1]],Number(named[2]));
-  }
 
-  return null;
+  calendarEvents.push(
+    event
+  );
+
+  saveEvents();
+  renderCalendar();
+
+  log(
+    `Calendar event added: ${title} on ${date}${time ? " at " + time : ""}`,
+    "success"
+  );
+
+  return event;
+
 }
 
-function parseSpokenTime(text){
-  const raw=text.toLowerCase().replace(/\bnoon\b/,"12 pm").replace(/\bmidnight\b/,"12 am");
-  const match=raw.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/);
-  if(match){
-    let hour=Number(match[1]);
-    const minute=Number(match[2] || 0);
-    if(match[3]==="pm" && hour<12) hour+=12;
-    if(match[3]==="am" && hour===12) hour=0;
-    if(hour>23 || minute>59) return null;
-    return {hour,minute};
-  }
 
-  const military=raw.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
-  if(military){
-    return {hour:Number(military[1]),minute:Number(military[2])};
-  }
-
-  return null;
-}
-
-function cleanCalendarTitle(raw){
-  let title=raw;
-
-  title=title
-    .replace(/^(please\s+)?(add|schedule|create|book|set up|put)\s+(an?\s+)?(calendar\s+)?(event|appointment|meeting|reminder)?\s*/i,"")
-    .replace(/^(please\s+)?remind me to\s+/i,"")
-    .replace(/\b(on|for)\s+(the\s+)?(day after tomorrow|tomorrow|today)\b/ig,"")
-    .replace(/\b(on|for)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/ig,"")
-    .replace(/\b(?:at|around)\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)\b/ig,"")
-    .replace(/\b\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?\b/g,"")
-    .replace(/\s+/g," ")
-    .replace(/^[\s,:-]+|[\s,:-]+$/g,"")
-    .trim();
-
-  return title || "New event";
-}
+/* ============================================================
+   NATURAL LANGUAGE CALENDAR
+   ============================================================ */
 
 function createEventFromNaturalLanguage(text){
-  const raw=String(text).trim();
-  const date=parseSpokenDate(raw,new Date()) || new Date();
-  const time=parseSpokenTime(raw) || {hour:9,minute:0};
 
-  date.setHours(time.hour,time.minute,0,0);
+  const raw =
+    text.trim();
 
-  let end=new Date(date);
-  end.setHours(end.getHours()+1);
+  let title =
+    raw
+      .replace(
+        /^.*?\b(?:add|schedule|create)\b/i,
+        ""
+      )
+      .trim();
 
-  const durationMatch=raw.match(/\bfor\s+(\d+)\s*(minute|minutes|min|hour|hours|hr|hrs)\b/i);
-  if(durationMatch){
-    const amount=Number(durationMatch[1]);
-    const minutes=/hour|hr/i.test(durationMatch[2]) ? amount*60 : amount;
-    end=new Date(date.getTime()+minutes*60000);
+  title =
+    title
+      .replace(
+        /^(an )?event\b/i,
+        ""
+      )
+      .trim();
+
+  let date =
+    new Date();
+
+  if(
+    /\btomorrow\b/i.test(raw)
+  ){
+
+    date.setDate(
+      date.getDate() + 1
+    );
+
   }
 
-  const locationMatch=raw.match(/\b(?:at|in)\s+([^,]+?)(?=\s+(?:on|tomorrow|today|at|for)\b|$)/i);
-  const location =
-    /\b(?:at|in)\s+/.test(raw) && parseSpokenTime(raw)
-      ? (locationMatch ? locationMatch[1].trim() : "")
-      : "";
+  if(
+    /\bday after tomorrow\b/i.test(raw)
+  ){
 
-  const title=cleanCalendarTitle(raw);
+    date =
+      new Date();
 
-  const event={
-    id:uid(),
-    title,
-    start:date.toISOString(),
-    end:end.toISOString(),
-    location:"",
-    notes:"",
-    repeat:"",
-    reminder:0,
-    created:Date.now()
-  };
+    date.setDate(
+      date.getDate() + 2
+    );
 
-  calendarEvents.push(event);
-  saveEvents();
+  }
 
-  calendarSelectedDate=new Date(date);
-  calendarDate=new Date(date);
-  calendarSelectedEventId=event.id;
-  renderCalendar();
-  editCalendarEvent(event.id);
+  const dateMatch =
+    raw.match(
+      /\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/
+    );
 
-  log(`Voice calendar event added: ${title}`,"success");
-  speak(`I added ${title} for ${formatDateLong(date)} at ${formatTime(date)}.`);
-}
+  if(dateMatch){
 
-function findCalendarEvent(text){
-  const raw=normalizeVoice(text)
-    .replace(/^(delete|remove|cancel|move|change|reschedule)\s+/,"")
-    .replace(/\b(the|my|calendar|event|appointment|meeting)\b/g," ")
-    .replace(/\s+/g," ")
-    .trim();
+    let year =
+      dateMatch[3]
+        ? Number(dateMatch[3])
+        : date.getFullYear();
 
-  if(!raw) return null;
+    if(year < 100){
+      year += 2000;
+    }
 
-  const sorted=[...calendarEvents].sort((a,b)=>a.start.localeCompare(b.start));
+    date =
+      new Date(
+        year,
+        Number(dateMatch[1])-1,
+        Number(dateMatch[2])
+      );
 
-  return sorted.find(e=>normalizeVoice(e.title)===raw)
-    || sorted.find(e=>normalizeVoice(e.title).includes(raw))
-    || sorted.find(e=>raw.includes(normalizeVoice(e.title)))
-    || null;
-}
+  }
 
-function deleteByVoice(text){
-  const event=findCalendarEvent(text);
-  if(!event){
-    speak("I couldn't find that calendar event.");
+  let time = "";
+
+  const timeMatch =
+    raw.match(
+      /\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i
+    );
+
+  if(timeMatch){
+
+    let hour =
+      Number(timeMatch[1]);
+
+    const minute =
+      timeMatch[2] || "00";
+
+    const ampm =
+      timeMatch[3].toLowerCase();
+
+    if(
+      ampm === "pm" &&
+      hour < 12
+    ){
+      hour += 12;
+    }
+
+    if(
+      ampm === "am" &&
+      hour === 12
+    ){
+      hour = 0;
+    }
+
+    time =
+      `${String(hour).padStart(2,"0")}:${minute}`;
+
+  }
+
+  title =
+    title
+      .replace(
+        /\btomorrow\b/i,
+        ""
+      )
+      .replace(
+        /\btoday\b/i,
+        ""
+      )
+      .replace(
+        /\bday after tomorrow\b/i,
+        ""
+      )
+      .replace(
+        /\b\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?\b/,
+        ""
+      )
+      .replace(
+        /\b\d{1,2}(?::\d{2})?\s*(am|pm)\b/i,
+        ""
+      )
+      .replace(
+        /\bat\s+/i,
+        " "
+      )
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+  if(
+    !title ||
+    title.length < 2
+  ){
+
+    awaitingEvent = true;
+
+    speak(
+      "What would you like the event to be called?"
+    );
+
     return;
-  }
-  deleteCalendarEvent(event.id);
-}
 
-function editByVoice(text){
-  const event=findCalendarEvent(text);
-  if(!event){
-    speak("I couldn't find that calendar event.");
-    return;
   }
 
-  const date=parseSpokenDate(text,new Date(event.start));
-  const time=parseSpokenTime(text);
-
-  if(!date && !time){
-    editCalendarEvent(event.id);
-    speak(`Opening ${event.title}.`);
-    return;
-  }
-
-  const start=new Date(event.start);
-
-  if(date){
-    start.setFullYear(date.getFullYear(),date.getMonth(),date.getDate());
-  }
-  if(time){
-    start.setHours(time.hour,time.minute,0,0);
-  }
-
-  const end=new Date(start.getTime()+eventDuration(event)*60000);
-  event.start=start.toISOString();
-  event.end=end.toISOString();
-
-  saveEvents();
-  calendarDate=new Date(start);
-  calendarSelectedDate=new Date(start);
-  calendarSelectedEventId=event.id;
-  renderCalendar();
-
-  speak(`Moved ${event.title} to ${formatDateLong(start)} at ${formatTime(start)}.`);
-  log(`Voice calendar event moved: ${event.title}`,"success");
-}
-
-function speakTodaysEvents(targetDate=null){
-  const date=targetDate || new Date();
-  const items=eventsForDay(date);
-
-  if(!items.length){
-    speak(`You have no events scheduled for ${targetDate ? "that day" : "today"}, ${userName}.`);
-    return;
-  }
-
-  const descriptions=items.map(o=>
-    `${o.event.title} at ${formatTime(o.start)}`
-    + (o.event.location ? ` at ${o.event.location}` : "")
-  );
+  const created =
+    addEvent(
+      title,
+      dateKey(date),
+      time
+    );
 
   speak(
-    `${targetDate ? formatDateLong(date) : "Today"} you have ${descriptions.join(", and ")}.`
+    `I added ${created.title} for ${
+      date.toLocaleDateString([],{
+        month:"long",
+        day:"numeric"
+      })
+    }${
+      time
+        ? ` at ${formatTime(time)}`
+        : ""
+    }.`
   );
+
 }
 
-function calendarQuery(command){
-  if(/\b(tomorrow|next day)\b/.test(command)){
-    const d=new Date();
-    d.setDate(d.getDate()+1);
-    speakTodaysEvents(d);
-    return;
-  }
 
-  if(/\b(this week|week)\b/.test(command)){
-    const start=calendarStartOfDay(new Date());
-    const end=new Date(start); end.setDate(end.getDate()+7);
-    const items=getCalendarOccurrences(start,end);
-    if(!items.length){
-      speak("You have no events in the next seven days.");
-      return;
+function voiceAddEvent(){
+
+  awaitingEvent = true;
+
+  speak(
+    "Tell me the event, date, and time."
+  );
+
+}
+
+
+function formatTime(time){
+
+  const parts =
+    time.split(":");
+
+  const date =
+    new Date();
+
+  date.setHours(
+    Number(parts[0]),
+    Number(parts[1])
+  );
+
+  return date.toLocaleTimeString(
+    [],
+    {
+      hour:"numeric",
+      minute:"2-digit"
     }
+  );
+
+}
+
+
+function speakTodaysEvents(){
+
+  const today =
+    new Date();
+
+  const events =
+    getEventsForDate(today);
+
+  if(!events.length){
+
     speak(
-      "Your upcoming events are " +
-      items.slice(0,8).map(o=>`${o.event.title} on ${formatDateLong(o.start)} at ${formatTime(o.start)}`).join(", ")
+      `You have no events scheduled for today, ${userName}.`
     );
+
     return;
   }
 
-  speakTodaysEvents();
+  const descriptions =
+    events.map(
+      event =>
+        `${event.title}${
+          event.time
+            ? ` at ${formatTime(event.time)}`
+            : ""
+        }`
+    );
+
+  speak(
+    `Today you have ${descriptions.join(", and ")}.`
+  );
+
 }
 
-async function requestCalendarNotifications(){
-  if(!("Notification" in window)) return false;
-  if(Notification.permission==="granted") return true;
-  if(Notification.permission==="denied") return false;
-  try{
-    return (await Notification.requestPermission())==="granted";
-  }catch(e){
-    return false;
-  }
-}
 
-function scheduleCalendarReminders(){
-  reminderTimers.forEach(t=>clearTimeout(t));
-  reminderTimers.clear();
+function addTestEvent(){
 
-  const now=Date.now();
+  const date =
+    new Date();
 
-  calendarEvents.forEach(event=>{
-    if(!event.reminder) return;
+  addEvent(
+    "AMOMII ONE Test Event",
+    dateKey(date),
+    "12:00"
+  );
 
-    const when=new Date(event.start).getTime()-Number(event.reminder)*60000;
-    const delay=when-now;
-
-    if(delay<=0 || delay>2147483647) return;
-
-    const timer=setTimeout(async ()=>{
-      const message=`Reminder: ${event.title} starts at ${formatTime(event.start)}.`;
-
-      log(message,"warning");
-      speak(message);
-
-      if("Notification" in window && Notification.permission==="granted"){
-        try{
-          new Notification("AMOMII ONE Calendar",{body:message});
-        }catch(e){}
-      }
-    },delay);
-
-    reminderTimers.set(event.id,timer);
-  });
-}
-
-function initCalendar(){
-  normalizeStoredEvents();
   renderCalendar();
+
 }
+
+
+function clearEvents(){
+
+  if(
+    !confirm(
+      "Clear all Command Center calendar events?"
+    )
+  ){
+    return;
+  }
+
+  calendarEvents = [];
+
+  saveEvents();
+  renderCalendar();
+
+  speak(
+    "All calendar events have been cleared."
+  );
+
+}
+
 
 /* ============================================================
    UPTIME
