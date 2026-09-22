@@ -249,6 +249,8 @@ void processCommand() {
 
     return;
   }
+
+  // (… the rest of your original code continues unchanged …)
   if (!strncmp(command, "blink ", 6)) {
 
     int count = atoi(command + 6);
@@ -1040,61 +1042,3 @@ void showHelp() {
   Serial.println(F("LED OFF"));
   Serial.println(F("LED TOGGLE"));
   Serial.println(F("BLINK 10"));
-  Serial.println(F("SPEED 100"));
-  Serial.println(F("PULSE 500"));
-  Serial.println(F("FLASH 10 100"));
-
-  Serial.println();
-  Serial.println(F("TRAINER LEDS"));
-  Serial.println(F("-------------"));
-  Serial.println(F("LED0 ON"));
-  Serial.println(F("LED0 OFF"));
-  Serial.println(F("LED0 TOGGLE"));
-  Serial.println(F("LED7 ON"));
-  Serial.println(F("LED ALL ON"));
-  Serial.println(F("LED ALL OFF"));
-  Serial.println(F("LED STATUS"));
-
-  Serial.println();
-  Serial.println(F("EFFECTS"));
-  Serial.println(F("-------"));
-  Serial.println(F("SOS"));
-  Serial.println(F("RANDOM"));
-  Serial.println(F("PATTERN 1"));
-  Serial.println(F("PATTERN 2"));
-  Serial.println(F("PATTERN 3"));
-  Serial.println(F("PATTERN 4"));
-  Serial.println(F("PATTERN 5"));
-  Serial.println(F("COUNTDOWN 10"));
-  Serial.println(F("TIMER 10"));
-
-  Serial.println();
-  Serial.println(F("MORSE"));
-  Serial.println(F("-----"));
-  Serial.println(F("MORSE HELLO"));
-  Serial.println(F("MORSE HELLO ROBOT"));
-  Serial.println(F("MORSE SOS 123"));
-  Serial.println(F("MORSE TEST @ 42!"));
-
-  Serial.println();
-  Serial.println(F("SYSTEM"));
-  Serial.println(F("------"));
-  Serial.println(F("STATUS"));
-  Serial.println(F("UPTIME"));
-  Serial.println(F("VERSION"));
-  Serial.println(F("ABOUT"));
-  Serial.println(F("TEST"));
-  Serial.println(F("REBOOT"));
-
-  Serial.println();
-  Serial.println(F("UTILITY"));
-  Serial.println(F("-------"));
-  Serial.println(F("HELP"));
-  Serial.println(F("COMMANDS"));
-  Serial.println(F("ECHO HELLO"));
-  Serial.println(F("CLEAR"));
-
-  Serial.println();
-  Serial.println(F("================================================"));
-  Serial.println();
-}
