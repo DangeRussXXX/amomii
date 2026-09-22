@@ -119,6 +119,9 @@ void processCommand() {
 
   // ==========================================================
   // TRAINER LED COMMANDS — MUST BE FIRST
+  // Supports BOTH formats:
+  //   led0 on
+  //   led 0 on
   // ==========================================================
 
   if (!strncmp(command, "led", 3)) {
@@ -146,46 +149,17 @@ void processCommand() {
       return;
     }
 
-    // INDIVIDUAL LED COMMANDS
+    // INDIVIDUAL LED COMMANDS (supports both formats)
     int index;
     char action[10];
 
-    if (sscanf(command, "led%d %s", &index, action) == 2) {
+    // Format A: led0 on
+    if (sscanf(command, "led%d %s", &index, action) == 2) goto LED_OK;
 
-      if (index >= 0 && index < 8) {
+    // Format B: led 0 on
+    if (sscanf(command, "led %d %s", &index, action) == 2) goto LED_OK;
 
-        if (!strcmp(action, "on")) {
-          digitalWrite(LEDS[index], HIGH);
-          Serial.print(F("LED "));
-          Serial.print(index);
-          Serial.println(F(" ON"));
-          return;
-        }
-
-        if (!strcmp(action, "off")) {
-          digitalWrite(LEDS[index], LOW);
-          Serial.print(F("LED "));
-          Serial.print(index);
-          Serial.println(F(" OFF"));
-          return;
-        }
-
-        if (!strcmp(action, "toggle")) {
-          bool state = !digitalRead(LEDS[index]);
-          digitalWrite(LEDS[index], state);
-          Serial.print(F("LED "));
-          Serial.print(index);
-          Serial.print(F(" "));
-          Serial.println(state ? F("ON") : F("OFF"));
-          return;
-        }
-      }
-
-      Serial.println(F("ERROR: LED index must be 0-7."));
-      return;
-    }
-
-    // LED STATUS
+    // If neither matched, check for LED STATUS
     if (!strcmp(command, "led status")) {
 
       Serial.println(F("TRAINER LED STATUS"));
@@ -197,6 +171,50 @@ void processCommand() {
       }
       return;
     }
+
+    // If we reach here, LED command was invalid
+    Serial.println(F("ERROR: LED command invalid."));
+    return;
+
+    // ======================================================
+    // LED COMMAND HANDLER
+    // ======================================================
+LED_OK:
+
+    if (index >= 0 && index < 8) {
+
+      if (!strcmp(action, "on")) {
+        digitalWrite(LEDS[index], HIGH);
+        Serial.print(F("LED "));
+        Serial.print(index);
+        Serial.println(F(" ON"));
+        return;
+      }
+
+      if (!strcmp(action, "off")) {
+        digitalWrite(LEDS[index], LOW);
+        Serial.print(F("LED "));
+        Serial.print(index);
+        Serial.println(F(" OFF"));
+        return;
+      }
+
+      if (!strcmp(action, "toggle")) {
+        bool state = !digitalRead(LEDS[index]);
+        digitalWrite(LEDS[index], state);
+        Serial.print(F("LED "));
+        Serial.print(index);
+        Serial.print(F(" "));
+        Serial.println(state ? F("ON") : F("OFF"));
+        return;
+      }
+
+      Serial.println(F("ERROR: LED action must be ON, OFF, or TOGGLE."));
+      return;
+    }
+
+    Serial.println(F("ERROR: LED index must be 0-7."));
+    return;
   }
 
   // ==========================================================
@@ -249,8 +267,6 @@ void processCommand() {
 
     return;
   }
-
-  // (… the rest of your original code continues unchanged …)
   if (!strncmp(command, "blink ", 6)) {
 
     int count = atoi(command + 6);
@@ -857,8 +873,6 @@ void sendMorseCode(const char *code) {
     code++;
   }
 }
-
-
 // ============================================================
 // STATUS
 // ============================================================
@@ -1042,3 +1056,62 @@ void showHelp() {
   Serial.println(F("LED OFF"));
   Serial.println(F("LED TOGGLE"));
   Serial.println(F("BLINK 10"));
+  Serial.println(F("SPEED 100"));
+  Serial.println(F("PULSE 500"));
+  Serial.println(F("FLASH 10 100"));
+
+  Serial.println();
+  Serial.println(F("TRAINER LEDS"));
+  Serial.println(F("-------------"));
+  Serial.println(F("LED0 ON"));
+  Serial.println(F("LED0 OFF"));
+  Serial.println(F("LED0 TOGGLE"));
+  Serial.println(F("LED7 ON"));
+  Serial.println(F("LED ALL ON"));
+  Serial.println(F("LED ALL OFF"));
+  Serial.println(F("LED STATUS"));
+  Serial.println(F("Supports BOTH formats: led0 on  AND  led 0 on"));
+
+  Serial.println();
+  Serial.println(F("EFFECTS"));
+  Serial.println(F("-------"));
+  Serial.println(F("SOS"));
+  Serial.println(F("RANDOM"));
+  Serial.println(F("PATTERN 1"));
+  Serial.println(F("PATTERN 2"));
+  Serial.println(F("PATTERN 3"));
+  Serial.println(F("PATTERN 4"));
+  Serial.println(F("PATTERN 5"));
+  Serial.println(F("COUNTDOWN 10"));
+  Serial.println(F("TIMER 10"));
+
+  Serial.println();
+  Serial.println(F("MORSE"));
+  Serial.println(F("-----"));
+  Serial.println(F("MORSE HELLO"));
+  Serial.println(F("MORSE HELLO ROBOT"));
+  Serial.println(F("MORSE SOS 123"));
+  Serial.println(F("MORSE TEST @ 42!"));
+
+  Serial.println();
+  Serial.println(F("SYSTEM"));
+  Serial.println(F("------"));
+  Serial.println(F("STATUS"));
+  Serial.println(F("UPTIME"));
+  Serial.println(F("VERSION"));
+  Serial.println(F("ABOUT"));
+  Serial.println(F("TEST"));
+  Serial.println(F("REBOOT"));
+
+  Serial.println();
+  Serial.println(F("UTILITY"));
+  Serial.println(F("-------"));
+  Serial.println(F("HELP"));
+  Serial.println(F("COMMANDS"));
+  Serial.println(F("ECHO HELLO"));
+  Serial.println(F("CLEAR"));
+
+  Serial.println();
+  Serial.println(F("================================================"));
+  Serial.println();
+}
