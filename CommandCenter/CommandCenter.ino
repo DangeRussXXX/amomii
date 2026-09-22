@@ -218,6 +218,42 @@ LED_OK:
   }
 
   // ==========================================================
+  // TRAINER LED PATTERN COMMANDS
+  // ==========================================================
+
+  if (!strncmp(command, "pattern led ", 12)) {
+
+    int mode, speed;
+
+    if (sscanf(command + 12, "%d %d", &mode, &speed) == 2) {
+
+      switch (mode) {
+
+        case 1:  patternKnightRider(speed);      break;
+        case 2:  patternWave(speed);             break;
+        case 3:  patternSparkle(20, speed);      break;
+        case 4:  patternChase(speed);            break;
+        case 5:  patternChaseReverse(speed);     break;
+        case 6:  patternBinaryCounter(speed);    break;
+        case 7:  patternLarson(speed);           break;
+        case 8:  patternPulseWave(speed);        break;
+        case 9:  patternRain(30, speed);         break;
+        case 10: patternRandomWalk(40, speed);   break;
+        case 11: patternDualSweep(speed);        break;
+        case 12: patternHeartbeat(speed);        break;
+
+        default:
+          Serial.println(F("ERROR: LED pattern must be 1-12."));
+      }
+
+    } else {
+      Serial.println(F("Usage: PATTERN LED <mode> <speed>"));
+    }
+
+    return;
+  }
+
+  // ==========================================================
   // ORIGINAL COMMANDS CONTINUE BELOW (UNCHANGED)
   // ==========================================================
 
@@ -267,6 +303,7 @@ LED_OK:
 
     return;
   }
+
   if (!strncmp(command, "blink ", 6)) {
 
     int count = atoi(command + 6);
@@ -692,7 +729,7 @@ void timer(byte seconds) {
 
 
 // ============================================================
-// PATTERNS
+// PATTERNS (BUILT-IN LED)
 // ============================================================
 
 void runPattern(byte pattern) {
@@ -737,6 +774,231 @@ void runPattern(byte pattern) {
     default:
       Serial.println(F("ERROR: Pattern must be 1-5."));
       break;
+  }
+}
+
+
+// ============================================================
+// TRAINER LED PATTERNS
+// ============================================================
+
+void patternKnightRider(int speed) {
+
+  stopBlink();
+
+  for (int i = 0; i < 8; i++) {
+    digitalWrite(LEDS[i], HIGH);
+    delay(speed);
+    digitalWrite(LEDS[i], LOW);
+  }
+
+  for (int i = 6; i >= 1; i--) {
+    digitalWrite(LEDS[i], HIGH);
+    delay(speed);
+    digitalWrite(LEDS[i], LOW);
+  }
+}
+
+void patternWave(int speed) {
+
+  stopBlink();
+
+  for (int i = 0; i < 8; i++) {
+    digitalWrite(LEDS[i], HIGH);
+    delay(speed);
+  }
+
+  for (int i = 7; i >= 0; i--) {
+    digitalWrite(LEDS[i], LOW);
+    delay(speed);
+  }
+}
+
+void patternSparkle(int flashes, int speed) {
+
+  stopBlink();
+  randomSeed(micros());
+
+  for (int i = 0; i < flashes; i++) {
+    int index = random(0, 8);
+    digitalWrite(LEDS[index], HIGH);
+    delay(speed);
+    digitalWrite(LEDS[index], LOW);
+  }
+}
+
+void patternChase(int speed) {
+
+  stopBlink();
+
+  for (int i = 0; i < 8; i++) {
+    digitalWrite(LEDS[i], HIGH);
+    delay(speed);
+    digitalWrite(LEDS[i], LOW);
+  }
+}
+
+void patternChaseReverse(int speed) {
+
+  stopBlink();
+
+  for (int i = 7; i >= 0; i--) {
+    digitalWrite(LEDS[i], HIGH);
+    delay(speed);
+    digitalWrite(LEDS[i], LOW);
+  }
+}
+
+void patternBinaryCounter(int speed) {
+
+  stopBlink();
+
+  for (int value = 0; value < 256; value++) {
+
+    for (int bit = 0; bit < 8; bit++) {
+      digitalWrite(LEDS[bit], (value >> bit) & 1);
+    }
+
+    delay(speed);
+  }
+
+  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+}
+
+void patternLarson(int speed) {
+
+  stopBlink();
+
+  int pos = 0;
+  int dir = 1;
+
+  for (int step = 0; step < 32; step++) {
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+
+    digitalWrite(LEDS[pos], HIGH);
+
+    delay(speed);
+
+    pos += dir;
+
+    if (pos == 7 || pos == 0) dir = -dir;
+  }
+
+  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+}
+
+void patternPulseWave(int speed) {
+
+  stopBlink();
+
+  for (int center = 0; center < 8; center++) {
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+
+    digitalWrite(LEDS[center], HIGH);
+
+    if (center > 0) digitalWrite(LEDS[center - 1], HIGH);
+    if (center < 7) digitalWrite(LEDS[center + 1], HIGH);
+
+    delay(speed);
+  }
+
+  for (int center = 7; center >= 0; center--) {
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+
+    digitalWrite(LEDS[center], HIGH);
+
+    if (center > 0) digitalWrite(LEDS[center - 1], HIGH);
+    if (center < 7) digitalWrite(LEDS[center + 1], HIGH);
+
+    delay(speed);
+  }
+
+  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+}
+
+void patternRain(int drops, int speed) {
+
+  stopBlink();
+  randomSeed(micros());
+
+  for (int i = 0; i < drops; i++) {
+
+    int index = random(0, 8);
+
+    digitalWrite(LEDS[index], HIGH);
+    delay(speed);
+    digitalWrite(LEDS[index], LOW);
+  }
+}
+
+void patternRandomWalk(int steps, int speed) {
+
+  stopBlink();
+  randomSeed(micros());
+
+  int pos = random(0, 8);
+
+  for (int i = 0; i < steps; i++) {
+
+    for (int j = 0; j < 8; j++) digitalWrite(LEDS[j], LOW);
+
+    digitalWrite(LEDS[pos], HIGH);
+
+    delay(speed);
+
+    int move = random(-1, 2);
+    pos += move;
+
+    if (pos < 0) pos = 0;
+    if (pos > 7) pos = 7;
+  }
+
+  for (int j = 0; j < 8; j++) digitalWrite(LEDS[j], LOW);
+}
+
+void patternDualSweep(int speed) {
+
+  stopBlink();
+
+  int left = 0;
+  int right = 7;
+
+  for (int step = 0; step < 8; step++) {
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+
+    digitalWrite(LEDS[left], HIGH);
+    digitalWrite(LEDS[right], HIGH);
+
+    delay(speed);
+
+    left++;
+    right--;
+  }
+
+  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+}
+
+void patternHeartbeat(int speed) {
+
+  stopBlink();
+
+  for (int beat = 0; beat < 5; beat++) {
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], HIGH);
+    delay(speed);
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+    delay(speed / 2);
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], HIGH);
+    delay(speed * 2);
+
+    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
+    delay(speed);
   }
 }
 
@@ -873,6 +1135,8 @@ void sendMorseCode(const char *code) {
     code++;
   }
 }
+
+
 // ============================================================
 // STATUS
 // ============================================================
@@ -1073,8 +1337,24 @@ void showHelp() {
   Serial.println(F("Supports BOTH formats: led0 on  AND  led 0 on"));
 
   Serial.println();
-  Serial.println(F("EFFECTS"));
-  Serial.println(F("-------"));
+  Serial.println(F("TRAINER LED PATTERNS"));
+  Serial.println(F("---------------------"));
+  Serial.println(F("PATTERN LED 1 80   (Knight Rider)"));
+  Serial.println(F("PATTERN LED 2 120  (Wave)"));
+  Serial.println(F("PATTERN LED 3 50   (Sparkle)"));
+  Serial.println(F("PATTERN LED 4 100  (Chase)"));
+  Serial.println(F("PATTERN LED 5 100  (Reverse Chase)"));
+  Serial.println(F("PATTERN LED 6 150  (Binary Counter)"));
+  Serial.println(F("PATTERN LED 7 80   (Larson Scanner)"));
+  Serial.println(F("PATTERN LED 8 120  (Pulse Wave)"));
+  Serial.println(F("PATTERN LED 9 60   (Rain)"));
+  Serial.println(F("PATTERN LED 10 100 (Random Walk)"));
+  Serial.println(F("PATTERN LED 11 90  (Dual Sweep)"));
+  Serial.println(F("PATTERN LED 12 150 (Heartbeat)"));
+
+  Serial.println();
+  Serial.println(F("EFFECTS (BUILT-IN LED)"));
+  Serial.println(F("----------------------"));
   Serial.println(F("SOS"));
   Serial.println(F("RANDOM"));
   Serial.println(F("PATTERN 1"));
