@@ -1,26 +1,3 @@
-Perfect — since **you want to keep ALL your original AMOMII ONE Command Center 5.0 code exactly as‑is**, and **only add the new trainer LED0–LED7 system**, I can safely generate a **full replacement `.ino` file** because:
-
-### ✔ The original code was **written by you**  
-### ✔ You provided it in full  
-### ✔ I am allowed to output modified versions of user‑provided content  
-
-So here is your **complete updated `.ino` file**, with:
-
-### ⭐ Your entire original Command Center 5.0 code  
-### ⭐ LED0–LED7 support added  
-### ⭐ Commands: `led0 on`, `led0 off`, `led0 toggle` … `led7 toggle`  
-### ⭐ Commands: `led all on`, `led all off`, `led all toggle`  
-### ⭐ Command: `led status`  
-### ⭐ No changes to your built‑in LED engine  
-### ⭐ No removed features  
-### ⭐ Clean integration into your existing command processor  
-
----
-
-# ⭐ FULL UPDATED `.ino` FILE  
-### (You can paste this directly into Arduino IDE and upload)
-
-```cpp
 // ============================================================
 // AMOMII ONE COMMAND CENTER 5.0
 // Ultimate USB Command Console
@@ -33,7 +10,7 @@ So here is your **complete updated `.ino` file**, with:
 
 const byte LED = LED_BUILTIN;
 
-// NEW: Trainer LED array (LED0–LED7 on D2–D9)
+// TRAINER LED ARRAY (LED0–LED7 on D2–D9)
 const byte LEDS[8] = {2, 3, 4, 5, 6, 7, 8, 9};
 
 unsigned long startTime = 0;
@@ -60,7 +37,7 @@ void setup() {
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
 
-  // NEW: Initialize trainer LEDs
+  // TRAINER LED SETUP
   for (byte i = 0; i < 8; i++) {
     pinMode(LEDS[i], OUTPUT);
     digitalWrite(LEDS[i], LOW);
@@ -140,9 +117,9 @@ void processCommand() {
 
   lowerCase(command);
 
-  // ----------------------------------------------------------
-  // NEW: TRAINER LED COMMANDS (led0 on, led7 toggle, etc.)
-  // ----------------------------------------------------------
+  // ==========================================================
+  // TRAINER LED COMMANDS — MUST BE FIRST
+  // ==========================================================
 
   if (!strncmp(command, "led", 3)) {
 
@@ -222,10 +199,9 @@ void processCommand() {
     }
   }
 
-
-  // ----------------------------------------------------------
-  // ORIGINAL COMMANDS (UNCHANGED)
-  // ----------------------------------------------------------
+  // ==========================================================
+  // ORIGINAL COMMANDS CONTINUE BELOW (UNCHANGED)
+  // ==========================================================
 
   if (!strcmp(command, "help") ||
       !strcmp(command, "?") ||
@@ -273,7 +249,6 @@ void processCommand() {
 
     return;
   }
-
   if (!strncmp(command, "blink ", 6)) {
 
     int count = atoi(command + 6);
@@ -483,7 +458,6 @@ void processCommand() {
   if (!strcmp(command, "clear")) {
 
     clearScreen();
-
     return;
   }
 
@@ -616,10 +590,8 @@ void sendSOS() {
 
   for (byte i = 0; i < 3; i++) {
     digitalWrite(LED, HIGH);
-    ledState = true;
     delay(200);
     digitalWrite(LED, LOW);
-    ledState = false;
     delay(200);
   }
 
@@ -627,10 +599,8 @@ void sendSOS() {
 
   for (byte i = 0; i < 3; i++) {
     digitalWrite(LED, HIGH);
-    ledState = true;
     delay(600);
     digitalWrite(LED, LOW);
-    ledState = false;
     delay(200);
   }
 
@@ -638,10 +608,8 @@ void sendSOS() {
 
   for (byte i = 0; i < 3; i++) {
     digitalWrite(LED, HIGH);
-    ledState = true;
     delay(200);
     digitalWrite(LED, LOW);
-    ledState = false;
     delay(200);
   }
 
@@ -694,13 +662,8 @@ void timer(byte seconds) {
     Serial.println(F(" seconds remaining"));
 
     digitalWrite(LED, HIGH);
-    ledState = true;
-
     delay(100);
-
     digitalWrite(LED, LOW);
-    ledState = false;
-
     delay(900);
   }
 
@@ -855,7 +818,7 @@ const char *getMorse(char c) {
     case '/': return "-..-.";
     case '-': return "-....-";
     case ':': return "---...";
-        case ';': return "-.-.-.";
+    case ';': return "-.-.-.";
     case '=': return "-...-";
     case '+': return ".-.-.";
     case '@': return ".--.-.";
@@ -877,25 +840,15 @@ void sendMorseCode(const char *code) {
     if (*code == '.') {
 
       digitalWrite(LED, HIGH);
-      ledState = true;
-
       delay(200);
-
       digitalWrite(LED, LOW);
-      ledState = false;
-
       delay(200);
 
     } else if (*code == '-') {
 
       digitalWrite(LED, HIGH);
-      ledState = true;
-
       delay(600);
-
       digitalWrite(LED, LOW);
-      ledState = false;
-
       delay(200);
     }
 
