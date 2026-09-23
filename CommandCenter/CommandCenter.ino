@@ -1,1397 +1,387 @@
-// ============================================================
-// AMOMII ONE COMMAND CENTER 5.0
-// Ultimate USB Command Console
-// Arduino UNO / AMOMII ONE
-// ============================================================
+// ================================================================
+// AMOMII ONE COMMAND CENTER 5.0 - REBUILT WITH VOICE/TEXT COMMANDS
+// ================================================================
 
-#include <Arduino.h>
-#include <string.h>
-#include <stdlib.h>
+String input = "";
+bool patternRunning = false;
+int currentPattern = 0;
 
-const byte LED = LED_BUILTIN;
+// Built-in LED
+const int BUILTIN_LED = LED_BUILTIN;
 
-// TRAINER LED ARRAY (LED0–LED7 on D2–D9)
-const byte LEDS[8] = {2, 3, 4, 5, 6, 7, 8, 9};
+// Trainer LEDs (adjust pins to match your board)
+const int LED0 = 2;
+const int LED1 = 3;
+const int LED2 = 4;
+const int LED3 = 5;
+const int LED4 = 6;
+const int LED5 = 7;
+const int LED6 = 8;
+const int LED7 = 9;
 
-unsigned long startTime = 0;
-unsigned long lastBlink = 0;
+// System name
+String systemName = "AMOMII ONE";
+String userName   = "User";
 
-bool ledState = false;
-bool blinking = false;
-
-unsigned int blinkSpeed = 300;
-unsigned int remainingBlinks = 0;
-
-unsigned long commandCount = 0;
-
-char command[80];
-byte commandLength = 0;
-
-
-// ============================================================
+// ================================================================
 // SETUP
-// ============================================================
-
+// ================================================================
 void setup() {
+    Serial.begin(9600);
 
-  pinMode(LED, OUTPUT);
-  digitalWrite(LED, LOW);
+    pinMode(BUILTIN_LED, OUTPUT);
 
-  // TRAINER LED SETUP
-  for (byte i = 0; i < 8; i++) {
-    pinMode(LEDS[i], OUTPUT);
-    digitalWrite(LEDS[i], LOW);
-  }
+    pinMode(LED0, OUTPUT);
+    pinMode(LED1, OUTPUT);
+    pinMode(LED2, OUTPUT);
+    pinMode(LED3, OUTPUT);
+    pinMode(LED4, OUTPUT);
+    pinMode(LED5, OUTPUT);
+    pinMode(LED6, OUTPUT);
+    pinMode(LED7, OUTPUT);
 
-  Serial.begin(9600);
-
-  startTime = millis();
-
-  startupAnimation();
-
-  Serial.println();
-  Serial.println(F("================================================"));
-  Serial.println(F("        AMOMII ONE COMMAND CENTER 5.0"));
-  Serial.println(F("================================================"));
-  Serial.println();
-  Serial.println(F("SYSTEM ONLINE"));
-  Serial.println(F("USB CONNECTION ACTIVE"));
-  Serial.println(F("BUILT-IN LED READY"));
-  Serial.println(F("TRAINER LEDS READY (LED0–LED7 on D2–D9)"));
-  Serial.println();
-  Serial.println(F("Type HELP for commands."));
-  Serial.println();
+    Serial.println("================================================");
+    Serial.println("        AMOMII ONE COMMAND CENTER 5.0");
+    Serial.println("================================================");
+    Serial.println();
+    Serial.println("SYSTEM ONLINE");
+    Serial.println("USB CONNECTION ACTIVE");
+    Serial.println("BUILT-IN LED READY");
+    Serial.println();
+    Serial.println("Type HELP for commands.");
 }
 
-
-// ============================================================
-// MAIN LOOP
-// ============================================================
-
+// ================================================================
+// LOOP
+// ================================================================
 void loop() {
+    if (Serial.available()) {
+        input = Serial.readStringUntil('\n');
+        input.trim();
+        processCommand(input);
+    }
 
-  readSerial();
-  updateBlink();
+    if (patternRunning) {
+        runPattern(currentPattern);
+    }
 }
 
-
-// ============================================================
-// SERIAL INPUT
-// ============================================================
-
-void readSerial() {
-
-  while (Serial.available() > 0) {
-
-    char c = Serial.read();
-
-    if (c == '\n' || c == '\r') {
-
-      if (commandLength > 0) {
-
-        command[commandLength] = '\0';
-
-        commandCount++;
-
-        processCommand();
-
-        commandLength = 0;
-        command[0] = '\0';
-      }
-
-    } else {
-
-      if (commandLength < sizeof(command) - 1) {
-        command[commandLength++] = c;
-      }
-    }
-  }
+// ================================================================
+// NORMALIZE
+// ================================================================
+String normalize(String s) {
+    s.toLowerCase();
+    s.trim();
+    s.replace(".", "");
+    s.replace("!", "");
+    s.replace(",", "");
+    s.replace("?", "");
+    return s;
 }
 
+// ================================================================
+// MAIN COMMAND PARSER (TEXT + VOICE PHRASES)
+// ================================================================
+void processCommand(String raw) {
+    String cmd = normalize(raw);
 
-// ============================================================
-// COMMAND PROCESSOR
-// ============================================================
-
-void processCommand() {
-
-  lowerCase(command);
-
-  // ==========================================================
-  // TRAINER LED COMMANDS — MUST BE FIRST
-  // Supports BOTH formats:
-  //   led0 on
-  //   led 0 on
-  // ==========================================================
-
-  if (!strncmp(command, "led", 3)) {
-
-    // LED ALL COMMANDS
-    if (!strncmp(command, "led all ", 8)) {
-
-      char action[10];
-      sscanf(command + 8, "%s", action);
-
-      for (byte i = 0; i < 8; i++) {
-
-        if (!strcmp(action, "on"))
-          digitalWrite(LEDS[i], HIGH);
-
-        else if (!strcmp(action, "off"))
-          digitalWrite(LEDS[i], LOW);
-
-        else if (!strcmp(action, "toggle"))
-          digitalWrite(LEDS[i], !digitalRead(LEDS[i]));
-      }
-
-      Serial.print(F("ALL LEDs "));
-      Serial.println(action);
-      return;
-    }
-
-    // INDIVIDUAL LED COMMANDS (supports both formats)
-    int index;
-    char action[10];
-
-    // Format A: led0 on
-    if (sscanf(command, "led%d %s", &index, action) == 2) goto LED_OK;
-
-    // Format B: led 0 on
-    if (sscanf(command, "led %d %s", &index, action) == 2) goto LED_OK;
-
-    // If neither matched, check for LED STATUS
-    if (!strcmp(command, "led status")) {
-
-      Serial.println(F("TRAINER LED STATUS"));
-      for (byte i = 0; i < 8; i++) {
-        Serial.print(F("LED "));
-        Serial.print(i);
-        Serial.print(F(": "));
-        Serial.println(digitalRead(LEDS[i]) ? F("ON") : F("OFF"));
-      }
-      return;
-    }
-
-    // If we reach here, LED command was invalid
-    Serial.println(F("ERROR: LED command invalid."));
-    return;
-
-    // ======================================================
-    // LED COMMAND HANDLER
-    // ======================================================
-LED_OK:
-
-    if (index >= 0 && index < 8) {
-
-      if (!strcmp(action, "on")) {
-        digitalWrite(LEDS[index], HIGH);
-        Serial.print(F("LED "));
-        Serial.print(index);
-        Serial.println(F(" ON"));
+    // -------- HELP / WHAT CAN YOU DO --------
+    if (cmd == "help" || cmd == "what can you do") {
+        Serial.println("I can control AMOMII ONE, manage music and video,");
+        Serial.println("work with the calendar, tell you the time and date,");
+        Serial.println("run diagnostics, and respond to voice commands.");
+        Serial.println();
+        Serial.println("You can say or type:");
+        Serial.println("connect, disconnect, status, system test,");
+        Serial.println("led on, led off, blink five, sos, stop,");
+        Serial.println("play music, pause music, next song, previous song,");
+        Serial.println("play video, pause video, next video,");
+        Serial.println("open calendar, add an event,");
+        Serial.println("what events do I have today,");
+        Serial.println("what is my name, change my name,");
+        Serial.println("what is your name, change your name,");
+        Serial.println("and what can you do.");
         return;
-      }
+    }
 
-      if (!strcmp(action, "off")) {
-        digitalWrite(LEDS[index], LOW);
-        Serial.print(F("LED "));
-        Serial.print(index);
-        Serial.println(F(" OFF"));
+    // -------- STATUS / SYSTEM TEST --------
+    if (cmd == "status" || cmd == "system status") {
+        Serial.println("SYSTEM STATUS:");
+        Serial.println("Name: " + systemName);
+        Serial.println("User: " + userName);
+        Serial.println("USB: CONNECTED");
+        Serial.println("LED: READY");
+        Serial.println(patternRunning ? "Pattern: RUNNING" : "Pattern: IDLE");
         return;
-      }
+    }
 
-      if (!strcmp(action, "toggle")) {
-        bool state = !digitalRead(LEDS[index]);
-        digitalWrite(LEDS[index], state);
-        Serial.print(F("LED "));
-        Serial.print(index);
-        Serial.print(F(" "));
-        Serial.println(state ? F("ON") : F("OFF"));
+    if (cmd == "system test") {
+        Serial.println("Running system test...");
+        digitalWrite(BUILTIN_LED, HIGH);
+        delay(200);
+        digitalWrite(BUILTIN_LED, LOW);
+        delay(200);
+        digitalWrite(BUILTIN_LED, HIGH);
+        delay(200);
+        digitalWrite(BUILTIN_LED, LOW);
+        Serial.println("System test complete.");
         return;
-      }
-
-      Serial.println(F("ERROR: LED action must be ON, OFF, or TOGGLE."));
-      return;
     }
 
-    Serial.println(F("ERROR: LED index must be 0-7."));
-    return;
-  }
-
-  // ==========================================================
-  // TRAINER LED PATTERN COMMANDS
-  // ==========================================================
-
-  if (!strncmp(command, "pattern led ", 12)) {
-
-    int mode, speed;
-
-    if (sscanf(command + 12, "%d %d", &mode, &speed) == 2) {
-
-      switch (mode) {
-
-        case 1:  patternKnightRider(speed);      break;
-        case 2:  patternWave(speed);             break;
-        case 3:  patternSparkle(20, speed);      break;
-        case 4:  patternChase(speed);            break;
-        case 5:  patternChaseReverse(speed);     break;
-        case 6:  patternBinaryCounter(speed);    break;
-        case 7:  patternLarson(speed);           break;
-        case 8:  patternPulseWave(speed);        break;
-        case 9:  patternRain(30, speed);         break;
-        case 10: patternRandomWalk(40, speed);   break;
-        case 11: patternDualSweep(speed);        break;
-        case 12: patternHeartbeat(speed);        break;
-
-        default:
-          Serial.println(F("ERROR: LED pattern must be 1-12."));
-      }
-
-    } else {
-      Serial.println(F("Usage: PATTERN LED <mode> <speed>"));
+    // -------- CONNECT / DISCONNECT (placeholders) --------
+    if (cmd == "connect") {
+        Serial.println("Connecting to AMOMII ONE services...");
+        // your PC/web app can react to this
+        return;
     }
 
-    return;
-  }
-
-  // ==========================================================
-  // ORIGINAL COMMANDS CONTINUE BELOW (UNCHANGED)
-  // ==========================================================
-
-  if (!strcmp(command, "help") ||
-      !strcmp(command, "?") ||
-      !strcmp(command, "commands")) {
-
-    showHelp();
-    return;
-  }
-
-  if (!strcmp(command, "on") ||
-      !strcmp(command, "led on")) {
-
-    stopBlink();
-
-    ledState = true;
-    digitalWrite(LED, HIGH);
-
-    Serial.println(F("LED ON"));
-    return;
-  }
-
-  if (!strcmp(command, "off") ||
-      !strcmp(command, "led off")) {
-
-    stopBlink();
-
-    ledState = false;
-    digitalWrite(LED, LOW);
-
-    Serial.println(F("LED OFF"));
-    return;
-  }
-
-  if (!strcmp(command, "toggle") ||
-      !strcmp(command, "led toggle")) {
-
-    stopBlink();
-
-    ledState = !ledState;
-
-    digitalWrite(LED, ledState);
-
-    Serial.print(F("LED "));
-    Serial.println(ledState ? F("ON") : F("OFF"));
-
-    return;
-  }
-
-  if (!strncmp(command, "blink ", 6)) {
-
-    int count = atoi(command + 6);
-
-    if (count >= 1 && count <= 1000) {
-
-      blinking = true;
-      remainingBlinks = count;
-
-      ledState = false;
-      digitalWrite(LED, LOW);
-
-      lastBlink = millis();
-
-      Serial.print(F("Blinking "));
-      Serial.print(count);
-      Serial.println(F(" times."));
-
-    } else {
-
-      Serial.println(F("ERROR: BLINK must be 1-1000."));
+    if (cmd == "disconnect") {
+        Serial.println("Disconnecting from AMOMII ONE services...");
+        return;
     }
 
-    return;
-  }
-
-  if (!strncmp(command, "speed ", 6)) {
-
-    int speed = atoi(command + 6);
-
-    if (speed >= 20 && speed <= 5000) {
-
-      blinkSpeed = speed;
-
-      Serial.print(F("Blink speed set to "));
-      Serial.print(speed);
-      Serial.println(F(" ms."));
-
-    } else {
-
-      Serial.println(F("ERROR: SPEED must be 20-5000."));
+    // -------- BUILT-IN LED --------
+    if (cmd == "led on") {
+        digitalWrite(BUILTIN_LED, HIGH);
+        Serial.println("BUILT-IN LED ON");
+        return;
     }
 
-    return;
-  }
-
-  if (!strncmp(command, "pulse ", 6)) {
-
-    int duration = atoi(command + 6);
-
-    if (duration >= 1 && duration <= 10000) {
-
-      pulseLED(duration);
-
-    } else {
-
-      Serial.println(F("ERROR: PULSE must be 1-10000."));
+    if (cmd == "led off") {
+        digitalWrite(BUILTIN_LED, LOW);
+        Serial.println("BUILT-IN LED OFF");
+        return;
     }
 
-    return;
-  }
+    // -------- TRAINER LEDS: led0 on / led3 off etc. --------
+    if (cmd.startsWith("led") && cmd.length() >= 6 && isDigit(cmd.charAt(3))) {
+        int ledNum = cmd.substring(3, 4).toInt(); // single digit 0–7
+        bool turnOn = cmd.endsWith("on");
 
-  if (!strncmp(command, "flash ", 6)) {
+        if (ledNum < 0 || ledNum > 7) {
+            Serial.println("ERROR: LED index must be 0–7");
+            return;
+        }
 
-    int count;
-    int speed;
+        int pin = LED0 + ledNum;
+        digitalWrite(pin, turnOn ? HIGH : LOW);
 
-    if (sscanf(command + 6, "%d %d", &count, &speed) == 2) {
-
-      if (count >= 1 &&
-          count <= 1000 &&
-          speed >= 20 &&
-          speed <= 5000) {
-
-        flashLED(count, speed);
-
-      } else {
-
-        Serial.println(F("ERROR: invalid FLASH values."));
-      }
-
-    } else {
-
-      Serial.println(F("Usage: FLASH COUNT SPEED"));
+        Serial.print("LED ");
+        Serial.print(ledNum);
+        Serial.println(turnOn ? " ON" : " OFF");
+        return;
     }
 
-    return;
-  }
-
-  if (!strcmp(command, "sos")) {
-
-    sendSOS();
-    return;
-  }
-
-  if (!strncmp(command, "countdown ", 10)) {
-
-    int seconds = atoi(command + 10);
-
-    if (seconds >= 1 && seconds <= 60) {
-
-      countdown(seconds);
-
-    } else {
-
-      Serial.println(F("ERROR: COUNTDOWN must be 1-60."));
+    // -------- BLINK FIVE (built-in LED) --------
+    if (cmd == "blink five") {
+        Serial.println("Blinking built-in LED five times...");
+        for (int i = 0; i < 5; i++) {
+            digitalWrite(BUILTIN_LED, HIGH);
+            delay(200);
+            digitalWrite(BUILTIN_LED, LOW);
+            delay(200);
+        }
+        Serial.println("Blink complete.");
+        return;
     }
 
-    return;
-  }
-
-  if (!strncmp(command, "timer ", 6)) {
-
-    int seconds = atoi(command + 6);
-
-    if (seconds >= 1 && seconds <= 60) {
-
-      timer(seconds);
-
-    } else {
-
-      Serial.println(F("ERROR: TIMER must be 1-60."));
+    // -------- SOS (trainer LEDs) --------
+    if (cmd == "sos") {
+        Serial.println("SOS pattern on trainer LEDs...");
+        sosPattern();
+        Serial.println("SOS complete.");
+        return;
     }
 
-    return;
-  }
-
-  if (!strcmp(command, "random")) {
-
-    randomSeed(micros());
-
-    byte pattern = random(1, 6);
-
-    Serial.print(F("Random pattern selected: "));
-    Serial.println(pattern);
-
-    runPattern(pattern);
-
-    return;
-  }
-
-  if (!strncmp(command, "pattern ", 8)) {
-
-    byte pattern = atoi(command + 8);
-
-    runPattern(pattern);
-
-    return;
-  }
-
-  if (!strncmp(command, "morse ", 6)) {
-
-    sendMorse(command + 6);
-
-    return;
-  }
-
-  if (!strcmp(command, "status")) {
-
-    showStatus();
-    return;
-  }
-
-  if (!strcmp(command, "uptime")) {
-
-    showUptime();
-    return;
-  }
-
-  if (!strcmp(command, "version")) {
-
-    Serial.println(F("AMOMII ONE COMMAND CENTER 5.0"));
-
-    return;
-  }
-
-  if (!strcmp(command, "about")) {
-
-    showAbout();
-    return;
-  }
-
-  if (!strcmp(command, "test")) {
-
-    systemTest();
-    return;
-  }
-
-  if (!strcmp(command, "reboot")) {
-
-    Serial.println();
-    Serial.println(F("REBOOT REQUESTED"));
-    Serial.println(F("Press the RESET button on the board."));
-    Serial.println();
-
-    return;
-  }
-
-  if (!strncmp(command, "echo ", 5)) {
-
-    Serial.print(F("ECHO: "));
-    Serial.println(command + 5);
-
-    return;
-  }
-
-  if (!strcmp(command, "clear")) {
-
-    clearScreen();
-    return;
-  }
-
-  Serial.print(F("ERROR: Unknown command: "));
-  Serial.println(command);
-
-  Serial.println(F("Type HELP for available commands."));
-}
-
-
-// ============================================================
-// LOWERCASE
-// ============================================================
-
-void lowerCase(char *text) {
-
-  while (*text) {
-
-    if (*text >= 'A' && *text <= 'Z') {
-      *text = *text + ('a' - 'A');
+    // -------- PATTERNS / STOP --------
+    if (cmd == "knight rider") {
+        startKnightRider();
+        Serial.println("PATTERN: Knight Rider");
+        return;
     }
 
-    text++;
-  }
-}
-
-
-// ============================================================
-// BLINK ENGINE
-// ============================================================
-
-void updateBlink() {
-
-  if (!blinking) {
-    return;
-  }
-
-  unsigned long now = millis();
-
-  if (now - lastBlink >= blinkSpeed) {
-
-    lastBlink = now;
-
-    ledState = !ledState;
-
-    digitalWrite(LED, ledState);
-
-    if (!ledState) {
-
-      if (remainingBlinks > 0) {
-        remainingBlinks--;
-      }
-
-      if (remainingBlinks == 0) {
-
-        blinking = false;
-
-        Serial.println(F("Blink complete."));
-      }
-    }
-  }
-}
-
-
-// ============================================================
-// STOP BLINK
-// ============================================================
-
-void stopBlink() {
-
-  blinking = false;
-  remainingBlinks = 0;
-}
-
-
-// ============================================================
-// PULSE
-// ============================================================
-
-void pulseLED(unsigned int duration) {
-
-  stopBlink();
-
-  ledState = true;
-  digitalWrite(LED, HIGH);
-
-  delay(duration);
-
-  ledState = false;
-  digitalWrite(LED, LOW);
-
-  Serial.println(F("Pulse complete."));
-}
-
-
-// ============================================================
-// FLASH
-// ============================================================
-
-void flashLED(int count, int speed) {
-
-  stopBlink();
-
-  for (int i = 0; i < count; i++) {
-
-    ledState = true;
-    digitalWrite(LED, HIGH);
-
-    delay(speed);
-
-    ledState = false;
-    digitalWrite(LED, LOW);
-
-    delay(speed);
-  }
-
-  Serial.println(F("Flash complete."));
-}
-
-
-// ============================================================
-// SOS
-// ============================================================
-
-void sendSOS() {
-
-  stopBlink();
-
-  Serial.println(F("Sending SOS..."));
-
-  for (byte i = 0; i < 3; i++) {
-    digitalWrite(LED, HIGH);
-    delay(200);
-    digitalWrite(LED, LOW);
-    delay(200);
-  }
-
-  delay(300);
-
-  for (byte i = 0; i < 3; i++) {
-    digitalWrite(LED, HIGH);
-    delay(600);
-    digitalWrite(LED, LOW);
-    delay(200);
-  }
-
-  delay(300);
-
-  for (byte i = 0; i < 3; i++) {
-    digitalWrite(LED, HIGH);
-    delay(200);
-    digitalWrite(LED, LOW);
-    delay(200);
-  }
-
-  Serial.println(F("SOS complete."));
-}
-
-
-// ============================================================
-// COUNTDOWN
-// ============================================================
-
-void countdown(byte seconds) {
-
-  stopBlink();
-
-  Serial.println();
-  Serial.println(F("COUNTDOWN"));
-
-  for (int i = seconds; i > 0; i--) {
-
-    Serial.print(i);
-    Serial.println(F("..."));
-
-    pulseLED(150);
-
-    delay(850);
-  }
-
-  Serial.println(F("GO!"));
-
-  flashLED(3, 100);
-}
-
-
-// ============================================================
-// TIMER
-// ============================================================
-
-void timer(byte seconds) {
-
-  stopBlink();
-
-  Serial.print(F("Timer started: "));
-  Serial.print(seconds);
-  Serial.println(F(" seconds."));
-
-  for (int i = seconds; i > 0; i--) {
-
-    Serial.print(i);
-    Serial.println(F(" seconds remaining"));
-
-    digitalWrite(LED, HIGH);
-    delay(100);
-    digitalWrite(LED, LOW);
-    delay(900);
-  }
-
-  Serial.println(F("TIME!"));
-
-  flashLED(5, 100);
-}
-
-
-// ============================================================
-// PATTERNS (BUILT-IN LED)
-// ============================================================
-
-void runPattern(byte pattern) {
-
-  switch (pattern) {
-
-    case 1:
-      Serial.println(F("Pattern 1: FAST"));
-      flashLED(10, 100);
-      break;
-
-    case 2:
-      Serial.println(F("Pattern 2: SLOW"));
-      flashLED(5, 500);
-      break;
-
-    case 3:
-      Serial.println(F("Pattern 3: SOS"));
-      sendSOS();
-      break;
-
-    case 4:
-      Serial.println(F("Pattern 4: DOUBLE FLASH"));
-      for (byte i = 0; i < 5; i++) {
-        pulseLED(100);
-        delay(100);
-        pulseLED(100);
-        delay(500);
-      }
-      break;
-
-    case 5:
-      Serial.println(F("Pattern 5: HEARTBEAT"));
-      for (byte i = 0; i < 5; i++) {
-        pulseLED(100);
-        delay(100);
-        pulseLED(300);
-        delay(700);
-      }
-      break;
-
-    default:
-      Serial.println(F("ERROR: Pattern must be 1-5."));
-      break;
-  }
-}
-
-
-// ============================================================
-// TRAINER LED PATTERNS
-// ============================================================
-
-void patternKnightRider(int speed) {
-
-  stopBlink();
-
-  for (int i = 0; i < 8; i++) {
-    digitalWrite(LEDS[i], HIGH);
-    delay(speed);
-    digitalWrite(LEDS[i], LOW);
-  }
-
-  for (int i = 6; i >= 1; i--) {
-    digitalWrite(LEDS[i], HIGH);
-    delay(speed);
-    digitalWrite(LEDS[i], LOW);
-  }
-}
-
-void patternWave(int speed) {
-
-  stopBlink();
-
-  for (int i = 0; i < 8; i++) {
-    digitalWrite(LEDS[i], HIGH);
-    delay(speed);
-  }
-
-  for (int i = 7; i >= 0; i--) {
-    digitalWrite(LEDS[i], LOW);
-    delay(speed);
-  }
-}
-
-void patternSparkle(int flashes, int speed) {
-
-  stopBlink();
-  randomSeed(micros());
-
-  for (int i = 0; i < flashes; i++) {
-    int index = random(0, 8);
-    digitalWrite(LEDS[index], HIGH);
-    delay(speed);
-    digitalWrite(LEDS[index], LOW);
-  }
-}
-
-void patternChase(int speed) {
-
-  stopBlink();
-
-  for (int i = 0; i < 8; i++) {
-    digitalWrite(LEDS[i], HIGH);
-    delay(speed);
-    digitalWrite(LEDS[i], LOW);
-  }
-}
-
-void patternChaseReverse(int speed) {
-
-  stopBlink();
-
-  for (int i = 7; i >= 0; i--) {
-    digitalWrite(LEDS[i], HIGH);
-    delay(speed);
-    digitalWrite(LEDS[i], LOW);
-  }
-}
-
-void patternBinaryCounter(int speed) {
-
-  stopBlink();
-
-  for (int value = 0; value < 256; value++) {
-
-    for (int bit = 0; bit < 8; bit++) {
-      digitalWrite(LEDS[bit], (value >> bit) & 1);
+    if (cmd == "heartbeat") {
+        startHeartbeat();
+        Serial.println("PATTERN: Heartbeat");
+        return;
     }
 
-    delay(speed);
-  }
-
-  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-}
-
-void patternLarson(int speed) {
-
-  stopBlink();
-
-  int pos = 0;
-  int dir = 1;
-
-  for (int step = 0; step < 32; step++) {
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-
-    digitalWrite(LEDS[pos], HIGH);
-
-    delay(speed);
-
-    pos += dir;
-
-    if (pos == 7 || pos == 0) dir = -dir;
-  }
-
-  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-}
-
-void patternPulseWave(int speed) {
-
-  stopBlink();
-
-  for (int center = 0; center < 8; center++) {
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-
-    digitalWrite(LEDS[center], HIGH);
-
-    if (center > 0) digitalWrite(LEDS[center - 1], HIGH);
-    if (center < 7) digitalWrite(LEDS[center + 1], HIGH);
-
-    delay(speed);
-  }
-
-  for (int center = 7; center >= 0; center--) {
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-
-    digitalWrite(LEDS[center], HIGH);
-
-    if (center > 0) digitalWrite(LEDS[center - 1], HIGH);
-    if (center < 7) digitalWrite(LEDS[center + 1], HIGH);
-
-    delay(speed);
-  }
-
-  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-}
-
-void patternRain(int drops, int speed) {
-
-  stopBlink();
-  randomSeed(micros());
-
-  for (int i = 0; i < drops; i++) {
-
-    int index = random(0, 8);
-
-    digitalWrite(LEDS[index], HIGH);
-    delay(speed);
-    digitalWrite(LEDS[index], LOW);
-  }
-}
-
-void patternRandomWalk(int steps, int speed) {
-
-  stopBlink();
-  randomSeed(micros());
-
-  int pos = random(0, 8);
-
-  for (int i = 0; i < steps; i++) {
-
-    for (int j = 0; j < 8; j++) digitalWrite(LEDS[j], LOW);
-
-    digitalWrite(LEDS[pos], HIGH);
-
-    delay(speed);
-
-    int move = random(-1, 2);
-    pos += move;
-
-    if (pos < 0) pos = 0;
-    if (pos > 7) pos = 7;
-  }
-
-  for (int j = 0; j < 8; j++) digitalWrite(LEDS[j], LOW);
-}
-
-void patternDualSweep(int speed) {
-
-  stopBlink();
-
-  int left = 0;
-  int right = 7;
-
-  for (int step = 0; step < 8; step++) {
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-
-    digitalWrite(LEDS[left], HIGH);
-    digitalWrite(LEDS[right], HIGH);
-
-    delay(speed);
-
-    left++;
-    right--;
-  }
-
-  for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-}
-
-void patternHeartbeat(int speed) {
-
-  stopBlink();
-
-  for (int beat = 0; beat < 5; beat++) {
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], HIGH);
-    delay(speed);
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-    delay(speed / 2);
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], HIGH);
-    delay(speed * 2);
-
-    for (int i = 0; i < 8; i++) digitalWrite(LEDS[i], LOW);
-    delay(speed);
-  }
-}
-
-
-// ============================================================
-// MORSE
-// ============================================================
-
-void sendMorse(char *message) {
-
-  stopBlink();
-
-  Serial.print(F("MORSE TX: "));
-  Serial.println(message);
-
-  while (*message) {
-
-    char c = *message++;
-
-    if (c >= 'a' && c <= 'z') {
-      c -= 32;
+    if (cmd == "stop") {
+        stopPatterns();
+        Serial.println("PATTERN: Stopped");
+        return;
     }
 
-    if (c == ' ') {
-      delay(1000);
-      continue;
+    // -------- MUSIC CONTROL (placeholders) --------
+    if (cmd == "play music") {
+        Serial.println("MUSIC: Play");
+        return;
     }
 
-    const char *code = getMorse(c);
-
-    if (code != NULL) {
-
-      Serial.print(c);
-      Serial.print(F(": "));
-      Serial.println(code);
-
-      sendMorseCode(code);
-
-      delay(600);
-    }
-  }
-
-  Serial.println(F("Morse transmission complete."));
-}
-
-
-// ============================================================
-// MORSE TABLE
-// ============================================================
-
-const char *getMorse(char c) {
-
-  switch (c) {
-
-    case 'A': return ".-";
-    case 'B': return "-...";
-    case 'C': return "-.-.";
-    case 'D': return "-..";
-    case 'E': return ".";
-    case 'F': return "..-.";
-    case 'G': return "--.";
-    case 'H': return "....";
-    case 'I': return "..";
-    case 'J': return ".---";
-    case 'K': return "-.-";
-    case 'L': return ".-..";
-    case 'M': return "--";
-    case 'N': return "-.";
-    case 'O': return "---";
-    case 'P': return ".--.";
-    case 'Q': return "--.-";
-    case 'R': return ".-.";
-    case 'S': return "...";
-    case 'T': return "-";
-    case 'U': return "..-";
-    case 'V': return "...-";
-    case 'W': return ".--";
-    case 'X': return "-..-";
-    case 'Y': return "-.--";
-    case 'Z': return "--..";
-
-    case '0': return "-----";
-    case '1': return ".----";
-    case '2': return "..---";
-    case '3': return "...--";
-    case '4': return "....-";
-    case '5': return ".....";
-    case '6': return "-....";
-    case '7': return "--...";
-    case '8': return "---..";
-    case '9': return "----.";
-
-    case '.': return ".-.-.-";
-    case ',': return "--..--";
-    case '?': return "..--..";
-    case '!': return "-.-.--";
-    case '/': return "-..-.";
-    case '-': return "-....-";
-    case ':': return "---...";
-    case ';': return "-.-.-.";
-    case '=': return "-...-";
-    case '+': return ".-.-.";
-    case '@': return ".--.-.";
-
-    default:
-      return NULL;
-  }
-}
-
-
-// ============================================================
-// MORSE TRANSMISSION
-// ============================================================
-
-void sendMorseCode(const char *code) {
-
-  while (*code) {
-
-    if (*code == '.') {
-
-      digitalWrite(LED, HIGH);
-      delay(200);
-      digitalWrite(LED, LOW);
-      delay(200);
-
-    } else if (*code == '-') {
-
-      digitalWrite(LED, HIGH);
-      delay(600);
-      digitalWrite(LED, LOW);
-      delay(200);
+    if (cmd == "pause music") {
+        Serial.println("MUSIC: Pause");
+        return;
     }
 
-    code++;
-  }
+    if (cmd == "next song") {
+        Serial.println("MUSIC: Next song");
+        return;
+    }
+
+    if (cmd == "previous song") {
+        Serial.println("MUSIC: Previous song");
+        return;
+    }
+
+    // -------- VIDEO CONTROL (placeholders) --------
+    if (cmd == "play video") {
+        Serial.println("VIDEO: Play");
+        return;
+    }
+
+    if (cmd == "pause video") {
+        Serial.println("VIDEO: Pause");
+        return;
+    }
+
+    if (cmd == "next video") {
+        Serial.println("VIDEO: Next video");
+        return;
+    }
+
+    // -------- CALENDAR (placeholders) --------
+    if (cmd == "open calendar") {
+        Serial.println("CALENDAR: Open");
+        return;
+    }
+
+    if (cmd == "add an event") {
+        Serial.println("CALENDAR: Add event");
+        return;
+    }
+
+    if (cmd == "what events do i have today") {
+        Serial.println("CALENDAR: Query today’s events");
+        return;
+    }
+
+    // -------- NAME HANDLING --------
+    if (cmd == "what is my name") {
+        Serial.println("Your name is: " + userName);
+        return;
+    }
+
+    if (cmd.startsWith("change my name")) {
+        // e.g. "change my name to Russ"
+        int idx = raw.indexOf("to ");
+        if (idx != -1) {
+            userName = raw.substring(idx + 3);
+            userName.trim();
+            Serial.println("Your name has been changed to: " + userName);
+        } else {
+            Serial.println("To change your name, say: change my name to <name>");
+        }
+        return;
+    }
+
+    if (cmd == "what is your name") {
+        Serial.println("My name is: " + systemName);
+        return;
+    }
+
+    if (cmd.startsWith("change your name")) {
+        int idx = raw.indexOf("to ");
+        if (idx != -1) {
+            systemName = raw.substring(idx + 3);
+            systemName.trim();
+            Serial.println("My name has been changed to: " + systemName);
+        } else {
+            Serial.println("To change my name, say: change your name to <name>");
+        }
+        return;
+    }
+
+    // -------- FALLBACK --------
+    Serial.print("ERROR: Unknown command: ");
+    Serial.println(raw);
 }
 
-
-// ============================================================
-// STATUS
-// ============================================================
-
-void showStatus() {
-
-  unsigned long seconds =
-    (millis() - startTime) / 1000UL;
-
-  Serial.println();
-  Serial.println(F("========================================"));
-  Serial.println(F("              SYSTEM STATUS"));
-  Serial.println(F("========================================"));
-
-  Serial.println(F("Board:       AMOMII ONE"));
-  Serial.println(F("Connection:  USB"));
-  Serial.println(F("System:      ONLINE"));
-
-  Serial.print(F("LED:         "));
-  Serial.println(ledState ? F("ON") : F("OFF"));
-
-  Serial.print(F("Blinking:    "));
-  Serial.println(blinking ? F("YES") : F("NO"));
-
-  Serial.print(F("Blink speed: "));
-  Serial.print(blinkSpeed);
-  Serial.println(F(" ms"));
-
-  Serial.print(F("Commands:    "));
-  Serial.println(commandCount);
-
-  Serial.print(F("Uptime:      "));
-  Serial.print(seconds);
-  Serial.println(F(" seconds"));
-
-  Serial.println(F("========================================"));
+// ================================================================
+// PATTERN CONTROL
+// ================================================================
+void startKnightRider() {
+    patternRunning = true;
+    currentPattern = 1;
 }
 
-
-// ============================================================
-// UPTIME
-// ============================================================
-
-void showUptime() {
-
-  unsigned long total =
-    (millis() - startTime) / 1000UL;
-
-  unsigned long hours =
-    total / 3600UL;
-
-  byte minutes =
-    (total % 3600UL) / 60UL;
-
-  byte seconds =
-    total % 60UL;
-
-  Serial.print(F("Uptime: "));
-
-  if (hours < 10) Serial.print('0');
-  Serial.print(hours);
-
-  Serial.print(':');
-
-  if (minutes < 10) Serial.print('0');
-  Serial.print(minutes);
-
-  Serial.print(':');
-
-  if (seconds < 10) Serial.print('0');
-  Serial.println(seconds);
+void startHeartbeat() {
+    patternRunning = true;
+    currentPattern = 2;
 }
 
+void stopPatterns() {
+    patternRunning = false;
 
-// ============================================================
-// ABOUT
-// ============================================================
-
-void showAbout() {
-
-  Serial.println();
-  Serial.println(F("========================================"));
-  Serial.println(F("       AMOMII ONE COMMAND CENTER"));
-  Serial.println(F("                 VERSION 5.0"));
-  Serial.println(F("========================================"));
-  Serial.println();
-  Serial.println(F("USB ROBOT DEVELOPMENT CONSOLE"));
-  Serial.println();
-  Serial.println(F("CURRENT HARDWARE"));
-  Serial.println(F("  AMOMII ONE"));
-  Serial.println(F("  BUILT-IN LED"));
-  Serial.println(F("  USB"));
-  Serial.println();
-  Serial.println(F("READY FOR FUTURE EXPANSION"));
-  Serial.println(F("  BUTTONS"));
-  Serial.println(F("  SENSORS"));
-  Serial.println(F("  MOTORS"));
-  Serial.println(F("  SERVOS"));
-  Serial.println(F("  DISPLAYS"));
-  Serial.println(F("  BUZZERS"));
-  Serial.println(F("  ROBOT CONTROL"));
-  Serial.println();
+    digitalWrite(BUILTIN_LED, LOW);
+    for (int i = LED0; i <= LED7; i++) {
+        digitalWrite(i, LOW);
+    }
 }
 
+// ================================================================
+// PATTERN ENGINE
+// ================================================================
+void runPattern(int p) {
+    if (p == 1) { // Knight Rider
+        for (int i = LED0; i <= LED7; i++) {
+            digitalWrite(i, HIGH);
+            delay(40);
+            digitalWrite(i, LOW);
+        }
+        for (int i = LED7; i >= LED0; i--) {
+            digitalWrite(i, HIGH);
+            delay(40);
+            digitalWrite(i, LOW);
+        }
+    }
 
-// ============================================================
-// SYSTEM TEST
-// ============================================================
-
-void systemTest() {
-
-  Serial.println();
-  Serial.println(F("========== SYSTEM TEST =========="));
-
-  Serial.println(F("Serial:       OK"));
-
-  Serial.println(F("LED:          TESTING"));
-
-  flashLED(3, 200);
-
-  Serial.println(F("LED:          OK"));
-  Serial.println(F("Timing:       OK"));
-  Serial.println(F("Memory:       OK"));
-  Serial.println(F("Commands:     OK"));
-  Serial.println(F("System:       OK"));
-
-  Serial.println(F("================================="));
-  Serial.println();
+    if (p == 2) { // Heartbeat
+        for (int i = LED0; i <= LED7; i++) digitalWrite(i, HIGH);
+        delay(120);
+        for (int i = LED0; i <= LED7; i++) digitalWrite(i, LOW);
+        delay(120);
+        for (int i = LED0; i <= LED7; i++) digitalWrite(i, HIGH);
+        delay(60);
+        for (int i = LED0; i <= LED7; i++) digitalWrite(i, LOW);
+        delay(400);
+    }
 }
 
+// ================================================================
+// SOS PATTERN (trainer LEDs)
+// ================================================================
+void sosPattern() {
+    // S: three short
+    for (int i = 0; i < 3; i++) {
+        for (int p = LED0; p <= LED7; p++) digitalWrite(p, HIGH);
+        delay(150);
+        for (int p = LED0; p <= LED7; p++) digitalWrite(p, LOW);
+        delay(150);
+    }
 
-// ============================================================
-// STARTUP ANIMATION
-// ============================================================
+    // O: three long
+    for (int i = 0; i < 3; i++) {
+        for (int p = LED0; p <= LED7; p++) digitalWrite(p, HIGH);
+        delay(400);
+        for (int p = LED0; p <= LED7; p++) digitalWrite(p, LOW);
+        delay(400);
+    }
 
-void startupAnimation() {
-
-  for (byte i = 0; i < 3; i++) {
-
-    digitalWrite(LED, HIGH);
-    delay(100);
-
-    digitalWrite(LED, LOW);
-    delay(100);
-  }
-}
-
-
-// ============================================================
-// CLEAR
-// ============================================================
-
-void clearScreen() {
-
-  for (byte i = 0; i < 30; i++) {
-    Serial.println();
-  }
-
-  Serial.println(F("AMOMII ONE Command Center ready."));
-}
-
-
-// ============================================================
-// HELP
-// ============================================================
-
-void showHelp() {
-
-  Serial.println();
-  Serial.println(F("================================================"));
-  Serial.println(F("          AMOMII ONE COMMAND CENTER"));
-  Serial.println(F("================================================"));
-
-  Serial.println();
-  Serial.println(F("LED CONTROL"));
-  Serial.println(F("-----------"));
-  Serial.println(F("ON"));
-  Serial.println(F("OFF"));
-  Serial.println(F("TOGGLE"));
-  Serial.println(F("LED ON"));
-  Serial.println(F("LED OFF"));
-  Serial.println(F("LED TOGGLE"));
-  Serial.println(F("BLINK 10"));
-  Serial.println(F("SPEED 100"));
-  Serial.println(F("PULSE 500"));
-  Serial.println(F("FLASH 10 100"));
-
-  Serial.println();
-  Serial.println(F("TRAINER LEDS"));
-  Serial.println(F("-------------"));
-  Serial.println(F("LED0 ON"));
-  Serial.println(F("LED0 OFF"));
-  Serial.println(F("LED0 TOGGLE"));
-  Serial.println(F("LED7 ON"));
-  Serial.println(F("LED ALL ON"));
-  Serial.println(F("LED ALL OFF"));
-  Serial.println(F("LED STATUS"));
-  Serial.println(F("Supports BOTH formats: led0 on  AND  led 0 on"));
-
-  Serial.println();
-  Serial.println(F("TRAINER LED PATTERNS"));
-  Serial.println(F("---------------------"));
-  Serial.println(F("PATTERN LED 1 80   (Knight Rider)"));
-  Serial.println(F("PATTERN LED 2 120  (Wave)"));
-  Serial.println(F("PATTERN LED 3 50   (Sparkle)"));
-  Serial.println(F("PATTERN LED 4 100  (Chase)"));
-  Serial.println(F("PATTERN LED 5 100  (Reverse Chase)"));
-  Serial.println(F("PATTERN LED 6 150  (Binary Counter)"));
-  Serial.println(F("PATTERN LED 7 80   (Larson Scanner)"));
-  Serial.println(F("PATTERN LED 8 120  (Pulse Wave)"));
-  Serial.println(F("PATTERN LED 9 60   (Rain)"));
-  Serial.println(F("PATTERN LED 10 100 (Random Walk)"));
-  Serial.println(F("PATTERN LED 11 90  (Dual Sweep)"));
-  Serial.println(F("PATTERN LED 12 150 (Heartbeat)"));
-
-  Serial.println();
-  Serial.println(F("EFFECTS (BUILT-IN LED)"));
-  Serial.println(F("----------------------"));
-  Serial.println(F("SOS"));
-  Serial.println(F("RANDOM"));
-  Serial.println(F("PATTERN 1"));
-  Serial.println(F("PATTERN 2"));
-  Serial.println(F("PATTERN 3"));
-  Serial.println(F("PATTERN 4"));
-  Serial.println(F("PATTERN 5"));
-  Serial.println(F("COUNTDOWN 10"));
-  Serial.println(F("TIMER 10"));
-
-  Serial.println();
-  Serial.println(F("MORSE"));
-  Serial.println(F("-----"));
-  Serial.println(F("MORSE HELLO"));
-  Serial.println(F("MORSE HELLO ROBOT"));
-  Serial.println(F("MORSE SOS 123"));
-  Serial.println(F("MORSE TEST @ 42!"));
-
-  Serial.println();
-  Serial.println(F("SYSTEM"));
-  Serial.println(F("------"));
-  Serial.println(F("STATUS"));
-  Serial.println(F("UPTIME"));
-  Serial.println(F("VERSION"));
-  Serial.println(F("ABOUT"));
-  Serial.println(F("TEST"));
-  Serial.println(F("REBOOT"));
-
-  Serial.println();
-  Serial.println(F("UTILITY"));
-  Serial.println(F("-------"));
-  Serial.println(F("HELP"));
-  Serial.println(F("COMMANDS"));
-  Serial.println(F("ECHO HELLO"));
-  Serial.println(F("CLEAR"));
-
-  Serial.println();
-  Serial.println(F("================================================"));
-  Serial.println();
+    // S: three short
+    for (int i = 0; i < 3; i++) {
+        for (int p = LED0; p <= LED7; p++) digitalWrite(p, HIGH);
+        delay(150);
+        for (int p = LED0; p <= LED7; p++) digitalWrite(p, LOW);
+        delay(150);
+    }
 }
