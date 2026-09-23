@@ -3,1080 +3,1623 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DangeRuss Voice Command Center v1.5</title>
+<title>AMOMII ONE • Command Center</title>
 
 <style>
+:root{
+  --bg:#070a0f;
+  --panel:#0d1219;
+  --panel2:#101721;
+  --border:#263241;
+  --text:#d9e4ef;
+  --muted:#788899;
+  --green:#39ff88;
+  --cyan:#36d9ff;
+  --yellow:#ffd84d;
+  --red:#ff5570;
+  --purple:#b58cff;
+  --shadow:0 12px 35px rgba(0,0,0,.35);
+}
+
 *{box-sizing:border-box}
 
-:root{
-    --bg:#030605;
-    --panel:#07100a;
-    --panel2:#09150c;
-    --line:#193d24;
-    --line2:#285936;
-    --green:#52f27b;
-    --green2:#9affad;
-    --dim:#668b70;
-    --blue:#62c9ff;
-    --yellow:#ffe27d;
-    --red:#ff6666;
-    --purple:#c58cff;
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
 }
 
 body{
-    margin:0;
-    min-height:100vh;
-    background:
-        radial-gradient(circle at 50% -20%,#12351d 0%,transparent 35%),
-        linear-gradient(180deg,#020403,#050907 55%,#020403);
-    color:#d8ffe0;
-    font-family:"Courier New",monospace;
-    overflow-x:hidden;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(54,217,255,.08),transparent 30%),
+    radial-gradient(circle at 80% 0%,rgba(57,255,136,.06),transparent 28%),
+    var(--bg);
 }
 
-body:before{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    opacity:.035;
-    background:repeating-linear-gradient(
-        0deg,
-        transparent 0px,
-        transparent 2px,
-        #fff 3px
-    );
-}
-
-button,input{
-    font:inherit;
-}
-
-header{
-    min-height:78px;
-    padding:14px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    background:rgba(5,13,8,.94);
-    border-bottom:1px solid var(--line);
-    box-shadow:0 0 30px rgba(50,255,100,.06);
-}
-
-.logo{
-    font-size:24px;
-    font-weight:bold;
-    letter-spacing:4px;
-    color:#dfffe4;
-    text-shadow:0 0 12px rgba(82,242,123,.45);
-}
-
-.subtitle{
-    color:var(--dim);
-    font-size:11px;
-    margin-top:4px;
-    letter-spacing:1px;
-}
-
-.header-right{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-    gap:14px;
-}
-
-.status-light{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    font-size:11px;
-    color:#9ebca5;
-}
-
-.dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    background:#444;
-    box-shadow:0 0 7px #222;
-}
-
-.dot.online{
-    background:var(--green);
-    box-shadow:0 0 14px var(--green);
-}
-
-.dot.voice{
-    background:var(--yellow);
-    box-shadow:0 0 14px var(--yellow);
-}
-
-.dot.speaking{
-    background:var(--blue);
-    box-shadow:0 0 14px var(--blue);
-}
-
-main{
-    display:grid;
-    grid-template-columns:225px minmax(450px,1fr) 320px;
-    min-height:calc(100vh - 78px);
-}
-
-.panel{
-    padding:14px;
-    border-right:1px solid var(--line);
-    background:rgba(4,10,6,.72);
-}
-
-.panel:last-child{
-    border-left:1px solid var(--line);
-    border-right:none;
-}
-
-.panel-title{
-    color:#6fe68b;
-    font-size:11px;
-    letter-spacing:2px;
-    margin:5px 0 10px;
-    padding-bottom:8px;
-    border-bottom:1px solid var(--line);
+button,
+input,
+select{
+  font:inherit;
 }
 
 button{
-    width:100%;
-    margin-bottom:7px;
-    padding:9px;
-    background:linear-gradient(180deg,#0a170d,#071009);
-    color:#bfffc8;
-    border:1px solid #285536;
-    border-radius:5px;
-    cursor:pointer;
-    transition:.15s;
+  cursor:pointer;
 }
 
-button:hover{
-    background:#102217;
-    border-color:#4b9b5c;
-    box-shadow:0 0 12px rgba(82,242,123,.08);
+.app{
+  max-width:1800px;
+  margin:auto;
+  padding:16px;
 }
 
-button:active{
-    transform:translateY(1px);
+/* HEADER */
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:18px 20px;
+  margin-bottom:16px;
+  background:rgba(13,18,25,.92);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
 }
 
-button:disabled{
-    opacity:.4;
-    cursor:not-allowed;
+.brand h1{
+  margin:0;
+  font-size:25px;
+  letter-spacing:2px;
+  color:white;
 }
 
-button.primary{
-    color:#a9eaff;
-    border-color:#347286;
+.brand p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:2px;
 }
 
-button.voice{
-    color:var(--yellow);
-    border-color:#75652e;
+.headerStatus{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
 }
 
-button.danger{
-    color:#ffaaaa;
-    border-color:#713838;
+.statusItem{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:var(--muted);
 }
 
-button.media{
-    color:#d0aaff;
-    border-color:#5b4380;
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#555;
+  box-shadow:0 0 8px transparent;
 }
+
+.dot.green{
+  background:var(--green);
+  box-shadow:0 0 12px var(--green);
+}
+
+.dot.red{
+  background:var(--red);
+  box-shadow:0 0 12px var(--red);
+}
+
+.dot.yellow{
+  background:var(--yellow);
+  box-shadow:0 0 12px var(--yellow);
+}
+
+/* GRID */
+
+.mainGrid{
+  display:grid;
+  grid-template-columns:230px minmax(400px,1fr) 330px;
+  gap:16px;
+}
+
+/* PANELS */
+
+.panel{
+  background:rgba(13,18,25,.94);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.panelHeader{
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.015);
+  color:var(--cyan);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:2px;
+}
+
+.panelBody{
+  padding:14px;
+}
+
+/* BUTTONS */
+
+.buttonGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+button.control{
+  border:1px solid var(--border);
+  background:#111923;
+  color:var(--text);
+  padding:10px 8px;
+  border-radius:8px;
+  font-size:11px;
+  transition:.15s ease;
+}
+
+button.control:hover{
+  border-color:var(--cyan);
+  color:white;
+  transform:translateY(-1px);
+}
+
+button.control.primary{
+  border-color:rgba(54,217,255,.35);
+  color:var(--cyan);
+}
+
+button.control.good{
+  border-color:rgba(57,255,136,.35);
+  color:var(--green);
+}
+
+button.control.warn{
+  border-color:rgba(255,216,77,.35);
+  color:var(--yellow);
+}
+
+button.control.danger{
+  border-color:rgba(255,85,112,.35);
+  color:var(--red);
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+/* CENTER */
+
+.centerColumn{
+  min-width:0;
+}
+
+.voiceHero{
+  margin-bottom:16px;
+  border:1px solid rgba(57,255,136,.22);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(57,255,136,.08),transparent 50%),
+    var(--panel);
+  border-radius:14px;
+  padding:20px;
+  text-align:center;
+}
+
+.voiceOrb{
+  width:70px;
+  height:70px;
+  margin:0 auto 12px;
+  border-radius:50%;
+  border:2px solid var(--green);
+  box-shadow:
+    0 0 15px rgba(57,255,136,.35),
+    inset 0 0 15px rgba(57,255,136,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--green);
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.voiceOrb.listening{
+  animation:pulse 1.3s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{
+    box-shadow:
+      0 0 15px rgba(57,255,136,.35),
+      inset 0 0 15px rgba(57,255,136,.08);
+  }
+  50%{
+    box-shadow:
+      0 0 35px rgba(57,255,136,.7),
+      inset 0 0 25px rgba(57,255,136,.2);
+  }
+}
+
+.voiceTitle{
+  font-size:20px;
+  font-weight:700;
+  color:white;
+}
+
+.voiceSubtitle{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.lastHeard{
+  margin-top:14px;
+  padding:10px;
+  background:#080c11;
+  border:1px solid #1e2834;
+  border-radius:8px;
+  color:var(--cyan);
+  min-height:40px;
+}
+
+/* CONSOLE */
 
 .console{
-    min-width:0;
-    display:flex;
-    flex-direction:column;
+  height:430px;
+  overflow-y:auto;
+  padding:14px;
+  background:#05080c;
+  font-family:"Cascadia Code","SFMono-Regular",Consolas,monospace;
+  font-size:12px;
+  line-height:1.55;
+  white-space:pre-wrap;
+  word-break:break-word;
 }
 
-.console-output{
-    height:340px;
-    overflow-y:auto;
-    padding:16px;
-    white-space:pre-wrap;
-    font-size:12px;
-    line-height:1.5;
-    border-bottom:1px solid var(--line);
+.consoleLine{
+  margin:0 0 3px;
 }
 
-.log-line{
-    margin-bottom:3px;
+.consoleLine.system{color:var(--cyan)}
+.consoleLine.success{color:var(--green)}
+.consoleLine.warning{color:var(--yellow)}
+.consoleLine.error{color:var(--red)}
+.consoleLine.voice{color:var(--purple)}
+.consoleLine.command{color:#d9e4ef}
+
+.commandRow{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  border-top:1px solid var(--border);
 }
 
-.log-time{
-    color:#416149;
+.commandRow input{
+  flex:1;
+  min-width:0;
+  background:#080c11;
+  border:1px solid var(--border);
+  color:white;
+  padding:10px;
+  border-radius:8px;
+  outline:none;
 }
 
-.log-info{color:#91c99c}
-.log-command{color:var(--blue)}
-.log-voice{color:var(--yellow)}
-.log-speech{color:#87b8ff}
-.log-error{color:#ff7777}
-
-.input-area{
-    padding:10px;
-    display:flex;
-    gap:7px;
-    border-bottom:1px solid var(--line);
+.commandRow input:focus{
+  border-color:var(--cyan);
 }
 
-.input-area input{
-    flex:1;
-    min-width:0;
-    background:#020604;
-    color:#d7f9df;
-    border:1px solid #2c5b38;
-    padding:10px;
-    outline:none;
+/* RIGHT */
+
+.statList{
+  display:grid;
+  gap:7px;
 }
 
-.input-area input:focus{
-    border-color:#64c97a;
-    box-shadow:0 0 10px rgba(82,242,123,.08);
+.stat{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:12px;
 }
 
-.input-area button{
-    width:90px;
-    margin:0;
+.stat span:first-child{
+  color:var(--muted);
+}
+
+.stat span:last-child{
+  color:white;
+  text-align:right;
+}
+
+.card{
+  margin-bottom:16px;
+}
+
+.card:last-child{
+  margin-bottom:0;
+}
+
+/* DIAGNOSTICS */
+
+.testGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+.testItem{
+  display:flex;
+  justify-content:space-between;
+  padding:7px 8px;
+  border:1px solid #1c2732;
+  border-radius:6px;
+  background:#090e14;
+  font-size:11px;
+}
+
+.testItem span:first-child{
+  color:var(--muted);
+}
+
+.testValue.ok{color:var(--green)}
+.testValue.fail{color:var(--red)}
+.testValue.testing{color:var(--yellow)}
+.testValue.pending{color:var(--muted)}
+
+.testResult{
+  margin-top:8px;
+  text-align:center;
+  padding:8px;
+  border-radius:7px;
+  border:1px solid #263241;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.testResult.pass{
+  color:var(--green);
+  border-color:rgba(57,255,136,.35);
+}
+
+.testResult.fail{
+  color:var(--red);
+  border-color:rgba(255,85,112,.35);
+}
+
+/* PROFILE */
+
+.profileName{
+  font-size:18px;
+  color:white;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.profileRow{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  padding:5px 0;
+}
+
+.profileRow span:first-child{
+  color:var(--muted);
+}
+
+/* HISTORY */
+
+.history{
+  max-height:190px;
+  overflow-y:auto;
+}
+
+.historyItem{
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:11px;
+}
+
+.historyItem .time{
+  color:var(--muted);
+  margin-right:6px;
+}
+
+.historyItem .cmd{
+  color:var(--cyan);
 }
 
 /* MEDIA */
 
-.media-center{
-    padding:12px;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg,rgba(9,21,12,.95),rgba(4,10,6,.9));
+.mediaPanel{
+  margin-top:16px;
 }
 
-.media-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:9px;
+.mediaTabs{
+  display:flex;
+  gap:6px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
 }
 
-.media-title{
-    color:#8cffaa;
-    letter-spacing:2px;
-    font-size:12px;
+.tab{
+  border:1px solid var(--border);
+  background:#0a0f15;
+  color:var(--muted);
+  padding:8px 11px;
+  border-radius:7px;
+  font-size:11px;
 }
 
-.media-mode{
-    color:#567a60;
-    font-size:10px;
+.tab.active{
+  color:var(--cyan);
+  border-color:rgba(54,217,255,.4);
 }
 
-.media-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
+.mediaSection{
+  display:none;
 }
 
-.media-box{
-    border:1px solid var(--line2);
-    background:#040a06;
-    padding:10px;
-    min-width:0;
+.mediaSection.active{
+  display:block;
 }
 
-.media-box h3{
-    margin:0 0 8px;
-    font-size:11px;
-    letter-spacing:1px;
-    color:#78e792;
+.mediaControls{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:10px;
 }
 
-.file-row{
-    display:flex;
-    gap:6px;
+.mediaControls button{
+  border:1px solid var(--border);
+  background:#111923;
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:7px;
+  font-size:11px;
 }
 
-.file-row input[type=file]{
-    width:100%;
-    color:#91af97;
-    font-size:10px;
+.mediaControls button:hover{
+  border-color:var(--cyan);
 }
 
-.library{
-    height:82px;
-    overflow:auto;
-    border:1px solid #183722;
-    margin-top:8px;
-    padding:5px;
-    font-size:10px;
+.mediaFileRow{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+  flex-wrap:wrap;
 }
 
-.library-item{
-    padding:5px;
-    border-bottom:1px solid #102519;
-    cursor:pointer;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+.fileButton{
+  display:inline-block;
+  padding:9px 12px;
+  border:1px solid var(--border);
+  background:#111923;
+  color:var(--cyan);
+  border-radius:7px;
+  cursor:pointer;
+  font-size:11px;
 }
 
-.library-item:hover{
-    background:#0c1d11;
+input[type=file]{
+  display:none;
 }
 
-.library-item.active{
-    color:var(--green);
-    background:#0d2113;
+.mediaList{
+  margin-top:10px;
+  max-height:150px;
+  overflow-y:auto;
 }
 
-.media-controls{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:5px;
-    margin-top:8px;
+.mediaItem{
+  padding:8px;
+  margin-bottom:5px;
+  border:1px solid #1c2732;
+  border-radius:6px;
+  background:#090e14;
+  font-size:11px;
+  cursor:pointer;
 }
 
-.media-controls button{
-    padding:7px 3px;
-    margin:0;
-    font-size:10px;
+.mediaItem:hover,
+.mediaItem.selected{
+  border-color:var(--cyan);
 }
 
-.media-meta{
-    display:flex;
-    justify-content:space-between;
-    gap:5px;
-    margin-top:7px;
-    font-size:10px;
-    color:#709478;
+audio,
+video{
+  width:100%;
+  margin-top:10px;
+  background:#000;
+  border-radius:8px;
 }
 
-.volume-row{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    margin-top:7px;
+.videoWrap{
+  background:#000;
+  border-radius:8px;
+  overflow:hidden;
 }
 
-.volume-row span{
-    font-size:10px;
-    color:#65836c;
+#youtubeFrame{
+  width:100%;
+  aspect-ratio:16/9;
+  border:0;
+  display:block;
 }
 
-.volume-row input{
-    flex:1;
+.youtubeRow{
+  display:flex;
+  gap:7px;
 }
 
-.youtube-box{
-    margin-top:10px;
-    border:1px solid #49376a;
-    background:#08060d;
-    padding:10px;
+.youtubeRow input{
+  flex:1;
+  min-width:0;
+  background:#080c11;
+  border:1px solid var(--border);
+  color:white;
+  padding:9px;
+  border-radius:7px;
 }
 
-.youtube-input{
-    display:flex;
-    gap:6px;
+/* CALENDAR */
+
+.calendarHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
 }
 
-.youtube-input input{
-    flex:1;
-    min-width:0;
-    background:#030205;
-    color:#ddd;
-    border:1px solid #4d3c69;
-    padding:9px;
-    outline:none;
+.calendarHeader button{
+  border:1px solid var(--border);
+  background:#111923;
+  color:var(--text);
+  padding:6px 10px;
+  border-radius:6px;
 }
 
-.youtube-input button{
-    width:95px;
-    margin:0;
+.calendarMonth{
+  color:white;
+  font-weight:700;
 }
 
-.youtube-frame{
-    width:100%;
-    aspect-ratio:16/9;
-    border:1px solid #30223f;
-    margin-top:8px;
-    background:#000;
+.calendarGrid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
 }
 
-.youtube-frame iframe{
-    width:100%;
-    height:100%;
-    border:0;
+.dayLabel{
+  text-align:center;
+  color:var(--muted);
+  font-size:9px;
+  padding:5px 0;
 }
 
-/* STATUS */
-
-.status-card,
-.activity,
-.voice-box,
-.profile-card,
-.diagnostic-card,
-.morse-box{
-    background:linear-gradient(180deg,#08120b,#050b07);
-    border:1px solid var(--line);
-    padding:10px;
-    margin-bottom:10px;
+.day{
+  min-height:55px;
+  border:1px solid #1c2732;
+  border-radius:6px;
+  padding:5px;
+  background:#090e14;
+  font-size:10px;
 }
 
-.status-row{
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-    padding:6px 0;
-    border-bottom:1px solid #12261a;
-    font-size:11px;
+.day.today{
+  border-color:var(--cyan);
 }
 
-.status-row:last-child{
-    border-bottom:none;
+.dayNumber{
+  color:var(--muted);
 }
 
-.status-label{
-    color:#618068;
+.eventDot{
+  margin-top:4px;
+  color:var(--green);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-.status-value{
-    color:#d8ffdf;
-    text-align:right;
+/* EVENT LIST */
+
+.eventList{
+  margin-top:12px;
+  max-height:230px;
+  overflow-y:auto;
 }
 
-.activity-value{
-    color:#8feaa0;
-    margin-top:5px;
-    font-size:11px;
+.event{
+  padding:9px;
+  border:1px solid #1c2732;
+  background:#090e14;
+  border-radius:7px;
+  margin-bottom:6px;
 }
 
-.voice-box{
-    border-color:#554a20;
-    background:#0d0b05;
-    font-size:10px;
+.eventTitle{
+  color:white;
+  font-weight:700;
+  font-size:12px;
 }
 
-#lastHeard{
-    margin-top:5px;
-    color:#f5dc82;
-    word-break:break-word;
+.eventMeta{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
 }
 
-.profile-card{
-    border-color:#305a3a;
+/* HELP */
+
+.helpList{
+  display:grid;
+  gap:5px;
+  font-size:11px;
+  color:var(--muted);
 }
 
-.profile-name{
-    color:var(--green);
-    font-size:18px;
-    margin-top:5px;
+.helpList div{
+  padding:5px 0;
 }
 
-.profile-small{
-    color:#698970;
-    font-size:10px;
-    margin-top:4px;
+.helpList b{
+  color:var(--cyan);
 }
 
-.diagnostic-card{
-    border-color:#314c3a;
-}
-
-.test-row{
-    display:grid;
-    grid-template-columns:1fr 65px;
-    gap:5px;
-    padding:5px 0;
-    border-bottom:1px solid #12261a;
-    font-size:10px;
-}
-
-.test-result{
-    text-align:right;
-}
-
-.test-ok{color:var(--green)}
-.test-fail{color:var(--red)}
-.test-testing{color:var(--yellow)}
-.test-waiting{color:#607565}
-
-.result-pass{
-    color:var(--green);
-    text-shadow:0 0 8px rgba(82,242,123,.3);
-}
-
-.result-fail{color:var(--red)}
-
-.morse-box{
-    border-color:#304e5d;
-    background:#061016;
-    font-size:10px;
-}
-
-.command-list{
-    max-height:180px;
-    overflow-y:auto;
-    font-size:10px;
-}
-
-.command-item{
-    border-bottom:1px solid #12261a;
-    padding:5px 0;
-}
-
-.command-item .time{color:#416149}
-.command-item .type{color:#72c5ff}
-
-.small-button{
-    padding:6px;
-    font-size:10px;
-}
+/* MOBILE */
 
 @media(max-width:1100px){
-    main{
-        grid-template-columns:210px 1fr;
-    }
+  .mainGrid{
+    grid-template-columns:200px 1fr;
+  }
 
-    main>.panel:last-child{
-        grid-column:1/-1;
-        border-left:none;
-        border-top:1px solid var(--line);
-        display:grid;
-        grid-template-columns:repeat(2,1fr);
-        gap:10px;
-    }
+  .rightColumn{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
 
-    main>.panel:last-child>.panel-title{
-        grid-column:1/-1;
-    }
+  .rightColumn .card{
+    margin:0;
+  }
 }
 
 @media(max-width:750px){
-    main{
-        display:block;
-    }
+  .mainGrid{
+    grid-template-columns:1fr;
+  }
 
-    .panel{
-        border-right:none;
-        border-bottom:1px solid var(--line);
-    }
+  .rightColumn{
+    display:block;
+  }
 
-    main>.panel:last-child{
-        display:block;
-    }
+  .rightColumn .card{
+    margin-bottom:16px;
+  }
 
-    .media-grid{
-        grid-template-columns:1fr;
-    }
+  header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
 
-    .header-right{
-        display:none;
-    }
+  .headerStatus{
+    justify-content:flex-start;
+  }
+
+  .console{
+    height:350px;
+  }
+}
+
+@media(max-width:500px){
+  .app{
+    padding:8px;
+  }
+
+  .buttonGrid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .calendarGrid{
+    gap:2px;
+  }
+
+  .day{
+    min-height:45px;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <header>
-    <div>
-        <div class="logo">DANGERUSS KREATIONS</div>
-        <div class="subtitle">VOICE COMMAND CENTER •  • SERIAL • MEDIA • DIAGNOSTICS</div>
+  <div class="brand">
+    <h1>AMOMII ONE</h1>
+    <p>COMMAND CENTER • VOICE + SERIAL CONTROL</p>
+  </div>
+
+  <div class="headerStatus">
+    <div class="statusItem">
+      <span id="connectionDot" class="dot red"></span>
+      <span id="connectionText">DISCONNECTED</span>
     </div>
 
-    <div class="header-right">
-        <div class="status-light">
-            <span id="connectionDot" class="dot"></span>
-            <span id="connectionText">DISCONNECTED</span>
-        </div>
-
-        <div class="status-light">
-            <span id="voiceDot" class="dot"></span>
-            <span id="voiceText">VOICE OFF</span>
-        </div>
+    <div class="statusItem">
+      <span id="voiceDot" class="dot red"></span>
+      <span id="voiceText">VOICE OFF</span>
     </div>
+  </div>
 </header>
 
-<main>
+<div class="mainGrid">
 
-<!-- LEFT -->
+<!-- LEFT COLUMN -->
 
-<section class="panel">
+<div class="leftColumn">
 
-<div class="panel-title">CONTROL</div>
+  <div class="panel card">
+    <div class="panelHeader">AMOMII ONE</div>
 
-<button class="primary" onclick="connectSerial()">CONNECT</button>
-<button onclick="disconnectSerial()">DISCONNECT</button>
-<button onclick="requestStatus()">STATUS</button>
-<button onclick="runSystemTest()">SYSTEM TEST</button>
-<button onclick="showHelp()">HELP</button>
+    <div class="panelBody">
+      <div class="buttonGrid">
 
-<br>
+        <button class="control primary full" onclick="connectSerial()">
+          CONNECT
+        </button>
 
-<div class="panel-title">LED</div>
+        <button class="control danger full" onclick="disconnectSerial()">
+          DISCONNECT
+        </button>
 
-<button onclick="sendCommand('on')">LED ON</button>
-<button onclick="sendCommand('off')">LED OFF</button>
-<button onclick="sendCommand('toggle')">TOGGLE</button>
-<button onclick="sendCommand('blink')">BLINK</button>
-<button onclick="sendCommand('blink 5')">BLINK 5</button>
-<button class="danger" onclick="sendCommand('sos')">SOS</button>
-<button onclick="sendCommand('stop')">STOP</button>
+        <button class="control" onclick="sendSerialCommand('status')">
+          STATUS
+        </button>
 
-<br>
+        <button class="control" onclick="runSystemTest()">
+          SYSTEM TEST
+        </button>
 
-<div class="panel-title">VOICE</div>
+        <button class="control" onclick="sendSerialCommand('help')">
+          HELP
+        </button>
 
-<button id="voiceButton" class="voice" onclick="toggleVoice()">
-START VOICE
-</button>
+        <button class="control" onclick="stopBoard()">
+          STOP
+        </button>
 
-<button onclick="speakHelp()">SPEAK HELP</button>
-<button onclick="speakAllCommands()">SPEAK COMMANDS</button>
+        <button class="control good" onclick="sendSerialCommand('led on')">
+          LED ON
+        </button>
 
-</section>
+        <button class="control danger" onclick="sendSerialCommand('led off')">
+          LED OFF
+        </button>
+
+        <button class="control" onclick="sendSerialCommand('toggle')">
+          TOGGLE
+        </button>
+
+        <button class="control warn" onclick="sendSerialCommand('blink 5')">
+          BLINK 5
+        </button>
+
+        <button class="control warn" onclick="sendSerialCommand('sos')">
+          SOS
+        </button>
+
+        <button class="control danger" onclick="sendSerialCommand('stop')">
+          STOP
+        </button>
+
+      </div>
+    </div>
+  </div>
 
 
-<!-- CENTER -->
+  <div class="panel card">
+    <div class="panelHeader">VOICE</div>
 
-<section class="console">
+    <div class="panelBody">
+      <div class="buttonGrid">
 
-<div id="consoleOutput" class="console-output"></div>
+        <button
+          id="voiceButton"
+          class="control good full"
+          onclick="toggleVoice()">
+          START VOICE
+        </button>
 
-<div class="input-area">
-<input
-id="commandInput"
-placeholder="Enter serial command..."
-autocomplete="off">
-<button onclick="sendManualCommand()">SEND</button>
-</div>
+        <button
+          class="control full"
+          onclick="speakHelp()">
+          SPEAK HELP
+        </button>
 
+        <button
+          class="control full"
+          onclick="speakCommands()">
+          SPEAK COMMANDS
+        </button>
 
-<!-- MEDIA CENTER -->
-
-<div class="media-center">
-
-<div class="media-header">
-<div class="media-title">MEDIA CENTER</div>
-<div id="mediaMode" class="media-mode">READY</div>
-</div>
-
-<div class="media-grid">
-
-<!-- MUSIC -->
-
-<div class="media-box">
-
-<h3>♪ MUSIC LIBRARY</h3>
-
-<div class="file-row">
-<input
-id="musicFiles"
-type="file"
-accept="audio/*"
-multiple
-onchange="loadMusicFiles(this.files)">
-</div>
-
-<div id="musicLibrary" class="library">
-No music loaded.
-</div>
-
-<audio id="musicPlayer" preload="metadata"></audio>
-
-<div class="media-controls">
-<button onclick="musicPrevious()">◀◀</button>
-<button onclick="musicPlayPause()">PLAY</button>
-<button onclick="musicStop()">STOP</button>
-<button onclick="musicNext()">▶▶</button>
-<button onclick="toggleMusicShuffle()">SHUF</button>
-</div>
-
-<div class="media-meta">
-<span id="musicTrack">No track</span>
-<span id="musicMode">NORMAL</span>
-</div>
-
-<div class="volume-row">
-<span>VOL</span>
-<input
-id="musicVolume"
-type="range"
-min="0"
-max="1"
-step=".01"
-value=".8"
-oninput="setMusicVolume(this.value)">
-</div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 
-<!-- VIDEO -->
+<!-- CENTER COLUMN -->
 
-<div class="media-box">
+<div class="centerColumn">
 
-<h3>▶ VIDEO LIBRARY</h3>
+  <div class="voiceHero">
 
-<div class="file-row">
-<input
-id="videoFiles"
-type="file"
-accept="video/*"
-multiple
-onchange="loadVideoFiles(this.files)">
+    <div id="voiceOrb" class="voiceOrb">
+      NOVA
+    </div>
+
+    <div id="assistantTitle" class="voiceTitle">
+      NOVA
+    </div>
+
+    <div class="voiceSubtitle">
+      Voice Command Center
+    </div>
+
+    <div id="lastHeard" class="lastHeard">
+      Waiting for voice input...
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panelHeader">
+      SERIAL CONSOLE
+    </div>
+
+    <div id="console" class="console"></div>
+
+    <div class="commandRow">
+      <input
+        id="commandInput"
+        type="text"
+        placeholder="Enter serial command..."
+        autocomplete="off">
+
+      <button
+        class="control primary"
+        onclick="sendManualCommand()">
+        SEND
+      </button>
+    </div>
+
+  </div>
+
+
+  <!-- MEDIA CENTER -->
+
+  <div class="panel mediaPanel">
+
+    <div class="panelHeader">
+      MEDIA CENTER
+    </div>
+
+    <div class="panelBody">
+
+      <div class="mediaTabs">
+
+        <button
+          class="tab active"
+          data-tab="music"
+          onclick="showMediaTab('music')">
+          MUSIC LIBRARY
+        </button>
+
+        <button
+          class="tab"
+          data-tab="video"
+          onclick="showMediaTab('video')">
+          VIDEO LIBRARY
+        </button>
+
+        <button
+          class="tab"
+          data-tab="youtube"
+          onclick="showMediaTab('youtube')">
+          YOUTUBE
+        </button>
+
+      </div>
+
+
+      <!-- MUSIC -->
+
+      <div id="musicSection" class="mediaSection active">
+
+        <div class="mediaFileRow">
+
+          <label class="fileButton">
+            ADD MUSIC
+            <input
+              id="musicFiles"
+              type="file"
+              accept="audio/*"
+              multiple>
+          </label>
+
+          <span id="musicCount" class="voiceSubtitle">
+            0 tracks
+          </span>
+
+        </div>
+
+        <audio
+          id="audioPlayer"
+          controls>
+        </audio>
+
+        <div class="mediaControls">
+
+          <button onclick="previousMusic()">PREVIOUS</button>
+          <button onclick="toggleMusic()">PLAY / PAUSE</button>
+          <button onclick="stopMusic()">STOP</button>
+          <button onclick="nextMusic()">NEXT</button>
+
+          <button onclick="toggleShuffle()">
+            SHUFFLE: <span id="shuffleText">OFF</span>
+          </button>
+
+          <button onclick="toggleRepeat()">
+            REPEAT: <span id="repeatText">OFF</span>
+          </button>
+
+        </div>
+
+        <div style="margin-top:10px">
+          <label style="font-size:10px;color:var(--muted)">
+            VOLUME
+          </label>
+
+          <input
+            id="musicVolume"
+            type="range"
+            min="0"
+            max="1"
+            step=".01"
+            value=".8"
+            style="width:100%">
+        </div>
+
+        <div id="musicList" class="mediaList"></div>
+
+      </div>
+
+
+      <!-- VIDEO -->
+
+      <div id="videoSection" class="mediaSection">
+
+        <div class="mediaFileRow">
+
+          <label class="fileButton">
+            ADD VIDEOS
+            <input
+              id="videoFiles"
+              type="file"
+              accept="video/*"
+              multiple>
+          </label>
+
+          <span id="videoCount" class="voiceSubtitle">
+            0 videos
+          </span>
+
+        </div>
+
+        <video
+          id="videoPlayer"
+          controls>
+        </video>
+
+        <div class="mediaControls">
+
+          <button onclick="previousVideo()">PREVIOUS</button>
+          <button onclick="toggleVideo()">PLAY / PAUSE</button>
+          <button onclick="stopVideo()">STOP</button>
+          <button onclick="nextVideo()">NEXT</button>
+
+        </div>
+
+        <div style="margin-top:10px">
+          <label style="font-size:10px;color:var(--muted)">
+            VOLUME
+          </label>
+
+          <input
+            id="videoVolume"
+            type="range"
+            min="0"
+            max="1"
+            step=".01"
+            value=".8"
+            style="width:100%">
+        </div>
+
+        <div id="videoList" class="mediaList"></div>
+
+      </div>
+
+
+      <!-- YOUTUBE -->
+
+      <div id="youtubeSection" class="mediaSection">
+
+        <div class="youtubeRow">
+
+          <input
+            id="youtubeInput"
+            type="text"
+            placeholder="Paste YouTube URL or video ID">
+
+          <button
+            class="control primary"
+            onclick="loadYouTube()">
+            LOAD
+          </button>
+
+        </div>
+
+        <div class="videoWrap" style="margin-top:10px">
+          <iframe
+            id="youtubeFrame"
+            src=""
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+
+        <div class="mediaControls">
+
+          <button onclick="youtubeCommand('playVideo')">
+            PLAY
+          </button>
+
+          <button onclick="youtubeCommand('pauseVideo')">
+            PAUSE
+          </button>
+
+          <button onclick="youtubeCommand('stopVideo')">
+            STOP
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- CALENDAR -->
+
+  <div class="panel mediaPanel">
+
+    <div class="panelHeader">
+      COMMAND CENTER CALENDAR
+    </div>
+
+    <div class="panelBody">
+
+      <div class="calendarHeader">
+
+        <button onclick="changeMonth(-1)">‹</button>
+
+        <div id="calendarMonth" class="calendarMonth"></div>
+
+        <button onclick="changeMonth(1)">›</button>
+
+      </div>
+
+      <div
+        id="calendarGrid"
+        class="calendarGrid">
+      </div>
+
+      <div id="eventList" class="eventList"></div>
+
+      <div class="mediaControls">
+
+        <button
+          class="control primary"
+          onclick="voiceAddEvent()">
+          ADD EVENT BY VOICE
+        </button>
+
+        <button
+          class="control"
+          onclick="addTestEvent()">
+          TEST EVENT
+        </button>
+
+        <button
+          class="control danger"
+          onclick="clearEvents()">
+          CLEAR EVENTS
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
-<div id="videoLibrary" class="library">
-No videos loaded.
+
+<!-- RIGHT COLUMN -->
+
+<div class="rightColumn">
+
+
+  <!-- PROFILE -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      PROFILE
+    </div>
+
+    <div class="panelBody">
+
+      <div class="profileName" id="profileUserName">
+        DangeRuss
+      </div>
+
+      <div class="profileRow">
+        <span>Assistant</span>
+        <span id="profileAssistantName">NOVA</span>
+      </div>
+
+      <div class="profileRow">
+        <span>Board</span>
+        <span>AMOMII ONE</span>
+      </div>
+
+      <div class="profileRow">
+        <span>Voice</span>
+        <span id="profileVoice">READY</span>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- SYSTEM STATUS -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      SYSTEM STATUS
+    </div>
+
+    <div class="panelBody">
+
+      <div class="statList">
+
+        <div class="stat">
+          <span>Board</span>
+          <span>AMOMII ONE</span>
+        </div>
+
+        <div class="stat">
+          <span>Connection</span>
+          <span id="statusConnection">OFFLINE</span>
+        </div>
+
+        <div class="stat">
+          <span>System</span>
+          <span id="statusSystem">READY</span>
+        </div>
+
+        <div class="stat">
+          <span>LED</span>
+          <span id="statusLed">UNKNOWN</span>
+        </div>
+
+        <div class="stat">
+          <span>Blinking</span>
+          <span id="statusBlinking">NO</span>
+        </div>
+
+        <div class="stat">
+          <span>Blink speed</span>
+          <span id="statusBlinkSpeed">—</span>
+        </div>
+
+        <div class="stat">
+          <span>Commands</span>
+          <span id="statusCommands">0</span>
+        </div>
+
+        <div class="stat">
+          <span>Uptime</span>
+          <span id="uptime">00:00:00</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- SYSTEM TEST -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      SYSTEM TEST
+    </div>
+
+    <div class="panelBody">
+
+      <div class="testGrid">
+
+        <div class="testItem">
+          <span>Serial</span>
+          <span id="testSerial" class="testValue pending">—</span>
+        </div>
+
+        <div class="testItem">
+          <span>LED</span>
+          <span id="testLed" class="testValue pending">—</span>
+        </div>
+
+        <div class="testItem">
+          <span>Timing</span>
+          <span id="testTiming" class="testValue pending">—</span>
+        </div>
+
+        <div class="testItem">
+          <span>Memory</span>
+          <span id="testMemory" class="testValue pending">—</span>
+        </div>
+
+        <div class="testItem">
+          <span>Commands</span>
+          <span id="testCommands" class="testValue pending">—</span>
+        </div>
+
+        <div class="testItem">
+          <span>System</span>
+          <span id="testSystem" class="testValue pending">—</span>
+        </div>
+
+      </div>
+
+      <div id="testResult" class="testResult">
+        NOT RUN
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- VOICE ENGINE -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      VOICE ENGINE
+    </div>
+
+    <div class="panelBody">
+
+      <div class="statList">
+
+        <div class="stat">
+          <span>Assistant</span>
+          <span id="voiceEngineName">NOVA</span>
+        </div>
+
+        <div class="stat">
+          <span>Recognition</span>
+          <span id="recognitionState">OFF</span>
+        </div>
+
+        <div class="stat">
+          <span>Speaking</span>
+          <span id="speakingState">NO</span>
+        </div>
+
+        <div class="stat">
+          <span>Last heard</span>
+          <span id="voiceLastShort">—</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- COMMAND HISTORY -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      COMMAND HISTORY
+    </div>
+
+    <div class="panelBody">
+
+      <div id="commandHistory" class="history"></div>
+
+    </div>
+  </div>
+
+
+  <!-- MORSE -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      MORSE
+    </div>
+
+    <div class="panelBody">
+
+      <div class="statList">
+
+        <div class="stat">
+          <span>Status</span>
+          <span id="morseStatus">READY</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- VOICE HELP -->
+
+  <div class="panel card">
+
+    <div class="panelHeader">
+      VOICE COMMANDS
+    </div>
+
+    <div class="panelBody">
+
+      <div class="helpList">
+
+        <div><b>“Connect”</b> — connect AMOMII ONE</div>
+        <div><b>“Status”</b> — board status</div>
+        <div><b>“System test”</b> — diagnostics</div>
+        <div><b>“LED on/off”</b> — LED control</div>
+        <div><b>“Blink five”</b> — blink LED</div>
+        <div><b>“SOS”</b> — SOS pattern</div>
+        <div><b>“Play music”</b> — music</div>
+        <div><b>“Next song”</b> — next track</div>
+        <div><b>“Play video”</b> — video</div>
+        <div><b>“Add event…”</b> — calendar</div>
+        <div><b>“What can you do?”</b> — help</div>
+        <div><b>“Change your name”</b> — rename assistant</div>
+
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
-<video
-id="videoPlayer"
-controls
-preload="metadata"
-style="width:100%;margin-top:8px;background:#000;max-height:160px;">
-</video>
-
-<div class="media-controls">
-<button onclick="videoPrevious()">◀◀</button>
-<button onclick="videoPlayPause()">PLAY</button>
-<button onclick="videoStop()">STOP</button>
-<button onclick="videoNext()">▶▶</button>
-<button onclick="videoFullscreen()">FULL</button>
-</div>
-
-<div class="media-meta">
-<span id="videoTrack">No video</span>
-<span id="videoMode">NORMAL</span>
-</div>
-
-<div class="volume-row">
-<span>VOL</span>
-<input
-id="videoVolume"
-type="range"
-min="0"
-max="1"
-step=".01"
-value=".8"
-oninput="setVideoVolume(this.value)">
-</div>
-
-</div>
-
-</div>
-
-
-<!-- YOUTUBE -->
-
-<div class="youtube-box">
-
-<div class="panel-title" style="margin-top:0">
-YOUTUBE PLAYER
-</div>
-
-<div class="youtube-input">
-<input
-id="youtubeInput"
-placeholder="Paste YouTube URL or video ID...">
-<button class="media" onclick="loadYouTube()">LOAD</button>
-</div>
-
-<div class="youtube-frame">
-<iframe
-id="youtubeFrame"
-allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-allowfullscreen>
-</iframe>
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- RIGHT -->
-
-<section class="panel">
-
-<div class="panel-title">ASSISTANT</div>
-
-<div class="profile-card">
-
-<div class="status-label">USER PROFILE</div>
-
-<div id="profileName" class="profile-name">
-UNKNOWN
-</div>
-
-<div class="profile-small">
-Assistant: AMOMII
-</div>
-
-<div class="profile-small">
-Voice: <span id="profileVoice">OFFLINE</span>
-</div>
-
-</div>
-
-
-<div class="activity">
-
-<div class="status-label">ACTIVITY</div>
-
-<div id="activityValue" class="activity-value">
-IDLE
-</div>
-
-</div>
-
-
-<div class="voice-box">
-
-<div class="status-label">VOICE ENGINE</div>
-
-<div id="lastHeard">
-Waiting for voice...
-</div>
-
-</div>
-
-
-<div class="panel-title">SYSTEM STATUS</div>
-
-<div class="status-card">
-
-<div class="status-row">
-<span class="status-label">Board</span>
-<span id="statusBoard" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">Connection</span>
-<span id="statusConnection" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">System</span>
-<span id="statusSystem" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">LED</span>
-<span id="statusLED" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">Blinking</span>
-<span id="statusBlinking" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">Blink speed</span>
-<span id="statusSpeed" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">Commands</span>
-<span id="statusCommands" class="status-value">---</span>
-</div>
-
-<div class="status-row">
-<span class="status-label">Uptime</span>
-<span id="statusUptime" class="status-value">---</span>
-</div>
-
-</div>
-
-
-<div class="panel-title">SYSTEM TEST</div>
-
-<div class="diagnostic-card">
-
-<div class="test-row">
-<span>Serial</span>
-<span id="testSerial" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>LED</span>
-<span id="testLED" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>Timing</span>
-<span id="testTiming" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>Memory</span>
-<span id="testMemory" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>Commands</span>
-<span id="testCommands" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>System</span>
-<span id="testSystem" class="test-result test-waiting">WAITING</span>
-</div>
-
-<div class="test-row">
-<span>Result</span>
-<span id="testResult" class="test-result test-waiting">WAITING</span>
-</div>
-
-</div>
-
-
-<div class="panel-title">MORSE</div>
-
-<div class="morse-box">
-<div id="morseStatus">
-No Morse transmission.
 </div>
 </div>
-
-
-<br>
-
-<div class="panel-title">COMMAND HISTORY</div>
-
-<div id="commandHistory" class="command-list"></div>
-
-</section>
-
-</main>
 
 
 <script>
+/* ============================================================
+   AMOMII ONE COMMAND CENTER
+   Central Assistant + Device + Media + Calendar Architecture
+   ============================================================ */
+
 
 /* ============================================================
-   AMOMII ONE v1.5
-   VOICE + PERSONAL ASSISTANT + DIAGNOSTICS + MEDIA
+   IDENTITY
    ============================================================ */
+
+const BOARD_NAME = "AMOMII ONE";
+
+let assistantName =
+  localStorage.getItem("amomiiAssistantName") || "NOVA";
+
+let userName =
+  localStorage.getItem("amomiiUserName") || "DangeRuss";
+
+let awaitingUserName = false;
+let awaitingAssistantName = false;
+let awaitingEvent = false;
 
 
 /* ============================================================
    SERIAL
    ============================================================ */
 
-let port=null;
-let reader=null;
-let writer=null;
-let serialConnected=false;
-let serialBuffer="";
+let port = null;
+let reader = null;
+let writer = null;
+let keepReading = false;
+
+let commandCount = 0;
+
+const BAUD_RATE = 9600;
 
 
 /* ============================================================
    VOICE
    ============================================================ */
 
-let recognition=null;
-let voiceEnabled=false;
-let recognitionRunning=false;
-let restartingRecognition=false;
+let recognition = null;
+let recognitionRunning = false;
+let restartingRecognition = false;
+let voiceEnabled = false;
 
-let isSpeaking=false;
-let speechQueue=[];
+let isSpeaking = false;
+let speechQueue = [];
 
-let speechResumeTimer=null;
-let speechCooldownTimer=null;
+let resumeRecognitionTimer = null;
+let recognitionCooldownTimer = null;
 
+let lastVoiceCommand = "";
 
-/* ============================================================
-   PERSONAL ASSISTANT
-   ============================================================ */
+let SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
 
-let userName="";
-let awaitingName=false;
-
-
-/* ============================================================
-   STATUS
-   ============================================================ */
-
-let collectingStatus=false;
-let statusLines=[];
-let statusTimer=null;
+const speechSupported =
+  "speechSynthesis" in window &&
+  !!SpeechRecognition;
 
 
 /* ============================================================
    SYSTEM TEST
    ============================================================ */
 
-let systemTestState={
-    active:false,
-    serial:null,
-    led:null,
-    timing:null,
-    memory:null,
-    commands:null,
-    system:null
+let systemTestState = {
+  active:false,
+  serial:null,
+  led:null,
+  timing:null,
+  memory:null,
+  commands:null,
+  system:null
 };
 
-let systemTestFinishTimer=null;
+
+/* ============================================================
+   MEDIA
+   ============================================================ */
+
+let musicLibrary = [];
+let musicIndex = -1;
+let musicShuffle = false;
+let musicRepeat = false;
+
+let videoLibrary = [];
+let videoIndex = -1;
+
+let youtubeVideoId = "";
 
 
 /* ============================================================
-   COMMAND HISTORY
+   CALENDAR
    ============================================================ */
 
-let commandCount=0;
+let calendarDate = new Date();
+
+let calendarEvents =
+  JSON.parse(
+    localStorage.getItem("amomiiCalendarEvents") || "[]"
+  );
 
 
 /* ============================================================
-   MUSIC
+   UPTIME
    ============================================================ */
 
-let musicFiles=[];
-let musicUrls=[];
-let musicIndex=-1;
-let musicShuffle=false;
-let musicRepeat=false;
-
-
-/* ============================================================
-   VIDEO
-   ============================================================ */
-
-let videoFiles=[];
-let videoUrls=[];
-let videoIndex=-1;
-let videoShuffle=false;
-let videoRepeat=false;
+const startupTime = Date.now();
 
 
 /* ============================================================
    DOM
    ============================================================ */
 
-const consoleOutput=document.getElementById("consoleOutput");
-const commandInput=document.getElementById("commandInput");
+const consoleEl =
+  document.getElementById("console");
 
-const connectionDot=document.getElementById("connectionDot");
-const connectionText=document.getElementById("connectionText");
+const commandInput =
+  document.getElementById("commandInput");
 
-const voiceDot=document.getElementById("voiceDot");
-const voiceText=document.getElementById("voiceText");
+const lastHeardEl =
+  document.getElementById("lastHeard");
 
-const voiceButton=document.getElementById("voiceButton");
+const voiceOrb =
+  document.getElementById("voiceOrb");
 
-const activityValue=document.getElementById("activityValue");
-const lastHeard=document.getElementById("lastHeard");
 
-const profileName=document.getElementById("profileName");
-const profileVoice=document.getElementById("profileVoice");
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
 
-const musicPlayer=document.getElementById("musicPlayer");
-const videoPlayer=document.getElementById("videoPlayer");
+document.addEventListener("DOMContentLoaded", () => {
+
+  updateIdentityUI();
+  initializeVoice();
+  initializeMedia();
+  renderCalendar();
+  updateUptime();
+
+  log(
+    `Command Center initialized.`,
+    "system"
+  );
+
+  log(
+    `Assistant: ${assistantName}`,
+    "system"
+  );
+
+  log(
+    `User: ${userName}`,
+    "system"
+  );
+
+  log(
+    `Device: ${BOARD_NAME}`,
+    "system"
+  );
+
+  if(!("serial" in navigator)){
+    log(
+      "Web Serial is not available in this browser.",
+      "warning"
+    );
+  }
+
+  if(!speechSupported){
+    log(
+      "Web Speech recognition is not available.",
+      "warning"
+    );
+  }
+
+});
 
 
 /* ============================================================
@@ -1084,681 +1627,619 @@ const videoPlayer=document.getElementById("videoPlayer");
    ============================================================ */
 
 function timestamp(){
-    return new Date().toLocaleTimeString();
+
+  return new Date().toLocaleTimeString();
+
 }
 
-function log(message,type="info"){
 
-    const line=document.createElement("div");
-    line.className="log-line";
+function log(message, type="system"){
 
-    let cls="log-info";
+  const line =
+    document.createElement("div");
 
-    if(type==="command") cls="log-command";
-    if(type==="voice") cls="log-voice";
-    if(type==="speech") cls="log-speech";
-    if(type==="error") cls="log-error";
+  line.className =
+    `consoleLine ${type}`;
 
-    line.innerHTML=
-        `<span class="log-time">[${timestamp()}]</span> `+
-        `<span class="${cls}">${escapeHtml(message)}</span>`;
+  line.textContent =
+    `[${timestamp()}] ${message}`;
 
-    consoleOutput.appendChild(line);
-    consoleOutput.scrollTop=consoleOutput.scrollHeight;
+  consoleEl.appendChild(line);
+
+  consoleEl.scrollTop =
+    consoleEl.scrollHeight;
+
 }
+
+
+function addHistory(command){
+
+  const history =
+    document.getElementById("commandHistory");
+
+  const item =
+    document.createElement("div");
+
+  item.className =
+    "historyItem";
+
+  item.innerHTML =
+    `<span class="time">${timestamp()}</span>
+     <span class="cmd">${escapeHtml(command)}</span>`;
+
+  history.prepend(item);
+
+  while(history.children.length > 30){
+    history.removeChild(
+      history.lastChild
+    );
+  }
+
+}
+
 
 function escapeHtml(text){
-    return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
 }
 
 
 /* ============================================================
-   ACTIVITY
+   IDENTITY UI
    ============================================================ */
 
-function setActivity(text){
-    activityValue.textContent=text;
+function updateIdentityUI(){
+
+  document.getElementById(
+    "assistantTitle"
+  ).textContent =
+    assistantName;
+
+  document.getElementById(
+    "voiceOrb"
+  ).textContent =
+    assistantName.substring(0,6);
+
+  document.getElementById(
+    "profileAssistantName"
+  ).textContent =
+    assistantName;
+
+  document.getElementById(
+    "voiceEngineName"
+  ).textContent =
+    assistantName;
+
+  document.getElementById(
+    "profileUserName"
+  ).textContent =
+    userName;
+
 }
 
 
 /* ============================================================
-   CONNECTION UI
+   USER NAME
    ============================================================ */
-
-function setConnectionUI(connected){
-
-    serialConnected=connected;
-
-    if(connected){
-        connectionDot.classList.add("online");
-        connectionText.textContent="CONNECTED";
-    }else{
-        connectionDot.classList.remove("online");
-        connectionText.textContent="DISCONNECTED";
-    }
-}
-
-
-/* ============================================================
-   VOICE UI
-   ============================================================ */
-
-function setVoiceUI(state){
-
-    voiceDot.className="dot";
-
-    if(state==="listening"){
-        voiceDot.classList.add("voice");
-        voiceText.textContent="LISTENING";
-    }
-    else if(state==="speaking"){
-        voiceDot.classList.add("speaking");
-        voiceText.textContent="SPEAKING";
-    }
-    else{
-        voiceText.textContent="VOICE OFF";
-    }
-
-    profileVoice.textContent=
-        state==="listening" ? "READY" :
-        state==="speaking" ? "SPEAKING" :
-        "OFFLINE";
-}
-
-
-/* ============================================================
-   PERSONAL ASSISTANT
-   ============================================================ */
-
-function cleanName(name){
-
-    name=name
-        .replace(/[.!?,]/g," ")
-        .replace(/\s+/g," ")
-        .trim();
-
-    name=name.replace(
-        /^(my name is|my name's|call me|i am|i'm)\s+/i,
-        ""
-    );
-
-    if(name.length>30){
-        name=name.substring(0,30);
-    }
-
-    return name.trim();
-}
-
 
 function setUserName(name){
 
-    name=cleanName(name);
+  name =
+    cleanName(name);
 
-    if(!name){
-        speak("I didn't catch your name. Please tell me your name.");
-        awaitingName=true;
-        return;
-    }
+  if(!name){
+    return;
+  }
 
-    userName=name;
-    awaitingName=false;
+  userName = name;
 
-    profileName.textContent=userName.toUpperCase();
+  localStorage.setItem(
+    "amomiiUserName",
+    userName
+  );
 
-    log("User identified as "+userName+".");
+  awaitingUserName = false;
 
-    speak(
-        "Nice to meet you, "+
-        userName+
-        ". I'm ready."
-    );
+  updateIdentityUI();
+
+  log(
+    `User name set to ${userName}.`,
+    "success"
+  );
+
+  speak(
+    `Nice to meet you, ${userName}.`
+  );
+
 }
 
 
-function addressUser(text){
+function cleanName(name){
 
-    if(userName){
-        return userName+", "+text;
-    }
+  return String(name)
+    .replace(
+      /^(my name is|call me|i am|i'm)\s+/i,
+      ""
+    )
+    .replace(/[.!?,]+$/,"")
+    .trim()
+    .slice(0,40);
 
-    return text;
-}
-
-
-function askForName(){
-
-    awaitingName=true;
-
-    speak(
-        "Voice control enabled. "+
-        "Before we begin, what is your name?"
-    );
-}
-
-
-function forgetName(){
-
-    const oldName=userName;
-
-    userName="";
-    awaitingName=false;
-
-    profileName.textContent="UNKNOWN";
-
-    log(
-        oldName
-            ? "User name cleared for this session."
-            : "No user name was stored."
-    );
-
-    speak(
-        oldName
-            ? "Okay. I've forgotten your name for this session."
-            : "You haven't given me a name yet."
-    );
 }
 
 
 /* ============================================================
-   SERIAL CONNECT
+   ASSISTANT NAME
+   ============================================================ */
+
+function setAssistantName(name){
+
+  name =
+    String(name)
+      .replace(
+        /^(your name is|call yourself|call you|i want to call you|i'll call you)\s+/i,
+        ""
+      )
+      .replace(/[.!?,]+$/,"")
+      .trim()
+      .slice(0,30);
+
+  if(!name){
+    return;
+  }
+
+  assistantName = name;
+
+  localStorage.setItem(
+    "amomiiAssistantName",
+    assistantName
+  );
+
+  awaitingAssistantName = false;
+
+  updateIdentityUI();
+
+  log(
+    `Assistant renamed to ${assistantName}.`,
+    "success"
+  );
+
+  speak(
+    `Got it. You can call me ${assistantName}.`
+  );
+
+}
+
+
+/* ============================================================
+   SERIAL CONNECTION
    ============================================================ */
 
 async function connectSerial(){
 
-    if(!("serial" in navigator)){
+  if(!("serial" in navigator)){
 
-        log(
-            "Web Serial is not supported by this browser.",
-            "error"
-        );
+    log(
+      "Web Serial is not supported.",
+      "error"
+    );
 
-        speak("Web Serial is not supported by this browser.");
+    return;
+  }
 
-        return;
+  try{
+
+    if(port){
+
+      log(
+        "AMOMII ONE is already connected.",
+        "warning"
+      );
+
+      return;
     }
 
-    try{
+    port =
+      await navigator.serial.requestPort();
 
-        port=await navigator.serial.requestPort();
+    await port.open({
+      baudRate: BAUD_RATE
+    });
 
-        await port.open({
-            baudRate:9600
-        });
+    writer =
+      port.writable.getWriter();
 
-        writer=port.writable.getWriter();
+    keepReading = true;
 
-        setConnectionUI(true);
+    updateConnectionUI(true);
 
-        log("Serial connection established.");
+    log(
+      `Connected to ${BOARD_NAME} at ${BAUD_RATE} baud.`,
+      "success"
+    );
 
-        speak(
-            userName
-                ? addressUser("AMOMII ONE is connected.")
-                : "AMOMII ONE connected."
-        );
+    readSerial();
 
-        readSerialLoop();
+    addHistory("connect");
 
-    }catch(error){
+    speak(
+      `${BOARD_NAME} is connected.`
+    );
 
-        log(
-            "Connection failed: "+error.message,
-            "error"
-        );
-    }
+  }catch(error){
+
+    log(
+      `Connection failed: ${error.message}`,
+      "error"
+    );
+
+    port = null;
+    writer = null;
+
+  }
+
 }
 
-
-/* ============================================================
-   DISCONNECT
-   ============================================================ */
 
 async function disconnectSerial(){
 
-    try{
+  keepReading = false;
 
-        if(reader){
+  try{
 
-            try{
-                await reader.cancel();
-            }catch(e){}
+    if(reader){
 
-            try{
-                reader.releaseLock();
-            }catch(e){}
+      try{
+        await reader.cancel();
+      }catch(e){}
 
-            reader=null;
-        }
-
-        if(writer){
-
-            try{
-                writer.releaseLock();
-            }catch(e){}
-
-            writer=null;
-        }
-
-        if(port){
-
-            try{
-                await port.close();
-            }catch(e){}
-
-            port=null;
-        }
-
-        setConnectionUI(false);
-
-        log("Serial connection closed.");
-
-        speak(
-            userName
-                ? addressUser("AMOMII ONE is disconnected.")
-                : "AMOMII ONE disconnected."
-        );
-
-    }catch(error){
-
-        log(
-            "Disconnect error: "+error.message,
-            "error"
-        );
+      reader.releaseLock();
+      reader = null;
     }
+
+    if(writer){
+
+      writer.releaseLock();
+      writer = null;
+    }
+
+    if(port){
+
+      await port.close();
+      port = null;
+    }
+
+  }catch(error){
+
+    log(
+      `Disconnect error: ${error.message}`,
+      "error"
+    );
+
+  }
+
+  updateConnectionUI(false);
+
+  log(
+    "Disconnected.",
+    "warning"
+  );
+
+}
+
+
+function updateConnectionUI(connected){
+
+  const dot =
+    document.getElementById("connectionDot");
+
+  const text =
+    document.getElementById("connectionText");
+
+  const status =
+    document.getElementById("statusConnection");
+
+  if(connected){
+
+    dot.className = "dot green";
+    text.textContent = "CONNECTED";
+    status.textContent = "ONLINE";
+
+  }else{
+
+    dot.className = "dot red";
+    text.textContent = "DISCONNECTED";
+    status.textContent = "OFFLINE";
+
+  }
+
 }
 
 
 /* ============================================================
-   SERIAL READER
+   SERIAL READ
    ============================================================ */
 
-async function readSerialLoop(){
+async function readSerial(){
 
-    if(!port || !port.readable) return;
+  if(!port || !port.readable){
+    return;
+  }
 
-    const decoder=new TextDecoder();
+  reader =
+    port.readable.getReader();
 
-    try{
+  const decoder =
+    new TextDecoder();
 
-        reader=port.readable.getReader();
+  let buffer = "";
 
-        while(true){
+  try{
 
-            const {value,done}=await reader.read();
+    while(keepReading){
 
-            if(done) break;
+      const {
+        value,
+        done
+      } = await reader.read();
 
-            if(value){
-                processSerialData(
-                    decoder.decode(value)
-                );
-            }
+      if(done){
+        break;
+      }
+
+      if(value){
+
+        buffer +=
+          decoder.decode(
+            value,
+            {stream:true}
+          );
+
+        const lines =
+          buffer.split(/\r?\n/);
+
+        buffer =
+          lines.pop();
+
+        for(const line of lines){
+
+          if(line.trim()){
+            processSerialLine(line.trim());
+          }
+
         }
 
-    }catch(error){
+      }
 
-        if(serialConnected){
-
-            log(
-                "Serial read error: "+error.message,
-                "error"
-            );
-        }
-
-    }finally{
-
-        if(reader){
-
-            try{
-                reader.releaseLock();
-            }catch(e){}
-
-            reader=null;
-        }
     }
-}
 
+  }catch(error){
 
-/* ============================================================
-   SERIAL PROCESSING
-   ============================================================ */
+    if(keepReading){
 
-function processSerialData(text){
+      log(
+        `Serial read error: ${error.message}`,
+        "error"
+      );
 
-    serialBuffer+=text;
-
-    const lines=serialBuffer.split(/\r?\n/);
-
-    serialBuffer=lines.pop()||"";
-
-    for(const rawLine of lines){
-
-        const clean=rawLine.replace(/\r/g,"").trim();
-
-        if(!clean) continue;
-
-        log(clean);
-
-        if(collectingStatus){
-            collectStatusLine(clean);
-        }
-
-        parseSerialResponse(clean);
     }
-}
 
-
-/* ============================================================
-   SEND SERIAL
-   ============================================================ */
-
-async function sendCommand(command){
-
-    command=String(command).trim();
-
-    if(!command) return;
-
-    addHistory("SERIAL",command);
-
-    log("> "+command,"command");
-
-    if(!writer){
-
-        log(
-            "Not connected to AMOMII ONE.",
-            "error"
-        );
-
-        return;
-    }
+  }finally{
 
     try{
+      reader.releaseLock();
+    }catch(e){}
 
-        const data=new TextEncoder().encode(
-            command+"\n"
-        );
+    reader = null;
+  }
 
-        await writer.write(data);
-
-    }catch(error){
-
-        log(
-            "Send error: "+error.message,
-            "error"
-        );
-    }
 }
 
 
 /* ============================================================
-   MANUAL COMMAND
+   SERIAL COMMAND
    ============================================================ */
+
+async function sendSerialCommand(command){
+
+  command =
+    String(command).trim();
+
+  if(!command){
+    return;
+  }
+
+  commandCount++;
+
+  document.getElementById(
+    "statusCommands"
+  ).textContent =
+    commandCount;
+
+  addHistory(command);
+
+  log(
+    `> ${command}`,
+    "command"
+  );
+
+  if(!writer){
+
+    log(
+      "Not connected to AMOMII ONE.",
+      "warning"
+    );
+
+    return;
+  }
+
+  try{
+
+    const encoder =
+      new TextEncoder();
+
+    await writer.write(
+      encoder.encode(
+        command + "\n"
+      )
+    );
+
+  }catch(error){
+
+    log(
+      `Serial write error: ${error.message}`,
+      "error"
+    );
+
+  }
+
+}
+
 
 function sendManualCommand(){
 
-    const command=commandInput.value.trim();
+  const command =
+    commandInput.value.trim();
 
-    if(!command) return;
+  if(!command){
+    return;
+  }
 
-    commandInput.value="";
+  sendSerialCommand(command);
 
-    sendCommand(command);
+  commandInput.value = "";
+
 }
 
+
 commandInput.addEventListener(
-    "keydown",
-    event=>{
-        if(event.key==="Enter"){
-            sendManualCommand();
-        }
+  "keydown",
+  event => {
+
+    if(event.key === "Enter"){
+      sendManualCommand();
     }
+
+  }
 );
 
 
 /* ============================================================
-   HISTORY
+   SERIAL LINE PARSER
    ============================================================ */
 
-function addHistory(type,command){
+function processSerialLine(line){
 
-    commandCount++;
+  log(line);
 
-    const history=document.getElementById(
-        "commandHistory"
+  parseSystemTestLine(line);
+  parseBoardStatus(line);
+  parseLedState(line);
+
+  if(
+    /^flash complete\.?$/i.test(line)
+  ){
+
+    log(
+      "System test LED flash complete.",
+      "success"
     );
 
-    const item=document.createElement("div");
+  }
 
-    item.className="command-item";
+  if(
+    /morse/i.test(line)
+  ){
 
-    item.innerHTML=
-        `<span class="time">${timestamp()}</span> `+
-        `<span class="type">${escapeHtml(type)}</span> `+
-        `${escapeHtml(command)}`;
+    document.getElementById(
+      "morseStatus"
+    ).textContent =
+      line;
 
-    history.prepend(item);
+  }
 
-    while(history.children.length>50){
-        history.removeChild(history.lastChild);
-    }
 }
 
 
 /* ============================================================
-   STATUS
+   BOARD STATUS
    ============================================================ */
 
-function requestStatus(options={}){
+function parseBoardStatus(line){
 
-    if(!serialConnected){
-
-        log(
-            "Cannot request status: board is not connected.",
-            "error"
-        );
-
-        if(options.speakError!==false){
-            speak(
-                userName
-                    ? addressUser("AMOMII ONE is not connected.")
-                    : "AMOMII ONE is not connected."
-            );
-        }
-
-        return;
-    }
-
-    collectingStatus=true;
-    statusLines=[];
-
-    clearTimeout(statusTimer);
-
-    setActivity("REQUESTING STATUS");
-
-    sendCommand("status");
-
-    statusTimer=setTimeout(
-        finishStatusReading,
-        1200
-    );
-}
-
-
-function collectStatusLine(line){
-
-    statusLines.push(line);
-
-    clearTimeout(statusTimer);
-
-    statusTimer=setTimeout(
-        finishStatusReading,
-        900
-    );
-}
-
-
-function finishStatusReading(){
-
-    if(!collectingStatus) return;
-
-    collectingStatus=false;
-
-    clearTimeout(statusTimer);
-
-    parseStatusText(
-        statusLines.join("\n")
+  const led =
+    line.match(
+      /\bLED\s*:\s*(ON|OFF|TESTING)\b/i
     );
 
-    setActivity("IDLE");
+  if(led){
+
+    document.getElementById(
+      "statusLed"
+    ).textContent =
+      led[1].toUpperCase();
+
+  }
+
+  const blinking =
+    line.match(
+      /\bBlink(?:ing)?\s*:\s*(YES|NO|ON|OFF)\b/i
+    );
+
+  if(blinking){
+
+    document.getElementById(
+      "statusBlinking"
+    ).textContent =
+      blinking[1].toUpperCase();
+
+  }
+
+  const speed =
+    line.match(
+      /\b(?:Blink speed|Speed)\s*:\s*([^\r\n]+)/i
+    );
+
+  if(speed){
+
+    document.getElementById(
+      "statusBlinkSpeed"
+    ).textContent =
+      speed[1].trim();
+
+  }
+
 }
 
 
-/* ============================================================
-   STATUS PARSER
-   ============================================================ */
+function parseLedState(line){
 
-function parseStatusText(text){
+  if(
+    /\bLED\s+(ON|ENABLED)\b/i.test(line)
+  ){
 
-    const lines=text.split(/\r?\n/);
+    document.getElementById(
+      "statusLed"
+    ).textContent = "ON";
 
-    let found=false;
+  }
 
-    for(const line of lines){
+  if(
+    /\bLED\s+(OFF|DISABLED)\b/i.test(line)
+  ){
 
-        const match=line.match(
-            /^\s*([^:]+):\s*(.*?)\s*$/
-        );
+    document.getElementById(
+      "statusLed"
+    ).textContent = "OFF";
 
-        if(!match) continue;
+  }
 
-        const label=match[1]
-            .trim()
-            .toLowerCase();
-
-        const value=match[2].trim();
-
-        found=true;
-
-        if(label==="board")
-            document.getElementById("statusBoard").textContent=value;
-
-        if(label==="connection")
-            document.getElementById("statusConnection").textContent=value;
-
-        if(label==="system")
-            document.getElementById("statusSystem").textContent=value;
-
-        if(label==="led")
-            document.getElementById("statusLED").textContent=value;
-
-        if(label==="blinking")
-            document.getElementById("statusBlinking").textContent=value;
-
-        if(label==="blink speed")
-            document.getElementById("statusSpeed").textContent=value;
-
-        if(label==="commands")
-            document.getElementById("statusCommands").textContent=value;
-
-        if(label==="uptime")
-            document.getElementById("statusUptime").textContent=value;
-    }
-
-    if(found){
-
-        const spoken=buildSpokenStatus();
-
-        if(spoken){
-            speak(spoken);
-        }
-    }
-}
-
-
-function getStatus(id){
-
-    return document.getElementById(id)
-        .textContent
-        .trim();
-}
-
-
-function formatCommands(value){
-
-    const number=parseInt(value,10);
-
-    if(!isNaN(number)){
-
-        return number+
-            (number===1
-                ? " command has been processed"
-                : " commands have been processed");
-    }
-
-    return value+" commands processed";
-}
-
-
-function buildSpokenStatus(){
-
-    const board=getStatus("statusBoard");
-    const connection=getStatus("statusConnection");
-    const system=getStatus("statusSystem");
-    const led=getStatus("statusLED");
-    const blinking=getStatus("statusBlinking");
-    const speed=getStatus("statusSpeed");
-    const commands=getStatus("statusCommands");
-    const uptime=getStatus("statusUptime");
-
-    if(board==="---" && system==="---"){
-        return null;
-    }
-
-    let text="";
-
-    if(userName){
-        text+=userName+", ";
-    }
-
-    if(board!=="---")
-        text+=board+". ";
-
-    if(system!=="---")
-        text+="The system is "+system.toLowerCase()+". ";
-
-    if(connection!=="---")
-        text+="The connection is "+connection.toLowerCase()+". ";
-
-    if(led!=="---")
-        text+="The LED is "+led.toLowerCase()+". ";
-
-    if(blinking!=="---"){
-
-        if(
-            blinking.toLowerCase()==="no" ||
-            blinking.toLowerCase()==="off"
-        ){
-            text+="Blinking is disabled. ";
-        }else{
-            text+="Blinking is enabled. ";
-        }
-    }
-
-    if(speed!=="---")
-        text+="Blink speed is "+speed+". ";
-
-    if(commands!=="---")
-        text+=formatCommands(commands)+". ";
-
-    if(uptime!=="---")
-        text+="Uptime is "+uptime+".";
-
-    return text.trim();
 }
 
 
@@ -1768,596 +2249,295 @@ function buildSpokenStatus(){
 
 function resetSystemTest(){
 
-    systemTestState={
-        active:false,
-        serial:null,
-        led:null,
-        timing:null,
-        memory:null,
-        commands:null,
-        system:null
-    };
+  systemTestState = {
+    active:false,
+    serial:null,
+    led:null,
+    timing:null,
+    memory:null,
+    commands:null,
+    system:null
+  };
 
-    setTestUI("testSerial","WAITING");
-    setTestUI("testLED","WAITING");
-    setTestUI("testTiming","WAITING");
-    setTestUI("testMemory","WAITING");
-    setTestUI("testCommands","WAITING");
-    setTestUI("testSystem","WAITING");
-    setTestUI("testResult","WAITING");
-}
+  [
+    "Serial",
+    "Led",
+    "Timing",
+    "Memory",
+    "Commands",
+    "System"
+  ].forEach(key => {
 
+    const el =
+      document.getElementById(
+        `test${key}`
+      );
 
-function setTestUI(id,value){
+    if(el){
 
-    const el=document.getElementById(id);
+      el.textContent = "—";
+      el.className =
+        "testValue pending";
 
-    el.textContent=value;
+    }
 
-    el.className="test-result";
+  });
 
-    if(value==="OK")
-        el.classList.add("test-ok");
+  const result =
+    document.getElementById(
+      "testResult"
+    );
 
-    else if(value==="FAIL")
-        el.classList.add("test-fail");
+  result.textContent =
+    "NOT RUN";
 
-    else if(value==="TESTING")
-        el.classList.add("test-testing");
+  result.className =
+    "testResult";
 
-    else if(value==="PASS")
-        el.classList.add("test-ok");
-
-    else if(value==="INCOMPLETE")
-        el.classList.add("test-fail");
-
-    else
-        el.classList.add("test-waiting");
 }
 
 
 function runSystemTest(){
 
-    if(!serialConnected){
+  resetSystemTest();
 
-        speak(
-            userName
-                ? addressUser(
-                    "AMOMII ONE is not connected. "+
-                    "Connect the board before running a system test."
-                  )
-                : "AMOMII ONE is not connected. Connect the board before running a system test."
-        );
+  systemTestState.active = true;
 
-        return;
+  [
+    "Serial",
+    "Led",
+    "Timing",
+    "Memory",
+    "Commands",
+    "System"
+  ].forEach(key => {
+
+    const el =
+      document.getElementById(
+        `test${key}`
+      );
+
+    if(el){
+
+      el.textContent = "TESTING";
+      el.className =
+        "testValue testing";
+
     }
 
-    clearTimeout(systemTestFinishTimer);
+  });
 
-    resetSystemTest();
+  document.getElementById(
+    "testResult"
+  ).textContent =
+    "RUNNING";
 
-    systemTestState.active=true;
+  document.getElementById(
+    "statusSystem"
+  ).textContent =
+    "TESTING";
 
-    setActivity("SYSTEM TEST");
+  log(
+    "Starting system test...",
+    "system"
+  );
 
-    addHistory("SYSTEM","test");
+  sendSerialCommand("test");
 
-    log("Starting system test...");
+  speak(
+    "Starting system test."
+  );
 
-    speak(
-        userName
-            ? addressUser("Starting the system test.")
-            : "Starting system test."
-    );
-
-    sendCommand("test");
-
-    systemTestFinishTimer=setTimeout(
-        ()=>{
-            if(systemTestState.active){
-                finishSystemTest();
-            }
-        },
-        15000
-    );
 }
 
 
-function finishSystemTest(){
+function parseSystemTestLine(line){
 
-    if(!systemTestState.active) return;
+  if(!systemTestState.active){
+    return;
+  }
 
-    systemTestState.active=false;
+  const testMatch =
+    line.match(
+      /^\s*(Serial|LED|Timing|Memory|Commands|System):\s*(OK|FAIL|TESTING)\s*$/i
+    );
 
-    clearTimeout(systemTestFinishTimer);
+  if(testMatch){
 
-    const keys=[
-        "serial",
-        "led",
-        "timing",
-        "memory",
-        "commands",
-        "system"
-    ];
+    const label =
+      testMatch[1].toLowerCase();
 
-    const labels={
-        serial:"Serial",
-        led:"LED",
-        timing:"timing",
-        memory:"memory",
-        commands:"commands",
-        system:"system"
+    const value =
+      testMatch[2].toUpperCase();
+
+    const map = {
+      serial:"serial",
+      led:"led",
+      timing:"timing",
+      memory:"memory",
+      commands:"commands",
+      system:"system"
     };
 
-    const failures=[];
-    const incomplete=[];
+    const key =
+      map[label];
 
-    for(const key of keys){
+    if(key){
 
-        if(systemTestState[key]==="FAIL"){
-            failures.push(labels[key]);
-        }
+      systemTestState[key] =
+        value;
 
-        if(systemTestState[key]===null){
-            incomplete.push(labels[key]);
-        }
+      const idMap = {
+        serial:"testSerial",
+        led:"testLed",
+        timing:"testTiming",
+        memory:"testMemory",
+        commands:"testCommands",
+        system:"testSystem"
+      };
+
+      const el =
+        document.getElementById(
+          idMap[key]
+        );
+
+      el.textContent =
+        value;
+
+      el.className =
+        `testValue ${
+          value === "OK"
+            ? "ok"
+            : value === "FAIL"
+              ? "fail"
+              : "testing"
+        }`;
+
     }
 
-    if(failures.length===0 && incomplete.length===0){
+  }
 
-        setTestUI("testResult","PASS");
-        setActivity("TEST PASSED");
+  if(
+    /^\s*=+\s*$/.test(line)
+  ){
 
-        speak(
-            userName
-                ? userName+
-                  ", system test complete. Serial, LED, timing, memory, commands, and system checks all passed."
-                : "System test complete. Serial, LED, timing, memory, commands, and system checks all passed."
-        );
+    finalizeSystemTest();
 
-    }else if(failures.length>0){
+  }
 
-        setTestUI("testResult","FAIL");
-        setActivity("TEST FAILED");
+}
 
-        speak(
-            userName
-                ? userName+
-                  ", system test complete. The following checks failed: "+
-                  failures.join(", ")+"."
-                : "System test complete. The following checks failed: "+
-                  failures.join(", ")+"."
-        );
+
+function finalizeSystemTest(){
+
+  if(!systemTestState.active){
+    return;
+  }
+
+  systemTestState.active = false;
+
+  const checks = [
+    "serial",
+    "led",
+    "timing",
+    "memory",
+    "commands",
+    "system"
+  ];
+
+  const allComplete =
+    checks.every(
+      key =>
+        systemTestState[key] !== null
+    );
+
+  const allOk =
+    checks.every(
+      key =>
+        systemTestState[key] === "OK"
+    );
+
+  const result =
+    document.getElementById(
+      "testResult"
+    );
+
+  if(allOk){
+
+    result.textContent =
+      "PASS";
+
+    result.className =
+      "testResult pass";
+
+    document.getElementById(
+      "statusSystem"
+    ).textContent =
+      "OK";
+
+    speak(
+      "System test complete. Serial, LED, timing, memory, commands, and system checks all passed."
+    );
+
+  }else{
+
+    result.textContent =
+      "FAIL";
+
+    result.className =
+      "testResult fail";
+
+    document.getElementById(
+      "statusSystem"
+    ).textContent =
+      "CHECK";
+
+    const failures =
+      checks.filter(
+        key =>
+          systemTestState[key] === "FAIL"
+      );
+
+    if(failures.length){
+
+      speak(
+        `System test complete. The following checks failed: ${failures.join(", ")}.`
+      );
+
+    }else if(!allComplete){
+
+      speak(
+        "System test finished, but I could not verify every check."
+      );
 
     }else{
 
-        setTestUI("testResult","INCOMPLETE");
-        setActivity("TEST INCOMPLETE");
+      speak(
+        "System test completed with a problem."
+      );
 
-        speak(
-            userName
-                ? userName+
-                  ", the system test finished, but I could not verify every check."
-                : "The system test finished, but I could not verify every check."
-        );
     }
+
+  }
+
 }
 
 
 /* ============================================================
-   SERIAL RESPONSE
+   BOARD SHORTCUTS
    ============================================================ */
 
-function parseSerialResponse(line){
+function stopBoard(){
 
-    const trimmed=line.trim();
+  sendSerialCommand("stop");
 
-    const testMatch=trimmed.match(
-        /^\s*(Serial|LED|Timing|Memory|Commands|System):\s*(OK|FAIL|TESTING)\s*$/i
-    );
+  document.getElementById(
+    "statusBlinking"
+  ).textContent =
+    "NO";
 
-    if(testMatch && systemTestState.active){
+  speak("Stopped.");
 
-        const label=testMatch[1].toLowerCase();
-        const value=testMatch[2].toUpperCase();
-
-        const map={
-            serial:"serial",
-            led:"led",
-            timing:"timing",
-            memory:"memory",
-            commands:"commands",
-            system:"system"
-        };
-
-        const key=map[label];
-
-        if(key){
-
-            systemTestState[key]=value;
-
-            const uiMap={
-                serial:"testSerial",
-                led:"testLED",
-                timing:"testTiming",
-                memory:"testMemory",
-                commands:"testCommands",
-                system:"testSystem"
-            };
-
-            setTestUI(
-                uiMap[key],
-                value
-            );
-
-            setActivity(
-                label.toUpperCase()+
-                " "+value
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        /^=+\s*$/.test(trimmed) &&
-        systemTestState.active
-    ){
-        finishSystemTest();
-        return;
-    }
-
-
-    const text=trimmed.toLowerCase();
-
-
-    if(text.includes("flash complete")){
-        setActivity("LED TEST COMPLETE");
-        return;
-    }
-
-
-    if(
-        text.includes("led is now on") ||
-        text.includes("led: on") ||
-        text.includes("led turned on")
-    ){
-
-        setActivity("LED ON");
-
-        document.getElementById(
-            "statusLED"
-        ).textContent="ON";
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("The LED is now on.")
-                    : "The LED is now on."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("led is now off") ||
-        text.includes("led: off") ||
-        text.includes("led turned off")
-    ){
-
-        setActivity("LED OFF");
-
-        document.getElementById(
-            "statusLED"
-        ).textContent="OFF";
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("The LED is now off.")
-                    : "The LED is now off."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("blink complete") ||
-        text.includes("blinking complete") ||
-        text.includes("blink finished")
-    ){
-
-        setActivity("BLINK COMPLETE");
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("Blink sequence complete.")
-                    : "Blink sequence complete."
-            );
-        }
-
-        setTimeout(
-            ()=>setActivity("IDLE"),
-            1200
-        );
-
-        return;
-    }
-
-
-    if(
-        text.includes("sos complete") ||
-        text.includes("sos finished") ||
-        text.includes("sos sent")
-    ){
-
-        setActivity("SOS COMPLETE");
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("SOS transmission complete.")
-                    : "SOS transmission complete."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("stopped") ||
-        text.includes("operation stopped")
-    ){
-
-        setActivity("STOPPED");
-
-        if(!isSpeaking){
-            speak(
-                userName
-                    ? addressUser("Operation stopped.")
-                    : "Operation stopped."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        text.includes("morse") &&
-        (
-            text.includes("start") ||
-            text.includes("sending") ||
-            text.includes("transmitting")
-        )
-    ){
-
-        document.getElementById(
-            "morseStatus"
-        ).textContent="Morse transmission active.";
-
-        setActivity("MORSE ACTIVE");
-
-        return;
-    }
-
-
-    if(
-        text.includes("morse") &&
-        (
-            text.includes("complete") ||
-            text.includes("finished") ||
-            text.includes("done")
-        )
-    ){
-
-        document.getElementById(
-            "morseStatus"
-        ).textContent="Morse transmission complete.";
-
-        setActivity("MORSE COMPLETE");
-
-        if(!isSpeaking){
-            speak("Morse transmission complete.");
-        }
-    }
-}
-
-
-/* ============================================================
-   SPEECH
-   ============================================================ */
-
-function speak(text){
-
-    if(!text) return;
-
-    speechQueue.push(text);
-
-    processSpeechQueue();
-}
-
-
-function processSpeechQueue(){
-
-    if(isSpeaking) return;
-
-    if(speechQueue.length===0){
-
-        setActivity(
-            voiceEnabled
-                ? "LISTENING"
-                : "IDLE"
-        );
-
-        return;
-    }
-
-    const text=speechQueue.shift();
-
-    stopRecognitionForSpeech();
-
-    clearTimeout(speechCooldownTimer);
-    clearTimeout(speechResumeTimer);
-
-    isSpeaking=true;
-
-    setActivity("SPEAKING");
-    setVoiceUI("speaking");
-
-    log(
-        'Speaking: "'+text+'"',
-        "speech"
-    );
-
-    if(!("speechSynthesis" in window)){
-
-        isSpeaking=false;
-        processSpeechQueue();
-        return;
-    }
-
-    speechSynthesis.cancel();
-
-    const utterance=
-        new SpeechSynthesisUtterance(text);
-
-    utterance.rate=.95;
-    utterance.pitch=1;
-    utterance.volume=1;
-
-    const voices=
-        speechSynthesis.getVoices();
-
-    const preferred=
-        voices.find(
-            v=>v.lang &&
-            v.lang.toLowerCase().startsWith("en-us")
-        )||
-        voices.find(
-            v=>v.lang &&
-            v.lang.toLowerCase().startsWith("en")
-        );
-
-    if(preferred){
-        utterance.voice=preferred;
-    }
-
-    utterance.onstart=()=>{
-        isSpeaking=true;
-        setActivity("SPEAKING");
-        setVoiceUI("speaking");
-    };
-
-    utterance.onend=()=>{
-
-        isSpeaking=false;
-
-        setActivity(
-            voiceEnabled
-                ? "VOICE READY"
-                : "IDLE"
-        );
-
-        log("Speech complete.","speech");
-
-        speechCooldownTimer=setTimeout(
-            ()=>{
-
-                if(speechQueue.length>0){
-                    processSpeechQueue();
-                }else{
-                    resumeRecognitionAfterSpeech();
-                }
-
-            },
-            650
-        );
-    };
-
-    utterance.onerror=event=>{
-
-        isSpeaking=false;
-
-        if(
-            event.error!=="canceled" &&
-            event.error!=="interrupted"
-        ){
-
-            log(
-                "Speech error: "+event.error,
-                "error"
-            );
-        }
-
-        speechCooldownTimer=setTimeout(
-            ()=>{
-                if(speechQueue.length>0){
-                    processSpeechQueue();
-                }else{
-                    resumeRecognitionAfterSpeech();
-                }
-            },
-            650
-        );
-    };
-
-    speechSynthesis.speak(utterance);
-}
-
-
-/* ============================================================
-   SPEECH / RECOGNITION PROTECTION
-   ============================================================ */
-
-function stopRecognitionForSpeech(){
-
-    if(!recognition) return;
-
-    restartingRecognition=false;
-
-    if(recognitionRunning){
-
-        try{
-            recognition.abort();
-        }catch(e){}
-
-        recognitionRunning=false;
-    }
-
-    setVoiceUI("off");
-}
-
-
-function resumeRecognitionAfterSpeech(){
-
-    if(!voiceEnabled) return;
-
-    clearTimeout(speechResumeTimer);
-
-    speechResumeTimer=setTimeout(
-        ()=>{
-
-            if(
-                !voiceEnabled ||
-                isSpeaking ||
-                recognitionRunning
-            ){
-                return;
-            }
-
-            startRecognition();
-
-        },
-        500
-    );
 }
 
 
@@ -2367,1583 +2547,1960 @@ function resumeRecognitionAfterSpeech(){
 
 function initializeVoice(){
 
-    const SpeechRecognition=
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+  if(!speechSupported){
+    return;
+  }
 
-    if(!SpeechRecognition){
+  recognition =
+    new SpeechRecognition();
 
-        log(
-            "Speech recognition is not supported in this browser.",
-            "error"
-        );
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+  recognition.maxAlternatives = 1;
 
-        voiceButton.disabled=true;
+  recognition.onstart = () => {
 
-        return false;
-    }
+    recognitionRunning = true;
 
-    recognition=new SpeechRecognition();
+    document.getElementById(
+      "recognitionState"
+    ).textContent =
+      "LISTENING";
 
-    recognition.continuous=false;
-    recognition.interimResults=false;
-    recognition.lang="en-US";
-    recognition.maxAlternatives=1;
+    document.getElementById(
+      "voiceText"
+    ).textContent =
+      "LISTENING";
 
-    recognition.onstart=()=>{
+    document.getElementById(
+      "voiceDot"
+    ).className =
+      "dot green";
 
-        recognitionRunning=true;
-
-        if(voiceEnabled && !isSpeaking){
-
-            setVoiceUI("listening");
-            setActivity(
-                awaitingName
-                    ? "WAITING FOR NAME"
-                    : "LISTENING"
-            );
-        }
-    };
-
-
-    recognition.onresult=event=>{
-
-        if(isSpeaking) return;
-
-        const result=
-            event.results[
-                event.results.length-1
-            ];
-
-        if(!result || !result[0]) return;
-
-        const transcript=
-            result[0].transcript.trim();
-
-        if(!transcript) return;
-
-        lastHeard.textContent=
-            '"'+transcript+'"';
-
-        log(
-            'Voice: "'+transcript+'"',
-            "voice"
-        );
-
-        executeVoiceCommand(transcript);
-    };
-
-
-    recognition.onerror=event=>{
-
-        recognitionRunning=false;
-
-        if(event.error==="no-speech"){
-
-            if(voiceEnabled){
-                restartRecognitionSoon();
-            }
-
-            return;
-        }
-
-        if(event.error==="aborted"){
-            return;
-        }
-
-        log(
-            "Voice recognition error: "+event.error,
-            "error"
-        );
-
-        if(voiceEnabled){
-            restartRecognitionSoon();
-        }
-    };
-
-
-    recognition.onend=()=>{
-
-        recognitionRunning=false;
-
-        if(
-            voiceEnabled &&
-            !isSpeaking
-        ){
-            restartRecognitionSoon();
-        }
-    };
-
-    return true;
-}
-
-
-function startRecognition(){
-
-    if(
-        !recognition ||
-        !voiceEnabled ||
-        isSpeaking ||
-        recognitionRunning
-    ){
-        return;
-    }
-
-    try{
-
-        restartingRecognition=false;
-
-        recognition.start();
-
-    }catch(error){
-
-        recognitionRunning=false;
-        restartRecognitionSoon();
-    }
-}
-
-
-function restartRecognitionSoon(){
-
-    if(
-        !voiceEnabled ||
-        isSpeaking ||
-        restartingRecognition
-    ){
-        return;
-    }
-
-    restartingRecognition=true;
-
-    setTimeout(
-        ()=>{
-
-            restartingRecognition=false;
-
-            if(
-                voiceEnabled &&
-                !isSpeaking &&
-                !recognitionRunning
-            ){
-                startRecognition();
-            }
-
-        },
-        700
+    voiceOrb.classList.add(
+      "listening"
     );
+
+  };
+
+
+  recognition.onend = () => {
+
+    recognitionRunning = false;
+
+    document.getElementById(
+      "recognitionState"
+    ).textContent =
+      "OFF";
+
+    voiceOrb.classList.remove(
+      "listening"
+    );
+
+    if(
+      voiceEnabled &&
+      !isSpeaking &&
+      !restartingRecognition
+    ){
+
+      scheduleRecognitionRestart();
+
+    }
+
+  };
+
+
+  recognition.onerror = event => {
+
+    recognitionRunning = false;
+
+    if(
+      event.error === "not-allowed" ||
+      event.error === "service-not-allowed"
+    ){
+
+      log(
+        "Microphone permission was denied.",
+        "error"
+      );
+
+      voiceEnabled = false;
+      updateVoiceUI();
+
+      return;
+    }
+
+    if(
+      event.error !== "no-speech" &&
+      event.error !== "aborted"
+    ){
+
+      log(
+        `Voice recognition error: ${event.error}`,
+        "warning"
+      );
+
+    }
+
+  };
+
+
+recognition.onresult = event => {
+
+    if(isSpeaking){
+      return;
+    }
+
+    const result =
+      event.results[
+        event.results.length - 1
+      ];
+
+    if(!result || !result[0]){
+      return;
+    }
+
+    const transcript =
+      result[0].transcript.trim();
+
+    if(!transcript){
+      return;
+    }
+
+    // Existing behavior
+    handleVoiceInput(transcript);
+
+    // ⭐ NEW: Send voice text to Python server
+    fetch("/voice", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: transcript
+    }).catch(err => console.error("Voice send error:", err));
+
+};
+
+
 }
 
 
 /* ============================================================
-   VOICE TOGGLE
+   VOICE CONTROL
    ============================================================ */
 
 function toggleVoice(){
 
-    if(!recognition){
-
-        if(!initializeVoice()){
-            return;
-        }
-    }
-
-    if(voiceEnabled){
-
-        voiceEnabled=false;
-        restartingRecognition=false;
-
-        clearTimeout(speechResumeTimer);
-        clearTimeout(speechCooldownTimer);
-
-        try{
-            recognition.abort();
-        }catch(e){}
-
-        recognitionRunning=false;
-
-        voiceButton.textContent="START VOICE";
-
-        setVoiceUI("off");
-        setActivity("IDLE");
-
-        log("Voice control disabled.");
-
-        return;
-    }
-
-    voiceEnabled=true;
-
-    voiceButton.textContent="STOP VOICE";
-
-    log("Voice control enabled.");
-
-    if(userName){
-
-        speak(
-            "Voice control enabled. "+
-            "Welcome back, "+
-            userName+"."
-        );
-
-    }else{
-
-        askForName();
-    }
-}
-
-
-/* ============================================================
-   VOICE COMMAND ENGINE
-   ============================================================ */
-
-function executeVoiceCommand(rawCommand){
-
-    const original=rawCommand.trim();
-
-    const command=normalizeVoiceCommand(original);
-
-    if(!command) return;
-
-    addHistory("VOICE",original);
-
-
-    /* NAME COLLECTION */
-
-    if(awaitingName){
-
-        if(
-            command.includes("change my name") ||
-            command.includes("change name")
-        ){
-
-            speak(
-                "What would you like me to call you?"
-            );
-
-            awaitingName=true;
-            return;
-        }
-
-        if(
-            command.includes("forget my name") ||
-            command.includes("forget name")
-        ){
-
-            forgetName();
-            return;
-        }
-
-        if(
-            command==="help" ||
-            command.includes("what can you do")
-        ){
-
-            speak(
-                "Before we begin, I need to know what you'd like me to call you."
-            );
-
-            return;
-        }
-
-        setUserName(original);
-        return;
-    }
-
-
-    /* NAME */
-
-    if(
-        command.includes("what is my name") ||
-        command.includes("whats my name") ||
-        command.includes("what's my name") ||
-        command.includes("what should you call me") ||
-        command.includes("what do you call me")
-    ){
-
-        if(userName){
-
-            speak(
-                "Your name is "+userName+"."
-            );
-
-        }else{
-
-            speak(
-                "You haven't told me your name yet."
-            );
-        }
-
-        return;
-    }
-
-
-    if(
-        command.includes("change my name") ||
-        command.includes("change name")
-    ){
-
-        awaitingName=true;
-
-        speak(
-            "What would you like me to call you?"
-        );
-
-        return;
-    }
-
-
-    if(
-        command.includes("forget my name") ||
-        command.includes("forget name")
-    ){
-
-        forgetName();
-        return;
-    }
-
-
-    /* ASSISTANT IDENTITY */
-
-    if(
-        command==="who are you" ||
-        command.includes("what is your name") ||
-        command.includes("whats your name") ||
-        command.includes("what's your name")
-    ){
-
-        speak(
-            userName
-                ? "I'm AMOMII, your command center assistant, "+userName+"."
-                : "I'm AMOMII, your command center assistant."
-        );
-
-        return;
-    }
-
-
-    /* HELP */
-
-    if(
-        command==="help" ||
-        command.includes("give me help") ||
-        command.includes("need help") ||
-        command.includes("show me the commands") ||
-        command.includes("what commands do you have")
-    ){
-
-        speakHelp();
-        return;
-    }
-
-
-    /* CAPABILITIES */
-
-    if(
-        command.includes("what can you do") ||
-        command.includes("what are your capabilities") ||
-        command.includes("what do you do") ||
-        command.includes("what can you control")
-    ){
-
-        speak(
-            userName
-                ? "I can control AMOMII ONE, operate the LED, run diagnostics, manage your music and video libraries, load YouTube videos, report system status, tell you the time and date, and communicate with the trainer pad, "+userName+"."
-                : "I can control AMOMII ONE, operate the LED, run diagnostics, manage your music and video libraries, load YouTube videos, report system status, tell you the time and date, and communicate with the trainer pad."
-        );
-
-        return;
-    }
-
-
-    /* ALL COMMANDS */
-
-    if(
-        command.includes("all commands") ||
-        command.includes("all voice commands") ||
-        command.includes("list commands") ||
-        command.includes("complete command list")
-    ){
-
-        speakAllCommands();
-        return;
-    }
-
-
-    /* TIME */
-
-    if(
-        command.includes("what time is it") ||
-        command.includes("what is the time") ||
-        command.includes("current time") ||
-        command==="time" ||
-        command.includes("tell me the time")
-    ){
-
-        speakTime();
-        return;
-    }
-
-
-    /* DATE TIME */
-
-    if(
-        command.includes("date and time") ||
-        command.includes("time and date")
-    ){
-
-        speakDateTime();
-        return;
-    }
-
-
-    /* DATE */
-
-    if(
-        command.includes("what is today's date") ||
-        command.includes("what is todays date") ||
-        command.includes("what date is it") ||
-        command.includes("current date") ||
-        command==="date"
-    ){
-
-        speakDate();
-        return;
-    }
-
-
-    /* DAY */
-
-    if(
-        command==="day" ||
-        command.includes("what day is it") ||
-        command.includes("day of the week")
-    ){
-
-        speakDay();
-        return;
-    }
-
-
-    /* MONTH */
-
-    if(
-        command==="month" ||
-        command.includes("what month is it") ||
-        command.includes("current month")
-    ){
-
-        speakMonth();
-        return;
-    }
-
-
-    /* YEAR */
-
-    if(
-        command==="year" ||
-        command.includes("what year is it") ||
-        command.includes("current year")
-    ){
-
-        speakYear();
-        return;
-    }
-
-
-    /* STATUS */
-
-    if(
-        command==="status" ||
-        command.includes("system status") ||
-        command.includes("give me status") ||
-        command.includes("how is the system") ||
-        command.includes("are you online")
-    ){
-
-        requestStatus();
-        return;
-    }
-
-
-    /* DIAGNOSTICS */
-
-    if(
-        command==="test" ||
-        command.includes("system test") ||
-        command.includes("run a test") ||
-        command.includes("test the system") ||
-        command.includes("diagnostic") ||
-        command.includes("run diagnostics") ||
-        command.includes("diagnostic test")
-    ){
-
-        runSystemTest();
-        return;
-    }
-
-
-    /* LED ON */
-
-    if(
-        command==="on" ||
-        command==="led on" ||
-        command.includes("turn the led on") ||
-        command.includes("turn led on") ||
-        command.includes("turn the light on") ||
-        command.includes("lights on") ||
-        command.includes("light on")
-    ){
-
-        voiceLEDOn();
-        return;
-    }
-
-
-    /* LED OFF */
-
-    if(
-        command==="off" ||
-        command==="led off" ||
-        command.includes("turn the led off") ||
-        command.includes("turn led off") ||
-        command.includes("turn the light off") ||
-        command.includes("lights off") ||
-        command.includes("light off")
-    ){
-
-        voiceLEDOff();
-        return;
-    }
-
-
-    /* TOGGLE */
-
-    if(
-        command==="toggle" ||
-        command==="toggle led" ||
-        command.includes("toggle the led") ||
-        command.includes("toggle the light")
-    ){
-
-        voiceToggle();
-        return;
-    }
-
-
-    /* BLINK FIVE */
-
-    if(
-        command.includes("blink five") ||
-        command.includes("blink 5")
-    ){
-
-        voiceBlinkFive();
-        return;
-    }
-
-
-    /* BLINK */
-
-    if(
-        command==="blink" ||
-        command.includes("start blinking") ||
-        command.includes("make it blink") ||
-        command.includes("make the led blink") ||
-        command.includes("blink the led")
-    ){
-
-        voiceBlink();
-        return;
-    }
-
-
-    /* SOS */
-
-    if(
-        command==="sos" ||
-        command.includes("send sos") ||
-        command.includes("transmit sos") ||
-        command.includes("send an sos")
-    ){
-
-        voiceSOS();
-        return;
-    }
-
-
-    /* STOP */
-
-    if(
-        command==="stop" ||
-        command==="stop everything" ||
-        command==="stop blinking" ||
-        command==="cancel" ||
-        command==="abort"
-    ){
-
-        voiceStop();
-        return;
-    }
-
-
-    /* CONNECT */
-
-    if(
-        command==="connect" ||
-        command.includes("connect to amomii") ||
-        command.includes("connect to the board")
-    ){
-
-        voiceConnect();
-        return;
-    }
-
-
-    /* DISCONNECT */
-
-    if(
-        command==="disconnect" ||
-        command.includes("disconnect from amomii") ||
-        command.includes("disconnect the board")
-    ){
-
-        voiceDisconnect();
-        return;
-    }
-
-
-    /* MUSIC */
-
-    if(
-        command.includes("play music") ||
-        command.includes("start music") ||
-        command==="music"
-    ){
-
-        musicPlay();
-        return;
-    }
-
-    if(
-        command.includes("pause music") ||
-        command.includes("pause the music")
-    ){
-
-        musicPlayer.pause();
-        setActivity("MUSIC PAUSED");
-        return;
-    }
-
-    if(
-        command.includes("stop music") ||
-        command.includes("stop the music")
-    ){
-
-        musicStop();
-        return;
-    }
-
-    if(
-        command.includes("next song") ||
-        command.includes("next track") ||
-        command.includes("next music")
-    ){
-
-        musicNext();
-        return;
-    }
-
-    if(
-        command.includes("previous song") ||
-        command.includes("previous track") ||
-        command.includes("previous music")
-    ){
-
-        musicPrevious();
-        return;
-    }
-
-
-    /* VIDEO */
-
-    if(
-        command.includes("play video") ||
-        command.includes("start video") ||
-        command==="video"
-    ){
-
-        videoPlay();
-        return;
-    }
-
-    if(
-        command.includes("pause video") ||
-        command.includes("pause the video")
-    ){
-
-        videoPlayer.pause();
-        setActivity("VIDEO PAUSED");
-        return;
-    }
-
-    if(
-        command.includes("stop video") ||
-        command.includes("stop the video")
-    ){
-
-        videoStop();
-        return;
-    }
-
-    if(
-        command.includes("next video")
-    ){
-
-        videoNext();
-        return;
-    }
-
-    if(
-        command.includes("previous video") ||
-        command.includes("previous video")
-    ){
-
-        videoPrevious();
-        return;
-    }
-
-    if(
-        command.includes("fullscreen video") ||
-        command.includes("full screen video")
-    ){
-
-        videoFullscreen();
-        return;
-    }
-
-
-    /* YOUTUBE */
-
-    if(
-        command.includes("youtube") &&
-        (
-            command.includes("pause") ||
-            command.includes("stop")
-        )
-    ){
-
-        youtubeCommand(
-            command.includes("pause")
-            ? "pause"
-            : "stop"
-        );
-
-        return;
-    }
-
-
-    /* MEDIA HELP */
-
-    if(
-        command.includes("media help") ||
-        command.includes("music help") ||
-        command.includes("video help")
-    ){
-
-        speakMediaHelp();
-        return;
-    }
-
-
-    /* UNKNOWN */
+  if(!speechSupported){
 
     log(
-        'Voice command not recognized: "'+
-        original+
-        '"',
-        "error"
+      "Voice recognition is not supported.",
+      "error"
     );
 
-    setActivity("UNKNOWN COMMAND");
+    return;
+  }
 
-    setTimeout(
-        ()=>{
-            if(voiceEnabled && !isSpeaking){
-                setActivity("LISTENING");
-            }
-        },
-        1000
+  if(voiceEnabled){
+
+    stopVoice();
+
+  }else{
+
+    startVoice();
+
+  }
+
+}
+
+
+function startVoice(){
+
+  if(!recognition){
+    initializeVoice();
+  }
+
+  voiceEnabled = true;
+
+  updateVoiceUI();
+
+  log(
+    "Voice control enabled.",
+    "voice"
+  );
+
+  awaitingUserName = false;
+
+  speak(
+    `Voice control enabled. Before we begin, what is your name?`
+  );
+
+}
+
+
+function stopVoice(){
+
+  voiceEnabled = false;
+
+  stopRecognitionForSpeech();
+
+  clearTimeout(resumeRecognitionTimer);
+  clearTimeout(recognitionCooldownTimer);
+
+  updateVoiceUI();
+
+  log(
+    "Voice control disabled.",
+    "warning"
+  );
+
+}
+
+
+function updateVoiceUI(){
+
+  const button =
+    document.getElementById(
+      "voiceButton"
     );
+
+  const dot =
+    document.getElementById(
+      "voiceDot"
+    );
+
+  const text =
+    document.getElementById(
+      "voiceText"
+    );
+
+  const profile =
+    document.getElementById(
+      "profileVoice"
+    );
+
+  if(voiceEnabled){
+
+    button.textContent =
+      "STOP VOICE";
+
+    button.className =
+      "control danger full";
+
+    dot.className =
+      "dot green";
+
+    text.textContent =
+      "VOICE ON";
+
+    profile.textContent =
+      "READY";
+
+  }else{
+
+    button.textContent =
+      "START VOICE";
+
+    button.className =
+      "control good full";
+
+    dot.className =
+      "dot red";
+
+    text.textContent =
+      "VOICE OFF";
+
+    profile.textContent =
+      "OFF";
+
+    document.getElementById(
+      "recognitionState"
+    ).textContent =
+      "OFF";
+
+  }
+
 }
 
 
 /* ============================================================
-   NORMALIZE VOICE
+   RECOGNITION CONTROL
    ============================================================ */
 
-function normalizeVoiceCommand(text){
+function startRecognition(){
 
-    let command=text.toLowerCase().trim();
+  if(
+    !voiceEnabled ||
+    isSpeaking ||
+    recognitionRunning ||
+    restartingRecognition
+  ){
+    return;
+  }
 
-    command=command.replace(
-        /^hey\s+amomii[\s,]*/i,
-        ""
-    );
+  try{
 
-    command=command.replace(
-        /^amomii\s+one[\s,]*/i,
-        ""
-    );
+    recognition.start();
 
-    command=command.replace(
-        /^amomii[\s,]*/i,
-        ""
-    );
+  }catch(error){
 
-    command=command
-        .replace(/[!?.,]/g,"")
-        .replace(/\s+/g," ")
-        .trim();
+    if(
+      !String(error.message)
+        .toLowerCase()
+        .includes("already started")
+    ){
 
-    return command;
+      log(
+        `Recognition start error: ${error.message}`,
+        "warning"
+      );
+
+    }
+
+  }
+
+}
+
+
+function stopRecognitionForSpeech(){
+
+  clearTimeout(resumeRecognitionTimer);
+
+  if(
+    recognition &&
+    recognitionRunning
+  ){
+
+    try{
+      recognition.abort();
+    }catch(e){}
+
+  }
+
+}
+
+
+function scheduleRecognitionRestart(){
+
+  clearTimeout(resumeRecognitionTimer);
+
+  if(
+    !voiceEnabled ||
+    isSpeaking
+  ){
+    return;
+  }
+
+  restartingRecognition = true;
+
+  resumeRecognitionTimer =
+    setTimeout(() => {
+
+      restartingRecognition = false;
+
+      if(
+        voiceEnabled &&
+        !isSpeaking
+      ){
+
+        startRecognition();
+
+      }
+
+    },700);
+
+}
+
+
+function resumeRecognitionAfterSpeech(){
+
+  clearTimeout(resumeRecognitionTimer);
+
+  if(
+    !voiceEnabled ||
+    isSpeaking
+  ){
+    return;
+  }
+
+  resumeRecognitionTimer =
+    setTimeout(() => {
+
+      startRecognition();
+
+    },500);
+
 }
 
 
 /* ============================================================
-   VOICE COMMAND RESPONSES
+   TEXT TO SPEECH
    ============================================================ */
 
-function voiceLEDOn(){
-    speak("Turning the LED on.");
-    sendCommand("on");
+function speak(text){
+
+  if(!text){
+    return;
+  }
+
+  speechQueue.push(text);
+
+  if(!isSpeaking){
+    speakNext();
+  }
+
 }
 
-function voiceLEDOff(){
-    speak("Turning the LED off.");
-    sendCommand("off");
+
+function speakNext(){
+
+  if(!speechQueue.length){
+
+    isSpeaking = false;
+
+    document.getElementById(
+      "speakingState"
+    ).textContent =
+      "NO";
+
+    resumeRecognitionAfterSpeech();
+
+    return;
+  }
+
+  const text =
+    speechQueue.shift();
+
+  isSpeaking = true;
+
+  document.getElementById(
+    "speakingState"
+  ).textContent =
+    "YES";
+
+  stopRecognitionForSpeech();
+
+  log(
+    `Speaking: "${text}"`,
+    "voice"
+  );
+
+  const utterance =
+    new SpeechSynthesisUtterance(text);
+
+  utterance.rate = .95;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  const voices =
+    speechSynthesis.getVoices();
+
+  const preferred =
+    voices.find(
+      v =>
+        v.lang &&
+        v.lang.toLowerCase()
+          .startsWith("en-us")
+    ) ||
+    voices.find(
+      v =>
+        v.lang &&
+        v.lang.toLowerCase()
+          .startsWith("en")
+    );
+
+  if(preferred){
+    utterance.voice = preferred;
+  }
+
+  utterance.onend = () => {
+
+    log(
+      "Speech complete.",
+      "voice"
+    );
+
+    speakNext();
+
+  };
+
+  utterance.onerror = () => {
+
+    isSpeaking = false;
+
+    document.getElementById(
+      "speakingState"
+    ).textContent =
+      "NO";
+
+    speakNext();
+
+  };
+
+  speechSynthesis.speak(
+    utterance
+  );
+
 }
 
-function voiceToggle(){
-    speak("Toggling the LED.");
-    sendCommand("toggle");
+
+if(
+  "speechSynthesis" in window
+){
+
+  speechSynthesis.onvoiceschanged =
+    () => {};
+
 }
 
-function voiceBlink(){
-    speak("Starting the blink sequence.");
-    sendCommand("blink");
+
+/* ============================================================
+   VOICE INPUT
+   ============================================================ */
+
+function handleVoiceInput(rawText){
+
+  if(isSpeaking){
+    return;
+  }
+
+  const text =
+    rawText.trim();
+
+  if(!text){
+    return;
+  }
+
+  lastVoiceCommand =
+    text;
+
+  lastHeardEl.textContent =
+    text;
+
+  document.getElementById(
+    "voiceLastShort"
+  ).textContent =
+    text.slice(0,45);
+
+  log(
+    `Voice: "${text}"`,
+    "voice"
+  );
+
+  const normalized =
+    normalizeVoice(text);
+
+  if(awaitingUserName){
+
+    if(
+      !looksLikeCommand(normalized)
+    ){
+
+      setUserName(text);
+      return;
+
+    }
+
+    awaitingUserName = false;
+  }
+
+  if(awaitingAssistantName){
+
+    if(
+      !looksLikeCommand(normalized)
+    ){
+
+      setAssistantName(text);
+      return;
+
+    }
+
+    awaitingAssistantName = false;
+  }
+
+  if(awaitingEvent){
+
+    if(
+      !looksLikeCommand(normalized)
+    ){
+
+      createEventFromNaturalLanguage(text);
+      return;
+
+    }
+
+    awaitingEvent = false;
+  }
+
+  routeVoiceCommand(normalized,text);
+
 }
 
-function voiceBlinkFive(){
-    speak("Blinking five times.");
-    sendCommand("blink 5");
+
+/* ============================================================
+   NORMALIZATION
+   ============================================================ */
+
+function normalizeVoice(text){
+
+  return text
+    .toLowerCase()
+    .replace(/[.,!?]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+
 }
 
-function voiceSOS(){
-    speak("Transmitting SOS.");
-    sendCommand("sos");
+
+function looksLikeCommand(text){
+
+  return /^(what|who|how|can|please|connect|disconnect|turn|switch|set|change|rename|forget|start|stop|play|pause|next|previous|run|system|status|open|show|add|delete|remove|clear|volume|music|video|youtube|calendar|reminder|time|date|help|sos|blink|led)/i
+    .test(text);
+
 }
 
-function voiceStop(){
-    speak("Stopping the current operation.");
-    sendCommand("stop");
-}
 
-function voiceConnect(){
-    speak("Opening the serial connection.");
+/* ============================================================
+   CENTRAL COMMAND ROUTER
+   ============================================================ */
+
+function routeVoiceCommand(command,raw){
+
+  /* IDENTITY */
+
+  if(
+    /^(my name is|call me|i am|i'm)\s+/i.test(raw)
+  ){
+
+    setUserName(
+      cleanName(raw)
+    );
+
+    return;
+  }
+
+
+  if(
+    /what('?s| is) my name/i.test(command)
+  ){
+
+    speak(
+      userName
+        ? `Your name is ${userName}.`
+        : "I don't have your name yet."
+    );
+
+    return;
+  }
+
+
+  if(
+    /change my name|change your user name|rename me/i
+      .test(command)
+  ){
+
+    awaitingUserName = true;
+
+    speak(
+      "What would you like me to call you?"
+    );
+
+    return;
+  }
+
+
+  if(
+    /forget my name|clear my name/i
+      .test(command)
+  ){
+
+    userName = "";
+
+    localStorage.removeItem(
+      "amomiiUserName"
+    );
+
+    updateIdentityUI();
+
+    speak(
+      "I've forgotten your name for this Command Center."
+    );
+
+    return;
+  }
+
+
+  if(
+    /who are you|what('?s| is) your name|what should i call you/i
+      .test(command)
+  ){
+
+    speak(
+      `I'm ${assistantName}, your Command Center assistant.`
+    );
+
+    return;
+  }
+
+
+  if(
+    /change your name|rename yourself|new assistant name|call yourself/i
+      .test(command)
+  ){
+
+    awaitingAssistantName = true;
+
+    speak(
+      "What would you like to call me?"
+    );
+
+    return;
+  }
+
+
+  if(
+    /forget your name|reset your name/i
+      .test(command)
+  ){
+
+    assistantName = "NOVA";
+
+    localStorage.setItem(
+      "amomiiAssistantName",
+      assistantName
+    );
+
+    updateIdentityUI();
+
+    speak(
+      "I've reset my name to NOVA."
+    );
+
+    return;
+  }
+
+
+  /* HELP */
+
+  if(
+    /what can you do|what are your commands|all commands|capabilities|help me/i
+      .test(command)
+  ){
+
+    speakCommands();
+
+    return;
+  }
+
+
+  /* TIME / DATE */
+
+  if(
+    /\bwhat time is it\b|\bcurrent time\b/.test(command)
+  ){
+
+    speak(
+      `It is ${new Date().toLocaleTimeString([],{
+        hour:"numeric",
+        minute:"2-digit"
+      })}.`
+    );
+
+    return;
+  }
+
+
+  if(
+    /\bwhat('?s| is) the date\b|\btoday('?s)? date\b/.test(command)
+  ){
+
+    speak(
+      `Today is ${new Date().toLocaleDateString([],{
+        weekday:"long",
+        month:"long",
+        day:"numeric",
+        year:"numeric"
+      })}.`
+    );
+
+    return;
+  }
+
+
+  /* SERIAL / AMOMII */
+
+  if(
+    /\bconnect\b/.test(command) &&
+    !/\bconnect(ed|ion)\b/.test(command)
+  ){
+
     connectSerial();
-}
+    return;
+  }
 
-function voiceDisconnect(){
-    speak("Disconnecting from AMOMII ONE.");
+
+  if(
+    /\bdisconnect\b/.test(command)
+  ){
+
     disconnectSerial();
+    return;
+  }
+
+
+  if(
+    /\bsystem test\b|\brun diagnostics\b|\bdiagnostic test\b/.test(command)
+  ){
+
+    runSystemTest();
+    return;
+  }
+
+
+  if(
+    /\bstatus\b/.test(command)
+  ){
+
+    sendSerialCommand("status");
+
+    speakStatus();
+
+    return;
+  }
+
+
+  if(
+    /\bturn (the )?led on\b|\bled on\b|\bswitch (the )?led on\b/.test(command)
+  ){
+
+    sendSerialCommand("led on");
+
+    document.getElementById(
+      "statusLed"
+    ).textContent = "ON";
+
+    speak("LED on.");
+
+    return;
+  }
+
+
+  if(
+    /\bturn (the )?led off\b|\bled off\b|\bswitch (the )?led off\b/.test(command)
+  ){
+
+    sendSerialCommand("led off");
+
+    document.getElementById(
+      "statusLed"
+    ).textContent = "OFF";
+
+    speak("LED off.");
+
+    return;
+  }
+
+
+  if(
+    /\btoggle\b/.test(command)
+  ){
+
+    sendSerialCommand("toggle");
+
+    speak("Toggling the LED.");
+
+    return;
+  }
+
+
+  if(
+    /\bblink\b/.test(command)
+  ){
+
+    let count = 5;
+
+    const match =
+      command.match(
+        /\bblink\s+(\d+)\b/
+      );
+
+    if(match){
+      count =
+        Number(match[1]);
+    }
+
+    sendSerialCommand(
+      `blink ${count}`
+    );
+
+    speak(
+      `Blinking ${count} times.`
+    );
+
+    return;
+  }
+
+
+  if(
+    /\bsos\b/.test(command)
+  ){
+
+    sendSerialCommand("sos");
+
+    speak(
+      "Sending SOS."
+    );
+
+    return;
+  }
+
+
+  if(
+    /\bstop\b|\bstop everything\b/.test(command)
+  ){
+
+    stopBoard();
+
+    stopMusic();
+    stopVideo();
+
+    youtubeCommand("stopVideo");
+
+    speak("Stopped.");
+
+    return;
+  }
+
+
+  /* MUSIC */
+
+  if(
+    /\bplay music\b|\bstart music\b|\bplay my music\b/.test(command)
+  ){
+
+    playMusic();
+
+    return;
+  }
+
+
+  if(
+    /\bpause music\b|\bpause the music\b/.test(command)
+  ){
+
+    pauseMusic();
+
+    return;
+  }
+
+
+  if(
+    /\bstop music\b/.test(command)
+  ){
+
+    stopMusic();
+
+    return;
+  }
+
+
+  if(
+    /\bnext (song|track)\b|\bnext music\b/.test(command)
+  ){
+
+    nextMusic();
+
+    return;
+  }
+
+
+  if(
+    /\bprevious (song|track)\b|\bprevious music\b|\blast song\b/.test(command)
+  ){
+
+    previousMusic();
+
+    return;
+  }
+
+
+  if(
+    /\bshuffle\b/.test(command)
+  ){
+
+    toggleShuffle();
+
+    return;
+  }
+
+
+  if(
+    /\brepeat\b/.test(command)
+  ){
+
+    toggleRepeat();
+
+    return;
+  }
+
+
+  /* VIDEO */
+
+  if(
+    /\bplay video\b|\bstart video\b|\bplay my video\b/.test(command)
+  ){
+
+    playVideo();
+
+    return;
+  }
+
+
+  if(
+    /\bpause video\b/.test(command)
+  ){
+
+    pauseVideo();
+
+    return;
+  }
+
+
+  if(
+    /\bstop video\b/.test(command)
+  ){
+
+    stopVideo();
+
+    return;
+  }
+
+
+  if(
+    /\bnext video\b/.test(command)
+  ){
+
+    nextVideo();
+
+    return;
+  }
+
+
+  if(
+    /\bprevious video\b|\blast video\b/.test(command)
+  ){
+
+    previousVideo();
+
+    return;
+  }
+
+
+  /* YOUTUBE */
+
+  if(
+    /\bplay youtube\b/.test(command)
+  ){
+
+    youtubeCommand("playVideo");
+
+    return;
+  }
+
+
+  if(
+    /\bpause youtube\b/.test(command)
+  ){
+
+    youtubeCommand("pauseVideo");
+
+    return;
+  }
+
+
+  if(
+    /\bstop youtube\b/.test(command)
+  ){
+
+    youtubeCommand("stopVideo");
+
+    return;
+  }
+
+
+  /* CALENDAR */
+
+  if(
+    /\badd (an )?event\b|\bschedule\b/.test(command)
+  ){
+
+    createEventFromNaturalLanguage(raw);
+
+    return;
+  }
+
+
+  if(
+    /\bwhat('?s| is) on my calendar\b|\bwhat events\b|\bmy events\b|\bcalendar today\b/.test(command)
+  ){
+
+    speakTodaysEvents();
+
+    return;
+  }
+
+
+  if(
+    /\bopen calendar\b|\bshow calendar\b/.test(command)
+  ){
+
+    document
+      .querySelector(".calendarGrid")
+      .scrollIntoView({
+        behavior:"smooth"
+      });
+
+    speak(
+      "The calendar is open."
+    );
+
+    return;
+  }
+
+
+  /* MEDIA TAB */
+
+  if(
+    /\bmusic library\b/.test(command)
+  ){
+
+    showMediaTab("music");
+
+    return;
+  }
+
+
+  if(
+    /\bvideo library\b/.test(command)
+  ){
+
+    showMediaTab("video");
+
+    return;
+  }
+
+
+  if(
+    /\byoutube\b/.test(command)
+  ){
+
+    showMediaTab("youtube");
+
+    return;
+  }
+
+
+  /* COMMAND CENTER */
+
+  if(
+    /\bopen command center\b|\bshow command center\b/.test(command)
+  ){
+
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
+
+    speak(
+      "Command Center is ready."
+    );
+
+    return;
+  }
+
+
+  /* UNKNOWN */
+
+  log(
+    `Command not recognized: "${raw}"`,
+    "warning"
+  );
+
+  /*
+    Deliberately do NOT speak unknown commands.
+    This prevents the assistant from hearing its own
+    response and creating feedback loops.
+  */
+
 }
 
 
 /* ============================================================
-   HELP
+   SPOKEN STATUS
    ============================================================ */
 
-function showHelp(){
+function speakStatus(){
 
-    log("AMOMII ONE VOICE COMMANDS:");
+  const connected =
+    !!port;
 
-    log("STATUS");
-    log("HELP");
-    log("WHAT CAN YOU DO");
-    log("ALL COMMANDS");
+  const led =
+    document.getElementById(
+      "statusLed"
+    ).textContent;
 
-    log("WHAT'S MY NAME");
-    log("CHANGE MY NAME");
-    log("FORGET MY NAME");
-    log("WHO ARE YOU");
+  const blinking =
+    document.getElementById(
+      "statusBlinking"
+    ).textContent;
 
-    log("TIME");
-    log("DATE");
-    log("DAY");
-    log("MONTH");
-    log("YEAR");
-    log("DATE AND TIME");
+  speak(
+    `${BOARD_NAME} is ${
+      connected ? "connected" : "disconnected"
+    }. The LED is ${led.toLowerCase()}. Blinking is ${blinking.toLowerCase()}.`
+  );
 
-    log("LED ON");
-    log("LED OFF");
-    log("TOGGLE");
-    log("BLINK");
-    log("BLINK FIVE");
-    log("SOS");
-    log("STOP");
-
-    log("SYSTEM TEST");
-    log("RUN DIAGNOSTICS");
-
-    log("PLAY MUSIC");
-    log("PAUSE MUSIC");
-    log("STOP MUSIC");
-    log("NEXT SONG");
-    log("PREVIOUS SONG");
-
-    log("PLAY VIDEO");
-    log("PAUSE VIDEO");
-    log("STOP VIDEO");
-    log("NEXT VIDEO");
-    log("PREVIOUS VIDEO");
-    log("FULLSCREEN VIDEO");
-
-    log("MEDIA HELP");
-
-    log(
-        "Voice recognition pauses while AMOMII is speaking."
-    );
 }
 
+
+/* ============================================================
+   VOICE HELP
+   ============================================================ */
 
 function speakHelp(){
 
-    speak(
-        "AMOMII ONE can control the LED, "+
-        "blinking, SOS, system status and diagnostics. "+
-        "I can also manage your music library, "+
-        "video library, and YouTube videos. "+
-        "You can ask me the time or date, "+
-        "ask what I can do, ask for all commands, "+
-        "or ask me to identify myself."
-    );
+  speak(
+    `I can control ${BOARD_NAME}, manage music and video, work with the calendar, tell you the time and date, run diagnostics, and respond to voice commands.`
+  );
+
 }
 
 
-function speakAllCommands(){
+function speakCommands(){
 
-    speak(
-        "AMOMII ONE commands include status, help, "+
-        "what can you do, all commands, "+
-        "what's my name, change my name, forget my name, "+
-        "who are you, time, date, day, month, year, "+
-        "date and time, LED on, LED off, toggle, blink, "+
-        "blink five, SOS, stop, system test, "+
-        "run diagnostics, connect, disconnect, "+
-        "play music, pause music, stop music, next song, "+
-        "previous song, play video, pause video, stop video, "+
-        "next video, previous video, fullscreen video, "+
-        "and media help."
-    );
-}
+  speak(
+    `You can say connect, disconnect, status, system test, LED on, LED off, blink five, SOS, stop, play music, pause music, next song, previous song, play video, pause video, next video, open calendar, add an event, what events do I have today, what is my name, change my name, what is your name, change your name, and what can you do.`
+  );
 
-
-function speakMediaHelp(){
-
-    speak(
-        "For music, say play music, pause music, "+
-        "stop music, next song, or previous song. "+
-        "For video, say play video, pause video, "+
-        "stop video, next video, previous video, "+
-        "or fullscreen video. "+
-        "You can also load a YouTube video using the YouTube player."
-    );
 }
 
 
 /* ============================================================
-   DATE / TIME
+   MEDIA INITIALIZATION
    ============================================================ */
 
-function speakTime(){
+function initializeMedia(){
 
-    const time=new Date().toLocaleTimeString(
-        undefined,
-        {
-            hour:"numeric",
-            minute:"2-digit"
-        }
+  const audio =
+    document.getElementById(
+      "audioPlayer"
     );
 
-    speak(
-        userName
-            ? userName+", the current time is "+time+"."
-            : "The current time is "+time+"."
-    );
-}
-
-
-function speakDate(){
-
-    const date=new Date().toLocaleDateString(
-        undefined,
-        {
-            weekday:"long",
-            year:"numeric",
-            month:"long",
-            day:"numeric"
-        }
+  const video =
+    document.getElementById(
+      "videoPlayer"
     );
 
-    speak(
-        userName
-            ? userName+", today is "+date+"."
-            : "Today is "+date+"."
-    );
-}
+  audio.volume = .8;
+  video.volume = .8;
+
+  document.getElementById(
+    "musicVolume"
+  ).addEventListener(
+    "input",
+    e => {
+      audio.volume =
+        Number(e.target.value);
+    }
+  );
+
+  document.getElementById(
+    "videoVolume"
+  ).addEventListener(
+    "input",
+    e => {
+      video.volume =
+        Number(e.target.value);
+    }
+  );
 
 
-function speakDay(){
-
-    const day=new Date().toLocaleDateString(
-        undefined,
-        {weekday:"long"}
-    );
-
-    speak("Today is "+day+".");
-}
+  document.getElementById(
+    "musicFiles"
+  ).addEventListener(
+    "change",
+    handleMusicFiles
+  );
 
 
-function speakMonth(){
-
-    const month=new Date().toLocaleDateString(
-        undefined,
-        {month:"long"}
-    );
-
-    speak("The current month is "+month+".");
-}
+  document.getElementById(
+    "videoFiles"
+  ).addEventListener(
+    "change",
+    handleVideoFiles
+  );
 
 
-function speakYear(){
+  audio.addEventListener(
+    "ended",
+    () => {
 
-    const year=new Date().toLocaleDateString(
-        undefined,
-        {year:"numeric"}
-    );
+      if(musicRepeat){
 
-    speak("The current year is "+year+".");
-}
+        audio.currentTime = 0;
+        audio.play();
+
+      }else{
+
+        nextMusic();
+
+      }
+
+    }
+  );
 
 
-function speakDateTime(){
+  video.addEventListener(
+    "ended",
+    () => {
 
-    const now=new Date();
+      nextVideo();
 
-    const date=now.toLocaleDateString(
-        undefined,
-        {
-            weekday:"long",
-            year:"numeric",
-            month:"long",
-            day:"numeric"
-        }
-    );
+    }
+  );
 
-    const time=now.toLocaleTimeString(
-        undefined,
-        {
-            hour:"numeric",
-            minute:"2-digit"
-        }
-    );
-
-    speak(
-        userName
-            ? userName+", it is "+time+" on "+date+"."
-            : "It is "+time+" on "+date+"."
-    );
 }
 
 
 /* ============================================================
-   MUSIC LIBRARY
+   MEDIA TABS
    ============================================================ */
 
-function revokeUrls(urls){
+function showMediaTab(tab){
 
-    for(const url of urls){
-        try{
-            URL.revokeObjectURL(url);
-        }catch(e){}
-    }
+  document
+    .querySelectorAll(".mediaSection")
+    .forEach(section => {
+
+      section.classList.remove(
+        "active"
+      );
+
+    });
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(button => {
+
+      button.classList.remove(
+        "active"
+      );
+
+    });
+
+  document
+    .getElementById(
+      `${tab}Section`
+    )
+    .classList.add("active");
+
+  const button =
+    document.querySelector(
+      `.tab[data-tab="${tab}"]`
+    );
+
+  if(button){
+    button.classList.add("active");
+  }
+
 }
 
 
-function loadMusicFiles(files){
+/* ============================================================
+   MUSIC
+   ============================================================ */
 
-    revokeUrls(musicUrls);
+function handleMusicFiles(event){
 
-    musicFiles=Array.from(files||[]);
-    musicUrls=musicFiles.map(
-        file=>URL.createObjectURL(file)
+  const files =
+    Array.from(
+      event.target.files || []
     );
 
-    musicIndex=musicFiles.length ? 0 : -1;
-
-    renderMusicLibrary();
-
-    if(musicIndex>=0){
-        selectMusic(musicIndex,false);
+  musicLibrary.forEach(
+    item => {
+      try{
+        URL.revokeObjectURL(
+          item.url
+        );
+      }catch(e){}
     }
+  );
 
-    log(
-        musicFiles.length+
-        " music file"+
-        (musicFiles.length===1?"":"s")+
-        " loaded."
+  musicLibrary =
+    files.map(file => ({
+      file,
+      url:URL.createObjectURL(file)
+    }));
+
+  musicIndex = -1;
+
+  renderMusicList();
+
+  document.getElementById(
+    "musicCount"
+  ).textContent =
+    `${musicLibrary.length} track${
+      musicLibrary.length === 1 ? "" : "s"
+    }`;
+
+  if(musicLibrary.length){
+
+    showMediaTab("music");
+
+    speak(
+      `${musicLibrary.length} music ${
+        musicLibrary.length === 1
+          ? "track is"
+          : "tracks are"
+      } loaded.`
     );
+
+  }
+
 }
 
 
-function renderMusicLibrary(){
+function renderMusicList(){
 
-    const library=document.getElementById(
-        "musicLibrary"
-    );
-
-    library.innerHTML="";
-
-    if(!musicFiles.length){
-
-        library.textContent="No music loaded.";
-        return;
-    }
-
-    musicFiles.forEach(
-        (file,index)=>{
-
-            const item=document.createElement("div");
-
-            item.className=
-                "library-item"+
-                (index===musicIndex ? " active":"");
-
-            item.textContent=
-                (index+1)+". "+file.name;
-
-            item.onclick=()=>{
-                selectMusic(index,true);
-            };
-
-            library.appendChild(item);
-        }
-    );
-}
-
-
-function selectMusic(index,autoPlay=true){
-
-    if(
-        index<0 ||
-        index>=musicFiles.length
-    ){
-        return;
-    }
-
-    musicIndex=index;
-
-    musicPlayer.src=musicUrls[index];
-
+  const list =
     document.getElementById(
-        "musicTrack"
-    ).textContent=musicFiles[index].name;
-
-    renderMusicLibrary();
-
-    document.getElementById(
-        "mediaMode"
-    ).textContent="MUSIC";
-
-    setActivity(
-        "MUSIC: "+musicFiles[index].name
+      "musicList"
     );
 
-    if(autoPlay){
-        musicPlayer.play().catch(()=>{});
+  list.innerHTML = "";
+
+  musicLibrary.forEach(
+    (item,index) => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.className =
+        "mediaItem" +
+        (
+          index === musicIndex
+            ? " selected"
+            : ""
+        );
+
+      div.textContent =
+        item.file.name;
+
+      div.onclick =
+        () => playMusic(index);
+
+      list.appendChild(div);
+
     }
+  );
+
 }
 
 
-function musicPlay(){
+function playMusic(index){
 
-    if(!musicFiles.length){
+  if(!musicLibrary.length){
 
-        speak("No music is loaded. Select music files first.");
-        return;
+    showMediaTab("music");
+
+    speak(
+      "No music is loaded. Select music files first."
+    );
+
+    return;
+  }
+
+  if(
+    typeof index !== "number"
+  ){
+
+    if(musicIndex < 0){
+      musicIndex = 0;
     }
 
-    if(musicIndex<0){
-        selectMusic(0,false);
-    }
+  }else{
 
-    musicPlayer.play().catch(()=>{});
+    musicIndex = index;
 
-    setActivity("MUSIC PLAYING");
+  }
+
+  const item =
+    musicLibrary[musicIndex];
+
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
+
+  audio.src =
+    item.url;
+
+  audio.play()
+    .catch(() => {});
+
+  renderMusicList();
+
+  log(
+    `Playing music: ${item.file.name}`,
+    "success"
+  );
+
 }
 
 
-function musicPlayPause(){
+function pauseMusic(){
 
-    if(!musicFiles.length){
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
 
-        speak("No music is loaded. Select music files first.");
-        return;
-    }
+  if(
+    !audio.src
+  ){
 
-    if(musicPlayer.paused){
-        musicPlay();
+    speak(
+      "No music is loaded."
+    );
+
+    return;
+  }
+
+  audio.pause();
+
+  log(
+    "Music paused.",
+    "system"
+  );
+
+}
+
+
+function toggleMusic(){
+
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
+
+  if(audio.paused){
+
+    if(!audio.src){
+
+      playMusic();
+
     }else{
-        musicPlayer.pause();
-        setActivity("MUSIC PAUSED");
+
+      audio.play()
+        .catch(() => {});
+
     }
+
+  }else{
+
+    audio.pause();
+
+  }
+
 }
 
 
-function musicStop(){
+function stopMusic(){
 
-    musicPlayer.pause();
-    musicPlayer.currentTime=0;
+  const audio =
+    document.getElementById(
+      "audioPlayer"
+    );
 
-    setActivity("MUSIC STOPPED");
+  audio.pause();
+
+  audio.currentTime = 0;
+
+  log(
+    "Music stopped.",
+    "system"
+  );
+
 }
 
 
-function musicNext(){
+function nextMusic(){
 
-    if(!musicFiles.length){
+  if(!musicLibrary.length){
 
-        speak("No music is loaded.");
-        return;
-    }
+    speak(
+      "No music is loaded."
+    );
+
+    return;
+  }
+
+  if(musicShuffle){
 
     let next;
 
-    if(musicShuffle){
+    do{
 
-        next=Math.floor(
-            Math.random()*musicFiles.length
+      next =
+        Math.floor(
+          Math.random() *
+          musicLibrary.length
         );
 
-        if(
-            musicFiles.length>1 &&
-            next===musicIndex
-        ){
-            next=(next+1)%musicFiles.length;
-        }
-
-    }else{
-
-        next=musicIndex+1;
-
-        if(next>=musicFiles.length){
-
-            if(musicRepeat){
-                next=0;
-            }else{
-                next=0;
-            }
-        }
-    }
-
-    selectMusic(next,true);
-}
-
-
-function musicPrevious(){
-
-    if(!musicFiles.length){
-
-        speak("No music is loaded.");
-        return;
-    }
-
-    let previous=musicIndex-1;
-
-    if(previous<0){
-        previous=musicFiles.length-1;
-    }
-
-    selectMusic(previous,true);
-}
-
-
-function toggleMusicShuffle(){
-
-    musicShuffle=!musicShuffle;
-
-    document.getElementById(
-        "musicMode"
-    ).textContent=
-        musicShuffle
-            ? "SHUFFLE"
-            : "NORMAL";
-
-    log(
-        "Music shuffle "+
-        (musicShuffle?"enabled.":"disabled.")
+    }while(
+      musicLibrary.length > 1 &&
+      next === musicIndex
     );
-}
 
+    musicIndex = next;
 
-function setMusicVolume(value){
+  }else{
 
-    musicPlayer.volume=parseFloat(value);
-}
+    musicIndex++;
 
+    if(
+      musicIndex >=
+      musicLibrary.length
+    ){
 
-musicPlayer.addEventListener(
-    "ended",
-    ()=>{
-        if(musicRepeat || musicFiles.length>1){
-            musicNext();
-        }else{
-            setActivity("MUSIC COMPLETE");
-        }
+      musicIndex = 0;
+
     }
-);
+
+  }
+
+  playMusic(musicIndex);
+
+}
+
+
+function previousMusic(){
+
+  if(!musicLibrary.length){
+
+    speak(
+      "No music is loaded."
+    );
+
+    return;
+  }
+
+  musicIndex--;
+
+  if(musicIndex < 0){
+
+    musicIndex =
+      musicLibrary.length - 1;
+
+  }
+
+  playMusic(musicIndex);
+
+}
+
+
+function toggleShuffle(){
+
+  musicShuffle =
+    !musicShuffle;
+
+  document.getElementById(
+    "shuffleText"
+  ).textContent =
+    musicShuffle
+      ? "ON"
+      : "OFF";
+
+  speak(
+    `Shuffle ${musicShuffle ? "on" : "off"}.`
+  );
+
+}
+
+
+function toggleRepeat(){
+
+  musicRepeat =
+    !musicRepeat;
+
+  document.getElementById(
+    "repeatText"
+  ).textContent =
+    musicRepeat
+      ? "ON"
+      : "OFF";
+
+  speak(
+    `Repeat ${musicRepeat ? "on" : "off"}.`
+  );
+
+}
 
 
 /* ============================================================
-   VIDEO LIBRARY
+   VIDEO
    ============================================================ */
 
-function loadVideoFiles(files){
+function handleVideoFiles(event){
 
-    revokeUrls(videoUrls);
-
-    videoFiles=Array.from(files||[]);
-    videoUrls=videoFiles.map(
-        file=>URL.createObjectURL(file)
+  const files =
+    Array.from(
+      event.target.files || []
     );
 
-    videoIndex=videoFiles.length ? 0 : -1;
+  videoLibrary.forEach(
+    item => {
 
-    renderVideoLibrary();
+      try{
+        URL.revokeObjectURL(
+          item.url
+        );
+      }catch(e){}
 
-    if(videoIndex>=0){
-        selectVideo(videoIndex,false);
     }
+  );
 
-    log(
-        videoFiles.length+
-        " video file"+
-        (videoFiles.length===1?"":"s")+
-        " loaded."
+  videoLibrary =
+    files.map(file => ({
+      file,
+      url:URL.createObjectURL(file)
+    }));
+
+  videoIndex = -1;
+
+  renderVideoList();
+
+  document.getElementById(
+    "videoCount"
+  ).textContent =
+    `${videoLibrary.length} video${
+      videoLibrary.length === 1 ? "" : "s"
+    }`;
+
+  if(videoLibrary.length){
+
+    showMediaTab("video");
+
+    speak(
+      `${videoLibrary.length} video ${
+        videoLibrary.length === 1
+          ? "is"
+          : "are"
+      } loaded.`
     );
+
+  }
+
 }
 
 
-function renderVideoLibrary(){
+function renderVideoList(){
 
-    const library=document.getElementById(
-        "videoLibrary"
-    );
-
-    library.innerHTML="";
-
-    if(!videoFiles.length){
-
-        library.textContent="No videos loaded.";
-        return;
-    }
-
-    videoFiles.forEach(
-        (file,index)=>{
-
-            const item=document.createElement("div");
-
-            item.className=
-                "library-item"+
-                (index===videoIndex ? " active":"");
-
-            item.textContent=
-                (index+1)+". "+file.name;
-
-            item.onclick=()=>{
-                selectVideo(index,true);
-            };
-
-            library.appendChild(item);
-        }
-    );
-}
-
-
-function selectVideo(index,autoPlay=true){
-
-    if(
-        index<0 ||
-        index>=videoFiles.length
-    ){
-        return;
-    }
-
-    videoIndex=index;
-
-    videoPlayer.src=videoUrls[index];
-    videoPlayer.load();
-
+  const list =
     document.getElementById(
-        "videoTrack"
-    ).textContent=videoFiles[index].name;
-
-    renderVideoLibrary();
-
-    document.getElementById(
-        "mediaMode"
-    ).textContent="VIDEO";
-
-    setActivity(
-        "VIDEO: "+videoFiles[index].name
+      "videoList"
     );
 
-    if(autoPlay){
-        videoPlayer.play().catch(()=>{});
-    }
-}
+  list.innerHTML = "";
 
+  videoLibrary.forEach(
+    (item,index) => {
 
-function videoPlay(){
-
-    if(!videoFiles.length){
-
-        speak("No video is loaded. Select video files first.");
-        return;
-    }
-
-    if(videoIndex<0){
-        selectVideo(0,false);
-    }
-
-    videoPlayer.play().catch(()=>{});
-
-    setActivity("VIDEO PLAYING");
-}
-
-
-function videoPlayPause(){
-
-    if(!videoFiles.length){
-
-        speak("No video is loaded. Select video files first.");
-        return;
-    }
-
-    if(videoPlayer.paused){
-        videoPlay();
-    }else{
-        videoPlayer.pause();
-        setActivity("VIDEO PAUSED");
-    }
-}
-
-
-function videoStop(){
-
-    videoPlayer.pause();
-    videoPlayer.currentTime=0;
-
-    setActivity("VIDEO STOPPED");
-}
-
-
-function videoNext(){
-
-    if(!videoFiles.length){
-
-        speak("No videos are loaded.");
-        return;
-    }
-
-    let next;
-
-    if(videoShuffle){
-
-        next=Math.floor(
-            Math.random()*videoFiles.length
+      const div =
+        document.createElement(
+          "div"
         );
 
-        if(
-            videoFiles.length>1 &&
-            next===videoIndex
-        ){
-            next=(next+1)%videoFiles.length;
-        }
+      div.className =
+        "mediaItem" +
+        (
+          index === videoIndex
+            ? " selected"
+            : ""
+        );
+
+      div.textContent =
+        item.file.name;
+
+      div.onclick =
+        () => playVideo(index);
+
+      list.appendChild(div);
+
+    }
+  );
+
+}
+
+
+function playVideo(index){
+
+  if(!videoLibrary.length){
+
+    showMediaTab("video");
+
+    speak(
+      "No videos are loaded. Select video files first."
+    );
+
+    return;
+  }
+
+  if(
+    typeof index !== "number"
+  ){
+
+    if(videoIndex < 0){
+      videoIndex = 0;
+    }
+
+  }else{
+
+    videoIndex = index;
+
+  }
+
+  const item =
+    videoLibrary[videoIndex];
+
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
+
+  video.src =
+    item.url;
+
+  video.play()
+    .catch(() => {});
+
+  renderVideoList();
+
+  log(
+    `Playing video: ${item.file.name}`,
+    "success"
+  );
+
+}
+
+
+function pauseVideo(){
+
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
+
+  video.pause();
+
+}
+
+
+function toggleVideo(){
+
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
+
+  if(video.paused){
+
+    if(!video.src){
+
+      playVideo();
 
     }else{
 
-        next=videoIndex+1;
+      video.play()
+        .catch(() => {});
 
-        if(next>=videoFiles.length){
-            next=0;
-        }
     }
 
-    selectVideo(next,true);
+  }else{
+
+    video.pause();
+
+  }
+
 }
 
 
-function videoPrevious(){
+function stopVideo(){
 
-    if(!videoFiles.length){
+  const video =
+    document.getElementById(
+      "videoPlayer"
+    );
 
-        speak("No videos are loaded.");
-        return;
-    }
+  video.pause();
 
-    let previous=videoIndex-1;
+  video.currentTime = 0;
 
-    if(previous<0){
-        previous=videoFiles.length-1;
-    }
-
-    selectVideo(previous,true);
 }
 
 
-function videoFullscreen(){
+function nextVideo(){
 
-    if(!videoPlayer.src){
+  if(!videoLibrary.length){
 
-        speak("No video is loaded.");
-        return;
-    }
+    speak(
+      "No videos are loaded."
+    );
 
-    if(videoPlayer.requestFullscreen){
-        videoPlayer.requestFullscreen();
-    }else if(videoPlayer.webkitEnterFullscreen){
-        videoPlayer.webkitEnterFullscreen();
-    }
+    return;
+  }
+
+  videoIndex++;
+
+  if(
+    videoIndex >=
+    videoLibrary.length
+  ){
+
+    videoIndex = 0;
+
+  }
+
+  playVideo(videoIndex);
+
 }
 
 
-function setVideoVolume(value){
+function previousVideo(){
 
-    videoPlayer.volume=parseFloat(value);
+  if(!videoLibrary.length){
+
+    speak(
+      "No videos are loaded."
+    );
+
+    return;
+  }
+
+  videoIndex--;
+
+  if(videoIndex < 0){
+
+    videoIndex =
+      videoLibrary.length - 1;
+
+  }
+
+  playVideo(videoIndex);
+
 }
-
-
-videoPlayer.addEventListener(
-    "ended",
-    ()=>{
-        if(videoFiles.length>1 || videoRepeat){
-            videoNext();
-        }else{
-            setActivity("VIDEO COMPLETE");
-        }
-    }
-);
 
 
 /* ============================================================
@@ -3952,193 +4509,792 @@ videoPlayer.addEventListener(
 
 function extractYouTubeId(value){
 
-    value=value.trim();
+  value =
+    String(value).trim();
 
-    if(/^[a-zA-Z0-9_-]{11}$/.test(value)){
-        return value;
+  if(
+    /^[a-zA-Z0-9_-]{11}$/.test(value)
+  ){
+
+    return value;
+
+  }
+
+  const patterns = [
+
+    /[?&]v=([a-zA-Z0-9_-]{11})/,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/
+
+  ];
+
+  for(
+    const pattern of patterns
+  ){
+
+    const match =
+      value.match(pattern);
+
+    if(match){
+      return match[1];
     }
 
-    const patterns=[
-        /youtube\.com\/watch\?v=([^&]+)/i,
-        /youtu\.be\/([^?&]+)/i,
-        /youtube\.com\/embed\/([^?&]+)/i,
-        /youtube\.com\/shorts\/([^?&]+)/i
-    ];
+  }
 
-    for(const pattern of patterns){
+  return null;
 
-        const match=value.match(pattern);
-
-        if(match){
-            return match[1];
-        }
-    }
-
-    return null;
 }
 
 
 function loadYouTube(){
 
-    const input=document.getElementById(
-        "youtubeInput"
-    );
-
-    const value=input.value.trim();
-
-    if(!value){
-
-        log(
-            "Enter a YouTube URL or video ID.",
-            "error"
-        );
-
-        return;
-    }
-
-    const id=extractYouTubeId(value);
-
-    if(!id){
-
-        log(
-            "Could not identify a YouTube video ID.",
-            "error"
-        );
-
-        speak(
-            "I couldn't identify that YouTube video."
-        );
-
-        return;
-    }
-
-    const frame=document.getElementById(
-        "youtubeFrame"
-    );
-
-    frame.src=
-        "https://www.youtube.com/embed/"+
-        encodeURIComponent(id)+
-        "?enablejsapi=1&rel=0";
-
+  const input =
     document.getElementById(
-        "mediaMode"
-    ).textContent="YOUTUBE";
-
-    setActivity("YOUTUBE LOADED");
-
-    log(
-        "YouTube video loaded: "+id
+      "youtubeInput"
     );
+
+  const id =
+    extractYouTubeId(
+      input.value
+    );
+
+  if(!id){
+
+    speak(
+      "I couldn't find a valid YouTube video ID."
+    );
+
+    return;
+  }
+
+  youtubeVideoId = id;
+
+  const frame =
+    document.getElementById(
+      "youtubeFrame"
+    );
+
+  frame.src =
+    `https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+
+  showMediaTab("youtube");
+
+  log(
+    `YouTube video loaded: ${id}`,
+    "success"
+  );
+
 }
 
 
-function youtubeCommand(action){
+function youtubeCommand(command){
 
-    const frame=document.getElementById(
-        "youtubeFrame"
+  const frame =
+    document.getElementById(
+      "youtubeFrame"
     );
 
-    if(!frame.src){
+  if(
+    !youtubeVideoId ||
+    !frame.src
+  ){
 
-        speak("No YouTube video is loaded.");
-        return;
+    speak(
+      "No YouTube video is loaded."
+    );
+
+    return;
+  }
+
+  frame.contentWindow.postMessage(
+    JSON.stringify({
+      event:"command",
+      func:command,
+      args:[]
+    }),
+    "*"
+  );
+
+}
+
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+
+function saveEvents(){
+
+  localStorage.setItem(
+    "amomiiCalendarEvents",
+    JSON.stringify(calendarEvents)
+  );
+
+}
+
+
+function renderCalendar(){
+
+  const year =
+    calendarDate.getFullYear();
+
+  const month =
+    calendarDate.getMonth();
+
+  document.getElementById(
+    "calendarMonth"
+  ).textContent =
+    calendarDate.toLocaleDateString(
+      [],
+      {
+        month:"long",
+        year:"numeric"
+      }
+    );
+
+  const grid =
+    document.getElementById(
+      "calendarGrid"
+    );
+
+  grid.innerHTML = "";
+
+  [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ].forEach(day => {
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "dayLabel";
+
+    label.textContent =
+      day;
+
+    grid.appendChild(label);
+
+  });
+
+  const firstDay =
+    new Date(
+      year,
+      month,
+      1
+    ).getDay();
+
+  const daysInMonth =
+    new Date(
+      year,
+      month + 1,
+      0
+    ).getDate();
+
+  for(
+    let i=0;
+    i<firstDay;
+    i++
+  ){
+
+    const blank =
+      document.createElement(
+        "div"
+      );
+
+    grid.appendChild(blank);
+
+  }
+
+  const today =
+    new Date();
+
+  for(
+    let day=1;
+    day<=daysInMonth;
+    day++
+  ){
+
+    const cell =
+      document.createElement(
+        "div"
+      );
+
+    cell.className =
+      "day";
+
+    if(
+      day === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    ){
+
+      cell.classList.add(
+        "today"
+      );
+
     }
 
-    frame.contentWindow.postMessage(
-        JSON.stringify({
-            event:"command",
-            func:
-                action==="pause"
-                    ? "pauseVideo"
-                    : "stopVideo",
-            args:[]
-        }),
-        "*"
-    );
+    const number =
+      document.createElement(
+        "div"
+      );
 
-    setActivity(
-        action==="pause"
-            ? "YOUTUBE PAUSED"
-            : "YOUTUBE STOPPED"
-    );
-}
+    number.className =
+      "dayNumber";
 
+    number.textContent =
+      day;
 
-/* ============================================================
-   STARTUP
-   ============================================================ */
+    cell.appendChild(number);
 
-log(
-    "================================================"
-);
-
-log(
-    "DANGERUSS COMMAND CENTER v1.5"
-);
-
-log(
-    "VOICE + PERSONAL ASSISTANT + DIAGNOSTICS + MEDIA"
-);
-
-log(
-    "================================================"
-);
-
-log(
-    "Web Serial: "+
-    (
-        "serial" in navigator
-            ? "AVAILABLE"
-            : "NOT AVAILABLE"
-    )
-);
-
-log(
-    "Voice recognition: "+
-    (
-        (
-            "SpeechRecognition" in window ||
-            "webkitSpeechRecognition" in window
+    const dayEvents =
+      getEventsForDate(
+        new Date(
+          year,
+          month,
+          day
         )
-            ? "AVAILABLE"
-            : "NOT AVAILABLE"
-    )
-);
+      );
 
-log(
-    "Voice synthesis: "+
-    (
-        "speechSynthesis" in window
-            ? "AVAILABLE"
-            : "NOT AVAILABLE"
-    )
-);
+    dayEvents
+      .slice(0,3)
+      .forEach(event => {
 
-log("Music library: READY");
-log("Video library: READY");
-log("YouTube player: READY");
-log("Personal assistant: READY");
-log("System diagnostics: READY");
-log("AMOMII ONE READY.");
+        const eventDiv =
+          document.createElement(
+            "div"
+          );
+
+        eventDiv.className =
+          "eventDot";
+
+        eventDiv.textContent =
+          event.title;
+
+        cell.appendChild(
+          eventDiv
+        );
+
+      });
+
+    grid.appendChild(cell);
+
+  }
+
+  renderEventList();
+
+}
+
+
+function changeMonth(amount){
+
+  calendarDate.setMonth(
+    calendarDate.getMonth() + amount
+  );
+
+  renderCalendar();
+
+}
+
+
+function dateKey(date){
+
+  const y =
+    date.getFullYear();
+
+  const m =
+    String(
+      date.getMonth()+1
+    ).padStart(2,"0");
+
+  const d =
+    String(
+      date.getDate()
+    ).padStart(2,"0");
+
+  return `${y}-${m}-${d}`;
+
+}
+
+
+function getEventsForDate(date){
+
+  return calendarEvents.filter(
+    event =>
+      event.date === dateKey(date)
+  );
+
+}
+
+
+function renderEventList(){
+
+  const list =
+    document.getElementById(
+      "eventList"
+    );
+
+  list.innerHTML = "";
+
+  const today =
+    new Date();
+
+  const events =
+    getEventsForDate(today)
+      .sort(
+        (a,b) =>
+          String(a.time)
+            .localeCompare(
+              String(b.time)
+            )
+      );
+
+  if(!events.length){
+
+    const empty =
+      document.createElement(
+        "div"
+      );
+
+    empty.style.color =
+      "var(--muted)";
+
+    empty.style.fontSize =
+      "11px";
+
+    empty.textContent =
+      "No events today.";
+
+    list.appendChild(empty);
+
+    return;
+  }
+
+  events.forEach(
+    event => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.className =
+        "event";
+
+      div.innerHTML =
+        `<div class="eventTitle">
+          ${escapeHtml(event.title)}
+        </div>
+        <div class="eventMeta">
+          ${escapeHtml(event.date)}
+          ${event.time
+            ? " • " + escapeHtml(event.time)
+            : ""}
+        </div>`;
+
+      list.appendChild(div);
+
+    }
+  );
+
+}
+
+
+function addEvent(
+  title,
+  date,
+  time=""
+){
+
+  const event = {
+    id:
+      Date.now() +
+      Math.random(),
+
+    title:
+      title.trim(),
+
+    date,
+
+    time
+  };
+
+  calendarEvents.push(
+    event
+  );
+
+  saveEvents();
+  renderCalendar();
+
+  log(
+    `Calendar event added: ${title} on ${date}${time ? " at " + time : ""}`,
+    "success"
+  );
+
+  return event;
+
+}
 
 
 /* ============================================================
-   INITIALIZATION
+   NATURAL LANGUAGE CALENDAR
    ============================================================ */
 
-initializeVoice();
+function createEventFromNaturalLanguage(text){
 
-musicPlayer.volume=.8;
-videoPlayer.volume=.8;
+  const raw =
+    text.trim();
 
+  let title =
+    raw
+      .replace(
+        /^.*?\b(?:add|schedule|create)\b/i,
+        ""
+      )
+      .trim();
 
-if("speechSynthesis" in window){
+  title =
+    title
+      .replace(
+        /^(an )?event\b/i,
+        ""
+      )
+      .trim();
 
-    speechSynthesis.onvoiceschanged=()=>{
-        speechSynthesis.getVoices();
-    };
+  let date =
+    new Date();
+
+  if(
+    /\btomorrow\b/i.test(raw)
+  ){
+
+    date.setDate(
+      date.getDate() + 1
+    );
+
+  }
+
+  if(
+    /\bday after tomorrow\b/i.test(raw)
+  ){
+
+    date =
+      new Date();
+
+    date.setDate(
+      date.getDate() + 2
+    );
+
+  }
+
+  const dateMatch =
+    raw.match(
+      /\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/
+    );
+
+  if(dateMatch){
+
+    let year =
+      dateMatch[3]
+        ? Number(dateMatch[3])
+        : date.getFullYear();
+
+    if(year < 100){
+      year += 2000;
+    }
+
+    date =
+      new Date(
+        year,
+        Number(dateMatch[1])-1,
+        Number(dateMatch[2])
+      );
+
+  }
+
+  let time = "";
+
+  const timeMatch =
+    raw.match(
+      /\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i
+    );
+
+  if(timeMatch){
+
+    let hour =
+      Number(timeMatch[1]);
+
+    const minute =
+      timeMatch[2] || "00";
+
+    const ampm =
+      timeMatch[3].toLowerCase();
+
+    if(
+      ampm === "pm" &&
+      hour < 12
+    ){
+      hour += 12;
+    }
+
+    if(
+      ampm === "am" &&
+      hour === 12
+    ){
+      hour = 0;
+    }
+
+    time =
+      `${String(hour).padStart(2,"0")}:${minute}`;
+
+  }
+
+  title =
+    title
+      .replace(
+        /\btomorrow\b/i,
+        ""
+      )
+      .replace(
+        /\btoday\b/i,
+        ""
+      )
+      .replace(
+        /\bday after tomorrow\b/i,
+        ""
+      )
+      .replace(
+        /\b\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?\b/,
+        ""
+      )
+      .replace(
+        /\b\d{1,2}(?::\d{2})?\s*(am|pm)\b/i,
+        ""
+      )
+      .replace(
+        /\bat\s+/i,
+        " "
+      )
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+  if(
+    !title ||
+    title.length < 2
+  ){
+
+    awaitingEvent = true;
+
+    speak(
+      "What would you like the event to be called?"
+    );
+
+    return;
+
+  }
+
+  const created =
+    addEvent(
+      title,
+      dateKey(date),
+      time
+    );
+
+  speak(
+    `I added ${created.title} for ${
+      date.toLocaleDateString([],{
+        month:"long",
+        day:"numeric"
+      })
+    }${
+      time
+        ? ` at ${formatTime(time)}`
+        : ""
+    }.`
+  );
+
 }
+
+
+function voiceAddEvent(){
+
+  awaitingEvent = true;
+
+  speak(
+    "Tell me the event, date, and time."
+  );
+
+}
+
+
+function formatTime(time){
+
+  const parts =
+    time.split(":");
+
+  const date =
+    new Date();
+
+  date.setHours(
+    Number(parts[0]),
+    Number(parts[1])
+  );
+
+  return date.toLocaleTimeString(
+    [],
+    {
+      hour:"numeric",
+      minute:"2-digit"
+    }
+  );
+
+}
+
+
+function speakTodaysEvents(){
+
+  const today =
+    new Date();
+
+  const events =
+    getEventsForDate(today);
+
+  if(!events.length){
+
+    speak(
+      `You have no events scheduled for today, ${userName}.`
+    );
+
+    return;
+  }
+
+  const descriptions =
+    events.map(
+      event =>
+        `${event.title}${
+          event.time
+            ? ` at ${formatTime(event.time)}`
+            : ""
+        }`
+    );
+
+  speak(
+    `Today you have ${descriptions.join(", and ")}.`
+  );
+
+}
+
+
+function addTestEvent(){
+
+  const date =
+    new Date();
+
+  addEvent(
+    "AMOMII ONE Test Event",
+    dateKey(date),
+    "12:00"
+  );
+
+  renderCalendar();
+
+}
+
+
+function clearEvents(){
+
+  if(
+    !confirm(
+      "Clear all Command Center calendar events?"
+    )
+  ){
+    return;
+  }
+
+  calendarEvents = [];
+
+  saveEvents();
+  renderCalendar();
+
+  speak(
+    "All calendar events have been cleared."
+  );
+
+}
+
+
+/* ============================================================
+   UPTIME
+   ============================================================ */
+
+function updateUptime(){
+
+  const elapsed =
+    Date.now() -
+    startupTime;
+
+  const seconds =
+    Math.floor(
+      elapsed / 1000
+    );
+
+  const h =
+    Math.floor(
+      seconds / 3600
+    );
+
+  const m =
+    Math.floor(
+      (seconds % 3600) / 60
+    );
+
+  const s =
+    seconds % 60;
+
+  document.getElementById(
+    "uptime"
+  ).textContent =
+    `${String(h).padStart(2,"0")}:` +
+    `${String(m).padStart(2,"0")}:` +
+    `${String(s).padStart(2,"0")}`;
+
+  setTimeout(
+    updateUptime,
+    1000
+  );
+
+}
+
+
+/* ============================================================
+   GLOBAL KEYBOARD SHORTCUT
+   ============================================================ */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.ctrlKey &&
+      event.shiftKey &&
+      event.key.toLowerCase() === "v"
+    ){
+
+      toggleVoice();
+
+    }
+
+  }
+);
 
 
 /* ============================================================
@@ -4146,19 +5302,34 @@ if("speechSynthesis" in window){
    ============================================================ */
 
 window.addEventListener(
-    "beforeunload",
-    ()=>{
-        revokeUrls(musicUrls);
-        revokeUrls(videoUrls);
+  "beforeunload",
+  () => {
+
+    musicLibrary.forEach(
+      item => {
 
         try{
-            if(reader) reader.cancel();
+          URL.revokeObjectURL(
+            item.url
+          );
         }catch(e){}
 
+      }
+    );
+
+    videoLibrary.forEach(
+      item => {
+
         try{
-            if(writer) writer.releaseLock();
+          URL.revokeObjectURL(
+            item.url
+          );
         }catch(e){}
-    }
+
+      }
+    );
+
+  }
 );
 
 </script>
