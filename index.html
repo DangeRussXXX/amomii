@@ -2646,7 +2646,7 @@ function initializeVoice(){
   };
 
 
-  recognition.onresult = event => {
+recognition.onresult = event => {
 
     if(isSpeaking){
       return;
@@ -2668,9 +2668,18 @@ function initializeVoice(){
       return;
     }
 
+    // Existing behavior
     handleVoiceInput(transcript);
 
-  };
+    // ⭐ NEW: Send voice text to Python server
+    fetch("/voice", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: transcript
+    }).catch(err => console.error("Voice send error:", err));
+
+};
+
 
 }
 
