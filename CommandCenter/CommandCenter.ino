@@ -127,18 +127,41 @@ void readSerial() {
   }
 }
 
-
 // ============================================================
 // VOICE NORMALIZER (Trainer LED Edition)
 // ============================================================
 
+// Helper: replace substring inside a char buffer
+void replace(char *str, const char *from, const char *to) {
+  char buffer[80];
+  char *p;
+
+  if (!(p = strstr(str, from))) return;
+
+  size_t before = p - str;
+  buffer[0] = '\0';
+
+  strncat(buffer, str, before);
+  strcat(buffer, to);
+  strcat(buffer, p + strlen(from));
+
+  strcpy(str, buffer);
+}
+
+// Lowercase helper (your project already has this)
 void lowerCase(char *text);
 
 void normalizeVoice(char *text) {
 
+  // Fix voice commands: merge "trainer led" → "trainerled"
+  if (strstr(text, "trainer led")) {
+      replace(text, "trainer led", "trainerled");
+  }
+
+  // Lowercase everything
   lowerCase(text);
 
-  // Remove spaces → "trainer led 3 on" → "trainerled3on"
+  // Remove spaces → "trainerled zero on" → "trainerledzeroon"
   char buffer[80];
   byte idx = 0;
 
@@ -147,12 +170,12 @@ void normalizeVoice(char *text) {
   }
   buffer[idx] = '\0';
 
-  // Replace number words with digits safely
+  // Replace number words with digits
   struct WordMap { const char *word; const char *digit; };
   WordMap map[] = {
     {"zero", "0"}, {"one", "1"}, {"two", "2"}, {"three", "3"},
     {"four", "4"}, {"five", "5"}, {"six", "6"}, {"seven", "7"},
-    {"eight", "8"}, {"nine", "9"}, {"oh", "0"}
+    {"eight", "8"}, {"nine", "9"}
   };
 
   for (auto &m : map) {
@@ -160,8 +183,8 @@ void normalizeVoice(char *text) {
     if (p) {
       char temp[80];
       size_t before = p - buffer;
-
       temp[0] = '\0';
+
       strncat(temp, buffer, before);
       strcat(temp, m.digit);
       strcat(temp, p + strlen(m.word));
@@ -173,8 +196,10 @@ void normalizeVoice(char *text) {
   // Fix speech glitch "d0on" → "trainerled0on"
   if (buffer[0] == 'd') buffer[0] = 't';
 
+  // Copy final result back
   strcpy(text, buffer);
 }
+
 
 
 // ============================================================
