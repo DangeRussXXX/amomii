@@ -11,34 +11,43 @@ class AMOMIIHandler(SimpleHTTPRequestHandler):
 
     # ⭐ NEW: Voice command endpoint
     def do_POST(self):
-        length = int(self.headers.get('Content-Length'))
-        body = self.rfile.read(length).decode().strip()
+    length = int(self.headers.get('Content-Length'))
+    body = self.rfile.read(length).decode().strip()
 
-        print("[VOICE] Received:", body)
+    print("[VOICE] Received:", body)
 
-        # Normalize voice text
-        cmd = body.lower().replace(" ", "")
-        word_map = {
-            "zero": "0", "one": "1", "two": "2", "three": "3",
-            "four": "4", "five": "5", "six": "6", "seven": "7",
-            "eight": "8", "nine": "9", "oh": "0"
-        }
-        for word, digit in word_map.items():
-            cmd = cmd.replace(word, digit)
+    # Normalize voice text
+    cmd = body.lower()
 
-        print("[Router] Sending:", cmd)
+    # Fix "trainer led" → "trainerled"
+    cmd = cmd.replace("trainer led", "trainerled")
 
-        # Send to Arduino
-        try:
-            arduino = serial.Serial("COM3", 9600, timeout=1)
-            arduino.write((cmd + "\n").encode())
-            arduino.close()
-        except Exception as e:
-            print("[ERROR] Could not send to Arduino:", e)
+    # Remove spaces
+    cmd = cmd.replace(" ", "")
 
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"OK")
+    # Replace number words
+    word_map = {
+        "zero": "0", "one": "1", "two": "2", "three": "3",
+        "four": "4", "five": "5", "six": "6", "seven": "7",
+        "eight": "8", "nine": "9", "oh": "0"
+    }
+    for word, digit in word_map.items():
+        cmd = cmd.replace(word, digit)
+
+    print("[Router] Sending:", cmd)
+
+    # Send to Arduino
+    try:
+        arduino = serial.Serial("COM3", 9600, timeout=1)
+        arduino.write((cmd + "\n").encode())
+        arduino.close()
+    except Exception as e:
+        print("[ERROR] Could not send to Arduino:", e)
+
+    self.send_response(200)
+    self.end_headers()
+    self.wfile.write(b"OK")
+
 
 
 server = ThreadingHTTPServer(
