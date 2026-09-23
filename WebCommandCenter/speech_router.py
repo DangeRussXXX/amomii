@@ -25,6 +25,10 @@ word_map = {
 def normalize_voice(text):
     text = text.lower()
 
+    # Fix "trainer led" → "trainerled"
+    if "trainer led" in text:
+        text = text.replace("trainer led", "trainerled")
+
     # Remove spaces
     compact = text.replace(" ", "")
 
@@ -38,18 +42,22 @@ def normalize_voice(text):
 def send_to_arduino(cmd):
     arduino.write((cmd + "\n").encode())
     time.sleep(0.1)
+
+    # Read Arduino response
     response = arduino.readline().decode().strip()
     if response:
         print("[Arduino] " + response)
 
+print("READY.")
+
 while True:
-    # Replace this with your Google STT input
+    # Your voice program must pass the recognized text HERE
     voice_text = input("[Voice] ")
 
     if not voice_text:
         continue
 
-    # Normalize
+    # Normalize trainer LED commands
     cmd = normalize_voice(voice_text)
 
     print("[Router] Sending:", cmd)
