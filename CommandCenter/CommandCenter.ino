@@ -227,6 +227,8 @@ void setTrainerLED(byte index, bool state) {
 
 void processCommand() {
 
+  normalizeVoice(command);
+
   lowerCase(command);
 
   // HELP
