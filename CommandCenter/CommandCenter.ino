@@ -236,50 +236,51 @@ void processCommand() {
   }
 
 
-  // ----------------------------------------------------------
-  // TRAINER LED CONTROL
-  // Examples:
-  //   led0 on / led0 off
-  //   led3 on / led3 off
-  //   led 3 on / led 3 off
-  // ----------------------------------------------------------
+  // // ----------------------------------------------------------
+// TRAINER LED CONTROL
+// Supports:
+//   led3 on
+//   led 3 on
+//   LED 3 on
+//   led3 off
+//   led 3 off
+// ----------------------------------------------------------
 
-  if (!strncmp(command, "led", 3)) {
+if (!strncmp(command, "led", 3)) {
 
     char *p = command + 3;
 
     // skip spaces after "led"
     while (*p == ' ') p++;
 
+    // must be digit 0–7
     if (*p >= '0' && *p <= '7') {
 
-      byte index = *p - '0';
-      p++;
+        byte index = *p - '0';
+        p++;
 
-      // skip spaces
-      while (*p == ' ') p++;
+        // skip spaces
+        while (*p == ' ') p++;
 
-      bool turnOn = false;
-      bool turnOff = false;
+        bool turnOn = false;
+        bool turnOff = false;
 
-      if (!strcmp(p, "on")) {
-        turnOn = true;
-      } else if (!strcmp(p, "off")) {
-        turnOff = true;
-      }
+        if (!strcmp(p, "on"))  turnOn = true;
+        if (!strcmp(p, "off")) turnOff = true;
 
-      if (turnOn || turnOff) {
+        if (turnOn || turnOff) {
 
-        setTrainerLED(index, turnOn);
+            setTrainerLED(index, turnOn);
 
-        Serial.print(F("TRAINER LED "));
-        Serial.print(index);
-        Serial.println(turnOn ? F(" ON") : F(" OFF"));
+            Serial.print(F("TRAINER LED "));
+            Serial.print(index);
+            Serial.println(turnOn ? F(" ON") : F(" OFF"));
 
-        return;
-      }
+            return;
+        }
     }
-  }
+}
+
 
 
   // ----------------------------------------------------------
