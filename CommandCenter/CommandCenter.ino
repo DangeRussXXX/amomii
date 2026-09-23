@@ -1,7 +1,6 @@
 // ============================================================
 // AMOMII ONE COMMAND CENTER 5.0
-// Ultimate USB Command Console
-// Arduino UNO / AMOMII ONE
+// Trainer LED Voice Command Edition
 // ============================================================
 
 #include <Arduino.h>
@@ -44,7 +43,6 @@ void setup() {
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
 
-  // Trainer LEDs
   pinMode(TLED0, OUTPUT);
   pinMode(TLED1, OUTPUT);
   pinMode(TLED2, OUTPUT);
@@ -89,7 +87,6 @@ void setup() {
 // ============================================================
 
 void loop() {
-
   readSerial();
   updateBlink();
 }
@@ -111,7 +108,7 @@ void readSerial() {
 
         command[commandLength] = '\0';
 
-        normalizeVoice(command);   // <-- NEW VOICE NORMALIZER
+        normalizeVoice(command);
 
         commandCount++;
 
@@ -132,14 +129,16 @@ void readSerial() {
 
 
 // ============================================================
-// VOICE NORMALIZER
+// VOICE NORMALIZER (Trainer LED Edition)
 // ============================================================
+
+void lowerCase(char *text);
 
 void normalizeVoice(char *text) {
 
   lowerCase(text);
 
-  // Remove spaces → "led 3 on" → "led3on"
+  // Remove spaces → "trainer led 3 on" → "trainerled3on"
   char buffer[80];
   byte idx = 0;
 
@@ -153,19 +152,17 @@ void normalizeVoice(char *text) {
   WordMap map[] = {
     {"zero", "0"}, {"one", "1"}, {"two", "2"}, {"three", "3"},
     {"four", "4"}, {"five", "5"}, {"six", "6"}, {"seven", "7"},
-    {"eight", "8"}, {"nine", "9"}
+    {"eight", "8"}, {"nine", "9"}, {"oh", "0"}
   };
 
   for (auto &m : map) {
     char *p = strstr(buffer, m.word);
     if (p) {
-      // Build new string with replacement
       char temp[80];
       size_t before = p - buffer;
-      strcpy(temp, buffer); // copy original
 
-      // Insert digit
-      temp[before] = '\0';
+      temp[0] = '\0';
+      strncat(temp, buffer, before);
       strcat(temp, m.digit);
       strcat(temp, p + strlen(m.word));
 
@@ -173,12 +170,11 @@ void normalizeVoice(char *text) {
     }
   }
 
-  // Fix speech glitch "d0on" → "led0on"
-  if (buffer[0] == 'd') buffer[0] = 'l';
+  // Fix speech glitch "d0on" → "trainerled0on"
+  if (buffer[0] == 'd') buffer[0] = 't';
 
   strcpy(text, buffer);
 }
-
 
 
 // ============================================================
@@ -208,65 +204,40 @@ void processCommand() {
 
   lowerCase(command);
 
-  // ----------------------------------------------------------
   // HELP
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "help") ||
       !strcmp(command, "?") ||
       !strcmp(command, "commands")) {
-
     showHelp();
     return;
   }
 
-
-  // ----------------------------------------------------------
   // BUILT-IN LED ON
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "on") ||
       !strcmp(command, "ledon")) {
 
     stopBlink();
-
     ledState = true;
     digitalWrite(LED, HIGH);
-
     Serial.println(F("LED ON"));
     return;
   }
 
-
-  // ----------------------------------------------------------
   // BUILT-IN LED OFF
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "off") ||
       !strcmp(command, "ledoff")) {
 
     stopBlink();
-
     ledState = false;
     digitalWrite(LED, LOW);
-
     Serial.println(F("LED OFF"));
     return;
   }
 
+  // TRAINER LED CONTROL (NEW FORMAT)
+  if (!strncmp(command, "trainerled", 10)) {
 
-  // ----------------------------------------------------------
-  // TRAINER LED CONTROL
-  // Supports:
-  //   led3on
-  //   led3off
-  //   led0on
-  //   led0off
-  // ----------------------------------------------------------
-
-  if (!strncmp(command, "led", 3)) {
-
-    char *p = command + 3;
+    char *p = command + 10;
 
     if (*p >= '0' && *p <= '7') {
 
@@ -289,11 +260,7 @@ void processCommand() {
     }
   }
 
-
-  // ----------------------------------------------------------
   // BLINK
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "blink", 5)) {
 
     int count = atoi(command + 5);
@@ -313,18 +280,13 @@ void processCommand() {
       Serial.println(F(" times."));
 
     } else {
-
       Serial.println(F("ERROR: BLINK must be 1-1000."));
     }
 
     return;
   }
 
-
-  // ----------------------------------------------------------
   // SPEED
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "speed", 5)) {
 
     int speed = atoi(command + 5);
@@ -338,39 +300,27 @@ void processCommand() {
       Serial.println(F(" ms."));
 
     } else {
-
       Serial.println(F("ERROR: SPEED must be 20-5000."));
     }
 
     return;
   }
 
-
-  // ----------------------------------------------------------
   // PULSE
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "pulse", 5)) {
 
     int duration = atoi(command + 5);
 
     if (duration >= 1 && duration <= 10000) {
-
       pulseLED(duration);
-
     } else {
-
       Serial.println(F("ERROR: PULSE must be 1-10000."));
     }
 
     return;
   }
 
-
-  // ----------------------------------------------------------
   // FLASH
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "flash", 5)) {
 
     int count;
@@ -386,76 +336,51 @@ void processCommand() {
         flashLED(count, speed);
 
       } else {
-
         Serial.println(F("ERROR: invalid FLASH values."));
       }
 
     } else {
-
       Serial.println(F("Usage: FLASH COUNT SPEED"));
     }
 
     return;
   }
 
-
-  // ----------------------------------------------------------
   // SOS
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "sos")) {
-
     sendSOS();
     return;
   }
 
-
-  // ----------------------------------------------------------
   // COUNTDOWN
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "countdown", 9)) {
 
     int seconds = atoi(command + 9);
 
     if (seconds >= 1 && seconds <= 60) {
-
       countdown(seconds);
-
     } else {
-
       Serial.println(F("ERROR: COUNTDOWN must be 1-60."));
     }
 
     return;
   }
 
-
-  // ----------------------------------------------------------
   // TIMER
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "timer", 5)) {
 
     int seconds = atoi(command + 5);
 
     if (seconds >= 1 && seconds <= 60) {
-
       timer(seconds);
-
     } else {
-
       Serial.println(F("ERROR: TIMER must be 1-60."));
     }
 
     return;
   }
 
-
-  // ----------------------------------------------------------
   // RANDOM
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "random")) {
 
     randomSeed(micros());
@@ -470,11 +395,7 @@ void processCommand() {
     return;
   }
 
-
-  // ----------------------------------------------------------
   // PATTERN
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "pattern", 7)) {
 
     byte pattern = atoi(command + 7);
@@ -484,11 +405,7 @@ void processCommand() {
     return;
   }
 
-
-  // ----------------------------------------------------------
   // MORSE
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "morse", 5)) {
 
     sendMorse(command + 5);
@@ -496,67 +413,37 @@ void processCommand() {
     return;
   }
 
-
-  // ----------------------------------------------------------
   // STATUS
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "status")) {
-
     showStatus();
     return;
   }
 
-
-  // ----------------------------------------------------------
   // UPTIME
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "uptime")) {
-
     showUptime();
     return;
   }
 
-
-  // ----------------------------------------------------------
   // VERSION
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "version")) {
-
     Serial.println(F("AMOMII ONE COMMAND CENTER 5.0"));
-
     return;
   }
 
-
-  // ----------------------------------------------------------
   // ABOUT
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "about")) {
-
     showAbout();
     return;
   }
 
-
-  // ----------------------------------------------------------
   // TEST
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "test")) {
-
     systemTest();
     return;
   }
 
-
-  // ----------------------------------------------------------
   // REBOOT
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "reboot")) {
 
     Serial.println();
@@ -567,11 +454,7 @@ void processCommand() {
     return;
   }
 
-
-  // ----------------------------------------------------------
   // ECHO
-  // ----------------------------------------------------------
-
   if (!strncmp(command, "echo", 4)) {
 
     Serial.print(F("ECHO: "));
@@ -580,26 +463,15 @@ void processCommand() {
     return;
   }
 
-
-  // ----------------------------------------------------------
   // CLEAR
-  // ----------------------------------------------------------
-
   if (!strcmp(command, "clear")) {
-
     clearScreen();
-
     return;
   }
 
-
-  // ----------------------------------------------------------
   // UNKNOWN
-  // ----------------------------------------------------------
-
   Serial.print(F("ERROR: Unknown command: "));
   Serial.println(command);
-
   Serial.println(F("Type HELP for available commands."));
 }
 
@@ -611,11 +483,9 @@ void processCommand() {
 void lowerCase(char *text) {
 
   while (*text) {
-
     if (*text >= 'A' && *text <= 'Z') {
       *text = *text + ('a' - 'A');
     }
-
     text++;
   }
 }
@@ -627,9 +497,7 @@ void lowerCase(char *text) {
 
 void updateBlink() {
 
-  if (!blinking) {
-    return;
-  }
+  if (!blinking) return;
 
   unsigned long now = millis();
 
@@ -643,9 +511,7 @@ void updateBlink() {
 
     if (!ledState) {
 
-      if (remainingBlinks > 0) {
-        remainingBlinks--;
-      }
+      if (remainingBlinks > 0) remainingBlinks--;
 
       if (remainingBlinks == 0) {
 
@@ -663,7 +529,6 @@ void updateBlink() {
 // ============================================================
 
 void stopBlink() {
-
   blinking = false;
   remainingBlinks = 0;
 }
@@ -724,55 +589,23 @@ void sendSOS() {
 
   Serial.println(F("Sending SOS..."));
 
-  // S ...
-
   for (byte i = 0; i < 3; i++) {
-
-    digitalWrite(LED, HIGH);
-    ledState = true;
-
-    delay(200);
-
-    digitalWrite(LED, LOW);
-    ledState = false;
-
-    delay(200);
+    digitalWrite(LED, HIGH); delay(200);
+    digitalWrite(LED, LOW);  delay(200);
   }
 
   delay(300);
 
-
-  // O ---
-
   for (byte i = 0; i < 3; i++) {
-
-    digitalWrite(LED, HIGH);
-    ledState = true;
-
-    delay(600);
-
-    digitalWrite(LED, LOW);
-    ledState = false;
-
-    delay(200);
+    digitalWrite(LED, HIGH); delay(600);
+    digitalWrite(LED, LOW);  delay(200);
   }
 
   delay(300);
 
-
-  // S ...
-
   for (byte i = 0; i < 3; i++) {
-
-    digitalWrite(LED, HIGH);
-    ledState = true;
-
-    delay(200);
-
-    digitalWrite(LED, LOW);
-    ledState = false;
-
-    delay(200);
+    digitalWrite(LED, HIGH); delay(200);
+    digitalWrite(LED, LOW);  delay(200);
   }
 
   Serial.println(F("SOS complete."));
@@ -849,70 +682,38 @@ void runPattern(byte pattern) {
   switch (pattern) {
 
     case 1:
-
       Serial.println(F("Pattern 1: FAST"));
-
       flashLED(10, 100);
-
       break;
-
 
     case 2:
-
       Serial.println(F("Pattern 2: SLOW"));
-
       flashLED(5, 500);
-
       break;
-
 
     case 3:
-
       Serial.println(F("Pattern 3: SOS"));
-
       sendSOS();
-
       break;
-
 
     case 4:
-
       Serial.println(F("Pattern 4: DOUBLE FLASH"));
-
       for (byte i = 0; i < 5; i++) {
-
-        pulseLED(100);
-        delay(100);
-
-        pulseLED(100);
-        delay(500);
+        pulseLED(100); delay(100);
+        pulseLED(100); delay(500);
       }
-
       break;
-
 
     case 5:
-
       Serial.println(F("Pattern 5: HEARTBEAT"));
-
       for (byte i = 0; i < 5; i++) {
-
-        pulseLED(100);
-
-        delay(100);
-
-        pulseLED(300);
-
-        delay(700);
+        pulseLED(100); delay(100);
+        pulseLED(300); delay(700);
       }
-
       break;
 
-
     default:
-
       Serial.println(F("ERROR: Pattern must be 1-5."));
-
       break;
   }
 }
@@ -933,14 +734,10 @@ void sendMorse(char *message) {
 
     char c = *message++;
 
-    if (c >= 'a' && c <= 'z') {
-      c -= 32;
-    }
+    if (c >= 'a' && c <= 'z') c -= 32;
 
     if (c == ' ') {
-
       delay(1000);
-
       continue;
     }
 
@@ -1007,7 +804,6 @@ const char *getMorse(char c) {
     case '7': return "--...";
     case '8': return "---..";
     case '9': return "----.";
-
     case '.': return ".-.-.-";
     case ',': return "--..--";
     case '?': return "..--..";
@@ -1033,21 +829,18 @@ void sendMorseCode(const char *code) {
   while (*code) {
 
     if (*code == '.') {
-
       digitalWrite(LED, HIGH);
       ledState = true;
       delay(200);
-
       digitalWrite(LED, LOW);
       ledState = false;
       delay(200);
+    }
 
-    } else if (*code == '-') {
-
+    else if (*code == '-') {
       digitalWrite(LED, HIGH);
       ledState = true;
       delay(600);
-
       digitalWrite(LED, LOW);
       ledState = false;
       delay(200);
@@ -1102,8 +895,6 @@ void showStatus() {
 
   Serial.println(F("========================================"));
 }
-
-
 // ============================================================
 // UPTIME
 // ============================================================
@@ -1161,8 +952,6 @@ void showAbout() {
   Serial.println(F("  ROBOT CONTROL"));
   Serial.println();
 }
-
-
 // ============================================================
 // SYSTEM TEST
 // ============================================================
@@ -1209,8 +998,6 @@ void startupAnimation() {
     delay(100);
   }
 }
-
-
 // ============================================================
 // CLEAR
 // ============================================================
@@ -1223,8 +1010,6 @@ void clearScreen() {
 
   Serial.println(F("AMOMII ONE Command Center ready."));
 }
-
-
 // ============================================================
 // HELP
 // ============================================================
@@ -1239,9 +1024,6 @@ void showHelp() {
   Serial.println();
   Serial.println(F("LED CONTROL (BUILT-IN)"));
   Serial.println(F("-----------"));
-  Serial.println(F("ON"));
-  Serial.println(F("OFF"));
-  Serial.println(F("TOGGLE"));
   Serial.println(F("LED ON"));
   Serial.println(F("LED OFF"));
   Serial.println(F("LED TOGGLE"));
@@ -1253,19 +1035,18 @@ void showHelp() {
   Serial.println();
   Serial.println(F("TRAINER LEDS (2-9)"));
   Serial.println(F("---------------"));
-  Serial.println(F("LED0 ON / LED0 OFF"));
-  Serial.println(F("LED1 ON / LED1 OFF"));
-  Serial.println(F("LED2 ON / LED2 OFF"));
-  Serial.println(F("LED3 ON / LED3 OFF"));
-  Serial.println(F("LED4 ON / LED4 OFF"));
-  Serial.println(F("LED5 ON / LED5 OFF"));
-  Serial.println(F("LED6 ON / LED6 OFF"));
-  Serial.println(F("LED7 ON / LED7 OFF"));
-  Serial.println(F("Voice forms like: LED 3 ON, LED 5 OFF"));
+  Serial.println(F("TRAINER LED 0 ON / TRAINER LED 0 OFF"));
+  Serial.println(F("TRAINER LED 1 ON / TRAINER LED 1 OFF"));
+  Serial.println(F("TRAINER LED 2 ON / TRAINER LED 2 OFF"));
+  Serial.println(F("TRAINER LED 3 ON / TRAINER LED 3 OFF"));
+  Serial.println(F("TRAINER LED 4 ON / TRAINER LED 4 OFF"));
+  Serial.println(F("TRAINER LED 5 ON / TRAINER LED 5 OFF"));
+  Serial.println(F("TRAINER LED 6 ON / TRAINER LED 6 OFF"));
+  Serial.println(F("TRAINER LED 7 ON / TRAINER LED 7 OFF"));
+  Serial.println(F("Voice example: TRAINER LED 3 ON"));
 
   Serial.println();
   Serial.println(F("EFFECTS"));
-  Serial.println(F("-------"));
   Serial.println(F("SOS"));
   Serial.println(F("RANDOM"));
   Serial.println(F("PATTERN 1"));
@@ -1277,16 +1058,7 @@ void showHelp() {
   Serial.println(F("TIMER 10"));
 
   Serial.println();
-  Serial.println(F("MORSE"));
-  Serial.println(F("-----"));
-  Serial.println(F("MORSE HELLO"));
-  Serial.println(F("MORSE HELLO ROBOT"));
-  Serial.println(F("MORSE SOS 123"));
-  Serial.println(F("MORSE TEST @ 42!"));
-
-  Serial.println();
   Serial.println(F("SYSTEM"));
-  Serial.println(F("------"));
   Serial.println(F("STATUS"));
   Serial.println(F("UPTIME"));
   Serial.println(F("VERSION"));
@@ -1296,7 +1068,6 @@ void showHelp() {
 
   Serial.println();
   Serial.println(F("UTILITY"));
-  Serial.println(F("-------"));
   Serial.println(F("HELP"));
   Serial.println(F("COMMANDS"));
   Serial.println(F("ECHO HELLO"));
@@ -1306,5 +1077,3 @@ void showHelp() {
   Serial.println(F("================================================"));
   Serial.println();
 }
-
-
