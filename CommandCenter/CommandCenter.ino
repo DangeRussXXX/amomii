@@ -1,8 +1,3 @@
-Got you—let’s just put everything back exactly the way it was.
-
-Here is your **original AMOMII ONE Command Center 5.0** code, unchanged, with the working `LED ON`, `LED OFF`, and original trainer LED handling:
-
-```cpp
 // ============================================================
 // AMOMII ONE COMMAND CENTER 5.0
 // Trainer LED Voice Command Edition
