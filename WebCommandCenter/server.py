@@ -1,43 +1,63 @@
-import serial
-import time
-import re
-
-
 # ============================================================
-# AMOMII ONE - NATURAL COMMAND ROUTER
-# FULL REPLACEMENT VERSION
-#
-# Python receives natural text / voice transcription
-# and converts it into commands understood by the
-# AMOMII ONE Arduino Command Center 6.0 sketch.
+# AMOMII ONE - COMBINED NATURAL COMMAND + WEB SERVER
+# VERSION 2.0
 #
 # Arduino:
 #   COM9
 #   9600 baud
 #
-# Example:
+# Supports:
 #
-#   trainer LED zero off
-#       ->
+# TEXT:
+#   led on
+#   led off
+#   arduino led on
+#   arduino led off
+#
+# TRAINER:
+#   trainer led 0 on
 #   trainer led 0 off
+#   trainer led one on
+#   trainer led seven off
+#   trainer 0 on
+#   trainer 7 off
 #
-#   turn on trainer LED seven
-#       ->
-#   trainer led 7 on
+# NATURAL VOICE:
+#   turn on trainer led three
+#   turn off trainer led seven
+#   trainer LED one on
+#   turn on the trainer LED five
 #
-#   all leds on
-#       ->
+# ALSO:
+#   trainer all on
+#   trainer all off
 #   all on
+#   all off
+#   both on
+#   both off
+#   stop
+#   help
+#   status
 #
-#   both blink five
-#       ->
-#   both blink 5
+# HTTP:
+#   POST /command
+#
 # ============================================================
+
+import serial
+import time
+import re
+
+from http.server import ThreadingHTTPServer
+from http.server import SimpleHTTPRequestHandler
 
 
 # ============================================================
-# ARDUINO CONNECTION
+# CONFIGURATION
 # ============================================================
+
+HOST = "127.0.0.1"
+PORT = 8000
 
 ARDUINO_PORT = "COM9"
 BAUD = 9600
@@ -48,6 +68,7 @@ BAUD = 9600
 # ============================================================
 
 NUMBER_WORDS = {
+
     "zero": "0",
     "one": "1",
     "two": "2",
@@ -58,236 +79,178 @@ NUMBER_WORDS = {
     "seven": "7",
     "eight": "8",
     "nine": "9",
-    "ten": "10",
-    "eleven": "11",
-    "twelve": "12",
-    "thirteen": "13",
-    "fourteen": "14",
-    "fifteen": "15",
-    "sixteen": "16",
-    "seventeen": "17",
-    "eighteen": "18",
-    "nineteen": "19",
-    "twenty": "20",
-    "thirty": "30",
-    "forty": "40",
-    "fifty": "50",
-    "sixty": "60",
-    "seventy": "70",
-    "eighty": "80",
-    "ninety": "90",
-    "hundred": "100",
+
     "oh": "0"
 }
 
 
 # ============================================================
-# OPEN ARDUINO
+# CONNECT TO ARDUINO
 # ============================================================
 
-try:
+arduino = None
 
-    arduino = serial.Serial(
-        ARDUINO_PORT,
-        BAUD,
-        timeout=1
-    )
 
-    # Arduino usually resets when serial opens.
-    time.sleep(2)
+def connect_arduino():
 
-    print("[Arduino] Connected:", ARDUINO_PORT)
+    global arduino
 
-except Exception as e:
+    try:
 
-    arduino = None
+        if arduino is not None:
 
-    print()
-    print("[ERROR] Could not open Arduino.")
-    print(e)
-    print()
-    print("Check that:")
-    print("  1. Arduino is connected")
-    print("  2. COM9 is correct")
-    print("  3. Serial Monitor is closed")
-    print()
+            try:
+                arduino.close()
+            except:
+                pass
+
+            arduino = None
+
+
+        print()
+        print("[Arduino] Connecting to", ARDUINO_PORT)
+
+        arduino = serial.Serial(
+            ARDUINO_PORT,
+            BAUD,
+            timeout=1
+        )
+
+        # Arduino boards commonly reset when serial opens.
+        time.sleep(2)
+
+        print("[Arduino] CONNECTED")
+        print("[Arduino] Port:", ARDUINO_PORT)
+        print("[Arduino] Baud:", BAUD)
+        print()
+
+        return True
+
+
+    except Exception as e:
+
+        arduino = None
+
+        print()
+        print("[Arduino] CONNECTION FAILED")
+        print("[Arduino]", e)
+        print()
+
+        return False
 
 
 # ============================================================
-# NUMBER CONVERSION
+# SEND COMMAND TO ARDUINO
 # ============================================================
 
-def convert_number_words(words):
+def send_to_arduino(command):
 
-    result = []
+    global arduino
 
-    i = 0
 
-    while i < len(words):
+    # --------------------------------------------------------
+    # Make sure Arduino is connected
+    # --------------------------------------------------------
 
-        word = words[i]
+    if arduino is None:
+
+        print("[Arduino] Not connected.")
+        print("[Arduino] Attempting reconnect...")
+
+        if not connect_arduino():
+
+            return False
+
+
+    try:
+
+        print("[Arduino TX]:", command)
+
 
         # ----------------------------------------------------
-        # Direct number
+        # Send command
         # ----------------------------------------------------
 
-        if word.isdigit():
+        arduino.write(
+            (command + "\n").encode("utf-8")
+        )
 
-            result.append(word)
-
-            i += 1
-
-            continue
+        arduino.flush()
 
 
         # ----------------------------------------------------
-        # Simple number word
+        # Give Arduino a moment to respond
         # ----------------------------------------------------
 
-        if word in NUMBER_WORDS:
-
-            value = NUMBER_WORDS[word]
-
-            # ------------------------------------------------
-            # "one hundred"
-            # ------------------------------------------------
-
-            if (
-                value != "100"
-                and
-                i + 1 < len(words)
-                and
-                words[i + 1] == "hundred"
-            ):
-
-                try:
-
-                    number = int(value) * 100
-
-                    result.append(str(number))
-
-                    i += 2
-
-                    continue
-
-                except ValueError:
-                    pass
+        time.sleep(0.10)
 
 
-            result.append(value)
+        # ----------------------------------------------------
+        # Read responses
+        # ----------------------------------------------------
 
-            i += 1
+        while arduino.in_waiting > 0:
 
-            continue
+            response = arduino.readline().decode(
+                errors="ignore"
+            ).strip()
+
+            if response:
+
+                print("[Arduino RX]:", response)
 
 
-        result.append(word)
+        print("[Arduino] Command sent successfully.")
 
-        i += 1
-
-    return result
+        return True
 
 
-# ============================================================
-# NORMALIZE BASIC TEXT
-# ============================================================
+    except Exception as e:
 
-def clean_text(text):
+        print()
+        print("[Arduino] SERIAL ERROR")
+        print("[Arduino]", e)
+        print()
 
-    text = text.lower().strip()
+        # ----------------------------------------------------
+        # Force reconnect on next command
+        # ----------------------------------------------------
 
-    # Remove punctuation.
+        try:
+            arduino.close()
+        except:
+            pass
 
-    text = re.sub(
-        r"[.,!?;:]",
-        "",
-        text
-    )
+        arduino = None
 
-    # Normalize common spoken forms.
-
-    text = text.replace(
-        "built-in",
-        "built in"
-    )
-
-    text = text.replace(
-        "builtin",
-        "built in"
-    )
-
-    # Remove common polite/request words.
-
-    text = re.sub(
-        r"\bplease\b",
-        "",
-        text
-    )
-
-    # Collapse spaces.
-
-    text = re.sub(
-        r"\s+",
-        " ",
-        text
-    ).strip()
-
-    return text
+        return False
 
 
 # ============================================================
-# NATURAL COMMAND NORMALIZER
+# NORMALIZE COMMAND
 # ============================================================
 
 def normalize_command(text):
 
-    text = clean_text(text)
-
-    words = text.split()
-
-    if not words:
+    if text is None:
         return None
 
 
-    # ========================================================
-    # NUMBER WORDS
-    # ========================================================
+    # --------------------------------------------------------
+    # Basic cleanup
+    # --------------------------------------------------------
 
-    words = convert_number_words(words)
-
-    text = " ".join(words)
-
-
-    # ========================================================
-    # REMOVE COMMON VOICE WORDING
-    # ========================================================
-
-    # "turn on ..."
-    # "turn off ..."
+    text = text.lower().strip()
 
     text = re.sub(
-        r"^turn\s+on\s+",
+        r"[.,!?]",
         "",
         text
     )
 
+    # Remove common voice filler words.
     text = re.sub(
-        r"^turn\s+off\s+",
-        "",
-        text
-    )
-
-    # "switch on ..."
-    # "switch off ..."
-
-    text = re.sub(
-        r"^switch\s+on\s+",
-        "",
-        text
-    )
-
-    text = re.sub(
-        r"^switch\s+off\s+",
+        r"\b(the|please|a|an)\b",
         "",
         text
     )
@@ -298,48 +261,168 @@ def normalize_command(text):
         text
     ).strip()
 
+
+    # --------------------------------------------------------
+    # Convert number words to digits
+    # --------------------------------------------------------
+
     words = text.split()
 
+    converted = []
 
-    # ========================================================
-    # ARDUINO / BUILT-IN LED
-    # ========================================================
+    for word in words:
 
-    if "trainer" not in words:
+        if word in NUMBER_WORDS:
 
-        if (
-            "arduino" in words
-            or "built" in words
-            or "led" in words
-        ):
+            converted.append(
+                NUMBER_WORDS[word]
+            )
 
-            if "on" in words:
+        else:
 
-                return "arduino on"
+            converted.append(word)
 
-            if "off" in words:
 
-                return "arduino off"
+    words = converted
 
 
     # ========================================================
-    # ALL / BOTH
+    # SPECIAL PHRASE CLEANUP
     # ========================================================
 
-    all_words = (
-        "all" in words
-        or "both" in words
-    )
+    # turn on trainer led 3
+    #
+    # becomes:
+    #
+    # trainer led 3 on
 
-    if all_words:
+    if (
+        "turn" in words
+        and "on" in words
+        and "trainer" in words
+        and "led" in words
+    ):
 
-        if "on" in words:
+        try:
 
-            return "all on"
+            led_position = words.index("led")
 
-        if "off" in words:
+            number = words[led_position + 1]
 
-            return "all off"
+            index = int(number)
+
+            if 0 <= index <= 7:
+
+                return (
+                    f"trainer led {index} on"
+                )
+
+        except (ValueError, IndexError):
+
+            pass
+
+
+    # turn off trainer led 3
+
+    if (
+        "turn" in words
+        and "off" in words
+        and "trainer" in words
+        and "led" in words
+    ):
+
+        try:
+
+            led_position = words.index("led")
+
+            number = words[led_position + 1]
+
+            index = int(number)
+
+            if 0 <= index <= 7:
+
+                return (
+                    f"trainer led {index} off"
+                )
+
+        except (ValueError, IndexError):
+
+            pass
+
+
+    # ========================================================
+    # TRAINER LED
+    # ========================================================
+
+    if "trainer" in words and "led" in words:
+
+        try:
+
+            led_position = words.index("led")
+
+            number = words[led_position + 1]
+
+            index = int(number)
+
+            if 0 <= index <= 7:
+
+                if "on" in words:
+
+                    return (
+                        f"trainer led {index} on"
+                    )
+
+                if "off" in words:
+
+                    return (
+                        f"trainer led {index} off"
+                    )
+
+        except (ValueError, IndexError):
+
+            pass
+
+
+    # ========================================================
+    # TRAINER NUMBER WITHOUT "LED"
+    # ========================================================
+
+    # trainer 3 on
+    # trainer seven off
+
+    if "trainer" in words:
+
+        try:
+
+            trainer_position = words.index(
+                "trainer"
+            )
+
+            if trainer_position + 1 < len(words):
+
+                number = words[
+                    trainer_position + 1
+                ]
+
+                index = int(number)
+
+                if 0 <= index <= 7:
+
+                    if "on" in words:
+
+                        return (
+                            f"trainer led {index} on"
+                        )
+
+                    if "off" in words:
+
+                        return (
+                            f"trainer led {index} off"
+                        )
+
+        except (ValueError, IndexError):
+
+            pass
 
 
     # ========================================================
@@ -350,671 +433,120 @@ def normalize_command(text):
 
         if (
             "all" in words
-            or
-            "everything" in words
+            and "on" in words
         ):
 
-            if "on" in words:
+            return "trainer all on"
 
-                return "trainer all on"
 
-            if "off" in words:
+        if (
+            "all" in words
+            and "off" in words
+        ):
 
-                return "trainer all off"
+            return "trainer all off"
 
 
     # ========================================================
-    # TRAINER INDIVIDUAL LED
-    #
-    # Natural examples:
-    #
-    # trainer led 0 on
-    # trainer led three on
-    # turn on trainer led seven
-    # trainer seven off
+    # BUILT-IN ARDUINO LED
     # ========================================================
 
-    if "trainer" in words:
-
-        index = None
-
-
-        # ----------------------------------------------------
-        # Look after "led"
-        # ----------------------------------------------------
+    if "trainer" not in words:
 
         if "led" in words:
 
-            led_position = words.index("led")
+            if "on" in words:
 
-            if led_position + 1 < len(words):
+                return "led on"
 
-                possible_number = words[
-                    led_position + 1
-                ]
+            if "off" in words:
 
-                if possible_number.isdigit():
+                return "led off"
 
-                    index = int(
-                        possible_number
-                    )
-
-
-        # ----------------------------------------------------
-        # Look after "trainer"
-        # ----------------------------------------------------
-
-        if index is None:
-
-            trainer_position = words.index(
-                "trainer"
-            )
-
-            if trainer_position + 1 < len(words):
-
-                possible_number = words[
-                    trainer_position + 1
-                ]
-
-                if possible_number.isdigit():
-
-                    index = int(
-                        possible_number
-                    )
-
-
-        # ----------------------------------------------------
-        # Validate
-        # ----------------------------------------------------
-
-        if index is not None:
-
-            if 0 <= index <= 7:
-
-                if "on" in words:
-
-                    return (
-                        f"trainer led "
-                        f"{index} on"
-                    )
-
-                if "off" in words:
-
-                    return (
-                        f"trainer led "
-                        f"{index} off"
-                    )
-
-
-    # ========================================================
-    # ARDUINO BLINK
-    # ========================================================
-
-    if words and words[0] == "blink":
-
-        if len(words) >= 2:
-
-            if words[1].isdigit():
-
-                count = int(words[1])
-
-                if 1 <= count <= 1000:
-
-                    return f"blink {count}"
-
-
-    # ========================================================
-    # TRAINER BLINK
-    # ========================================================
-
-    if len(words) >= 3:
 
         if (
-            words[0] == "trainer"
-            and
-            words[1] == "blink"
-            and
-            words[2].isdigit()
+            "arduino" in words
+            and "on" in words
         ):
 
-            count = int(words[2])
+            return "arduino on"
 
-            if 1 <= count <= 1000:
-
-                return f"trainer blink {count}"
-
-
-    # ========================================================
-    # BOTH BLINK
-    # ========================================================
-
-    if len(words) >= 3:
 
         if (
-            words[0] == "both"
-            and
-            words[1] == "blink"
-            and
-            words[2].isdigit()
+            "arduino" in words
+            and "off" in words
         ):
 
-            count = int(words[2])
-
-            if 1 <= count <= 1000:
-
-                return f"both blink {count}"
+            return "arduino off"
 
 
     # ========================================================
-    # SPEED
-    # ========================================================
-
-    if words and words[0] == "speed":
-
-        if len(words) >= 2:
-
-            if words[1].isdigit():
-
-                speed = int(words[1])
-
-                if 20 <= speed <= 5000:
-
-                    return f"speed {speed}"
-
-
-    # ========================================================
-    # ARDUINO FLASH
-    #
-    # flash 10 100
-    # ========================================================
-
-    if words and words[0] == "flash":
-
-        if len(words) >= 3:
-
-            if (
-                words[1].isdigit()
-                and
-                words[2].isdigit()
-            ):
-
-                count = int(words[1])
-                speed = int(words[2])
-
-                if (
-                    1 <= count <= 1000
-                    and
-                    20 <= speed <= 5000
-                ):
-
-                    return (
-                        f"flash "
-                        f"{count} "
-                        f"{speed}"
-                    )
-
-
-    # ========================================================
-    # TRAINER FLASH
-    # ========================================================
-
-    if len(words) >= 4:
-
-        if (
-            words[0] == "trainer"
-            and
-            words[1] == "flash"
-            and
-            words[2].isdigit()
-            and
-            words[3].isdigit()
-        ):
-
-            count = int(words[2])
-            speed = int(words[3])
-
-            if (
-                1 <= count <= 1000
-                and
-                20 <= speed <= 5000
-            ):
-
-                return (
-                    f"trainer flash "
-                    f"{count} "
-                    f"{speed}"
-                )
-
-
-    # ========================================================
-    # BOTH FLASH
-    # ========================================================
-
-    if len(words) >= 4:
-
-        if (
-            words[0] == "both"
-            and
-            words[1] == "flash"
-            and
-            words[2].isdigit()
-            and
-            words[3].isdigit()
-        ):
-
-            count = int(words[2])
-            speed = int(words[3])
-
-            if (
-                1 <= count <= 1000
-                and
-                20 <= speed <= 5000
-            ):
-
-                return (
-                    f"both flash "
-                    f"{count} "
-                    f"{speed}"
-                )
-
-
-    # ========================================================
-    # ARDUINO PULSE
-    # ========================================================
-
-    if words and words[0] == "pulse":
-
-        if len(words) >= 2:
-
-            if words[1].isdigit():
-
-                duration = int(words[1])
-
-                if 1 <= duration <= 10000:
-
-                    return (
-                        f"pulse "
-                        f"{duration}"
-                    )
-
-
-    # ========================================================
-    # TRAINER PULSE
-    # ========================================================
-
-    if len(words) >= 3:
-
-        if (
-            words[0] == "trainer"
-            and
-            words[1] == "pulse"
-            and
-            words[2].isdigit()
-        ):
-
-            duration = int(words[2])
-
-            if 1 <= duration <= 10000:
-
-                return (
-                    f"trainer pulse "
-                    f"{duration}"
-                )
-
-
-    # ========================================================
-    # BOTH PULSE
-    # ========================================================
-
-    if len(words) >= 3:
-
-        if (
-            words[0] == "both"
-            and
-            words[1] == "pulse"
-            and
-            words[2].isdigit()
-        ):
-
-            duration = int(words[2])
-
-            if 1 <= duration <= 10000:
-
-                return (
-                    f"both pulse "
-                    f"{duration}"
-                )
-
-
-    # ========================================================
-    # SOS
-    # ========================================================
-
-    if words == ["sos"]:
-
-        return "sos"
-
-
-    if words == ["trainer", "sos"]:
-
-        return "trainer sos"
-
-
-    if words == ["both", "sos"]:
-
-        return "both sos"
-
-
-    if words == ["arduino", "sos"]:
-
-        return "arduino sos"
-
-
-    # ========================================================
-    # MORSE
-    # ========================================================
-
-    if words and words[0] == "morse":
-
-        message = " ".join(
-            words[1:]
-        ).strip()
-
-        if message:
-
-            return (
-                f"morse {message}"
-            )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "trainer"
-        and
-        words[1] == "morse"
-    ):
-
-        message = " ".join(
-            words[2:]
-        ).strip()
-
-        if message:
-
-            return (
-                f"trainer morse {message}"
-            )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "both"
-        and
-        words[1] == "morse"
-    ):
-
-        message = " ".join(
-            words[2:]
-        ).strip()
-
-        if message:
-
-            return (
-                f"both morse {message}"
-            )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "arduino"
-        and
-        words[1] == "morse"
-    ):
-
-        message = " ".join(
-            words[2:]
-        ).strip()
-
-        if message:
-
-            return (
-                f"arduino morse {message}"
-            )
-
-
-    # ========================================================
-    # COUNTDOWN
-    # ========================================================
-
-    if words and words[0] == "countdown":
-
-        if len(words) >= 2:
-
-            if words[1].isdigit():
-
-                seconds = int(words[1])
-
-                if 1 <= seconds <= 60:
-
-                    return (
-                        f"countdown "
-                        f"{seconds}"
-                    )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "trainer"
-        and
-        words[1] == "countdown"
-    ):
-
-        if words[2].isdigit():
-
-            seconds = int(words[2])
-
-            if 1 <= seconds <= 60:
-
-                return (
-                    f"trainer countdown "
-                    f"{seconds}"
-                )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "both"
-        and
-        words[1] == "countdown"
-    ):
-
-        if words[2].isdigit():
-
-            seconds = int(words[2])
-
-            if 1 <= seconds <= 60:
-
-                return (
-                    f"both countdown "
-                    f"{seconds}"
-                )
-
-
-    # ========================================================
-    # TIMER
-    # ========================================================
-
-    if words and words[0] == "timer":
-
-        if len(words) >= 2:
-
-            if words[1].isdigit():
-
-                seconds = int(words[1])
-
-                if 1 <= seconds <= 60:
-
-                    return (
-                        f"timer "
-                        f"{seconds}"
-                    )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "trainer"
-        and
-        words[1] == "timer"
-    ):
-
-        if words[2].isdigit():
-
-            seconds = int(words[2])
-
-            if 1 <= seconds <= 60:
-
-                return (
-                    f"trainer timer "
-                    f"{seconds}"
-                )
-
-
-    if (
-        len(words) >= 3
-        and
-        words[0] == "both"
-        and
-        words[1] == "timer"
-    ):
-
-        if words[2].isdigit():
-
-            seconds = int(words[2])
-
-            if 1 <= seconds <= 60:
-
-                return (
-                    f"both timer "
-                    f"{seconds}"
-                )
-
-
-    # ========================================================
-    # RANDOM
-    # ========================================================
-
-    if words == ["random"]:
-
-        return "random"
-
-
-    if words == ["trainer", "random"]:
-
-        return "trainer random"
-
-
-    if words == ["both", "random"]:
-
-        return "both random"
-
-
-    # ========================================================
-    # PATTERN
+    # BOTH / ALL
     # ========================================================
 
     if (
-        len(words) >= 2
-        and
-        words[0] == "pattern"
-        and
-        words[1].isdigit()
+        "all" in words
+        and "on" in words
     ):
 
-        pattern = int(words[1])
-
-        if 1 <= pattern <= 5:
-
-            return (
-                f"pattern "
-                f"{pattern}"
-            )
+        return "all on"
 
 
     if (
-        len(words) >= 3
-        and
-        words[0] == "trainer"
-        and
-        words[1] == "pattern"
-        and
-        words[2].isdigit()
+        "all" in words
+        and "off" in words
     ):
 
-        pattern = int(words[2])
-
-        if 1 <= pattern <= 5:
-
-            return (
-                f"trainer pattern "
-                f"{pattern}"
-            )
+        return "all off"
 
 
     if (
-        len(words) >= 3
-        and
-        words[0] == "both"
-        and
-        words[1] == "pattern"
-        and
-        words[2].isdigit()
+        "both" in words
+        and "on" in words
     ):
 
-        pattern = int(words[2])
-
-        if 1 <= pattern <= 5:
-
-            return (
-                f"both pattern "
-                f"{pattern}"
-            )
+        return "both on"
 
 
-    # ========================================================
-    # SYSTEM COMMANDS
-    # ========================================================
+    if (
+        "both" in words
+        and "off" in words
+    ):
 
-    simple_commands = {
-        "help": "help",
-        "commands": "commands",
-        "status": "status",
-        "uptime": "uptime",
-        "version": "version",
-        "about": "about",
-        "test": "test",
-        "stop": "stop",
-        "stop all": "stop all",
-        "clear": "clear",
-        "reboot": "reboot",
-    }
-
-    if text in simple_commands:
-
-        return simple_commands[text]
+        return "both off"
 
 
     # ========================================================
-    # ECHO
+    # STOP
     # ========================================================
 
-    if text.startswith("echo "):
+    if (
+        "stop" in words
+        or "halt" in words
+    ):
 
-        return text
+        return "stop"
+
+
+    # ========================================================
+    # STATUS
+    # ========================================================
+
+    if "status" in words:
+
+        return "status"
+
+
+    # ========================================================
+    # HELP
+    # ========================================================
+
+    if (
+        "help" in words
+        or "commands" in words
+    ):
+
+        return "help"
 
 
     # ========================================================
@@ -1025,271 +557,355 @@ def normalize_command(text):
 
 
 # ============================================================
-# SEND COMMAND TO ARDUINO
+# PROCESS COMMAND
 # ============================================================
 
-def send_command(command):
+def process_command(raw_text, source="TEXT"):
 
-    global arduino
+    print()
+    print("========================================")
+    print("[", source, "]", raw_text)
+    print("========================================")
 
 
-    if arduino is None:
+    command = normalize_command(
+        raw_text
+    )
 
-        print()
+
+    print("[Router] Normalized:", command)
+
+
+    if command is None:
+
         print(
-            "[ERROR] Arduino is not connected."
+            "[Router] Command not recognized."
         )
-        print()
 
-        return False
+        return False, "Command not recognized"
 
 
-    try:
+    print(
+        "[Router] Arduino command:",
+        command
+    )
+
+
+    # --------------------------------------------------------
+    # Send command
+    # --------------------------------------------------------
+
+    success = send_to_arduino(
+        command
+    )
+
+
+    if success:
 
         print(
-            "[Arduino TX]:",
-            command
+            "[Router] SUCCESS"
+        )
+
+        return True, command
+
+
+    print(
+        "[Router] Arduino connection failed."
+    )
+
+    return False, "Arduino connection failed"
+
+
+# ============================================================
+# HTTP SERVER
+# ============================================================
+
+class AMOMIIHandler(
+    SimpleHTTPRequestHandler
+):
+
+
+    # --------------------------------------------------------
+    # Cleaner HTTP logging
+    # --------------------------------------------------------
+
+    def log_message(
+        self,
+        format,
+        *args
+    ):
+
+        print(
+            "[HTTP]",
+            format % args
         )
 
 
-        # ----------------------------------------------------
-        # Send command
-        # ----------------------------------------------------
+    # --------------------------------------------------------
+    # POST
+    # --------------------------------------------------------
 
-        arduino.write(
-            (command + "\n").encode()
-        )
+    def do_POST(self):
 
-        arduino.flush()
+        try:
 
+            # ------------------------------------------------
+            # Get content length
+            # ------------------------------------------------
 
-        # ----------------------------------------------------
-        # Give Arduino time to respond
-        # ----------------------------------------------------
-
-        time.sleep(0.1)
-
-
-        # ----------------------------------------------------
-        # Read responses
-        # ----------------------------------------------------
-
-        while arduino.in_waiting:
-
-            response = (
-                arduino.readline()
-                .decode(
-                    errors="ignore"
+            length = int(
+                self.headers.get(
+                    "Content-Length",
+                    "0"
                 )
-                .strip()
             )
 
-            if response:
 
-                print(
-                    "[Arduino RX]:",
+            # ------------------------------------------------
+            # Read body
+            # ------------------------------------------------
+
+            body = self.rfile.read(
+                length
+            ).decode(
+                "utf-8",
+                errors="ignore"
+            ).strip()
+
+
+            print()
+            print(
+                "[HTTP] Received:",
+                body
+            )
+
+
+            # ------------------------------------------------
+            # Empty request
+            # ------------------------------------------------
+
+            if not body:
+
+                self.send_response(400)
+
+                self.send_header(
+                    "Content-Type",
+                    "text/plain"
+                )
+
+                self.end_headers()
+
+                self.wfile.write(
+                    b"Empty command"
+                )
+
+                return
+
+
+            # ------------------------------------------------
+            # Process
+            # ------------------------------------------------
+
+            success, result = process_command(
+                body,
+                "VOICE/HTTP"
+            )
+
+
+            # ------------------------------------------------
+            # Response
+            # ------------------------------------------------
+
+            if success:
+
+                self.send_response(200)
+
+                self.send_header(
+                    "Content-Type",
+                    "text/plain"
+                )
+
+                self.end_headers()
+
+                response = (
+                    "OK: " + result
+                ).encode("utf-8")
+
+                self.wfile.write(
                     response
                 )
 
+            else:
 
-        return True
+                self.send_response(500)
+
+                self.send_header(
+                    "Content-Type",
+                    "text/plain"
+                )
+
+                self.end_headers()
+
+                self.wfile.write(
+                    result.encode("utf-8")
+                )
 
 
-    except Exception as e:
+        except Exception as e:
 
-        print()
-        print(
-            "[ERROR] Serial communication failed:"
-        )
-        print(e)
-        print()
+            print()
+            print(
+                "[HTTP ERROR]",
+                e
+            )
 
-        return False
+
+            try:
+
+                self.send_response(500)
+
+                self.send_header(
+                    "Content-Type",
+                    "text/plain"
+                )
+
+                self.end_headers()
+
+                self.wfile.write(
+                    b"Server error"
+                )
+
+            except:
+
+                pass
 
 
 # ============================================================
-# PRINT EXAMPLES
+# START SERVER
 # ============================================================
 
-def show_examples():
+def start_server():
+
+    server = ThreadingHTTPServer(
+        (HOST, PORT),
+        AMOMIIHandler
+    )
 
     print()
-    print("================================================")
-    print("          AMOMII NATURAL COMMAND ROUTER")
-    print("================================================")
+    print("========================================")
+    print("     AMOMII ONE COMMAND CENTER")
+    print("========================================")
     print()
-
-    print("ARDUINO LED")
-    print("-----------")
+    print("WEB SERVER")
+    print("Address:", f"http://{HOST}:{PORT}")
+    print()
+    print("ARDUINO")
+    print("Port:", ARDUINO_PORT)
+    print("Baud:", BAUD)
+    print()
+    print("VOICE ROUTER: ONLINE")
+    print("HTTP SERVER: ONLINE")
+    print()
+    print("========================================")
+    print()
+    print("Examples:")
+    print()
     print("  led on")
     print("  led off")
-    print("  turn on led")
-    print("  turn off led")
     print()
-
-    print("TRAINER LEDS")
-    print("------------")
-    print("  trainer led zero on")
-    print("  trainer led zero off")
+    print("  trainer led 0 on")
+    print("  trainer led 0 off")
+    print()
     print("  trainer led three on")
     print("  trainer led seven off")
+    print()
     print("  turn on trainer led three")
     print("  turn off trainer led seven")
+    print()
     print("  trainer all on")
     print("  trainer all off")
     print()
-
-    print("BOTH")
-    print("----")
-    print("  all leds on")
-    print("  all leds off")
-    print("  both blink five")
-    print("  both flash ten one hundred")
-    print("  both pulse five hundred")
-    print("  both sos")
-    print("  both morse hello")
+    print("  all on")
+    print("  all off")
+    print()
+    print("  both on")
+    print("  both off")
+    print()
+    print("Type commands below.")
+    print("Press CTRL+C to stop.")
     print()
 
-    print("EFFECTS")
-    print("-------")
-    print("  blink ten")
-    print("  trainer blink five")
-    print("  speed one hundred")
-    print("  flash ten one hundred")
-    print("  trainer flash ten one hundred")
-    print("  pulse five hundred")
-    print("  trainer pulse five hundred")
-    print("  sos")
-    print("  morse hello")
-    print("  countdown ten")
-    print("  timer ten")
-    print("  random")
-    print("  pattern three")
-    print()
 
-    print("SYSTEM")
-    print("------")
-    print("  help")
-    print("  status")
-    print("  uptime")
-    print("  version")
-    print("  about")
-    print("  test")
-    print("  stop")
-    print("  clear")
-    print()
+    # --------------------------------------------------------
+    # Run server
+    # --------------------------------------------------------
 
-    print("Type quit to exit.")
-    print()
-    print("================================================")
-    print()
+    try:
+
+        server.serve_forever()
+
+
+    except KeyboardInterrupt:
+
+        print()
+        print("Stopping server...")
+
+
+    finally:
+
+        server.server_close()
+
+        print(
+            "HTTP server stopped."
+        )
 
 
 # ============================================================
 # MAIN
 # ============================================================
 
-show_examples()
+if __name__ == "__main__":
 
+    # --------------------------------------------------------
+    # Connect Arduino FIRST
+    # --------------------------------------------------------
 
-while True:
+    if not connect_arduino():
 
-    try:
+        print(
+            "WARNING: Arduino is not connected."
+        )
 
-        voice_text = input("> ")
-
-
-    except KeyboardInterrupt:
-
-        print()
-        print("Stopping...")
-
-        break
-
-
-    except EOFError:
-
-        print()
-        print("Input closed.")
-
-        break
+        print(
+            "The server will continue and "
+            "attempt reconnects when commands arrive."
+        )
 
 
     # --------------------------------------------------------
-    # Empty input
+    # Start HTTP server
     # --------------------------------------------------------
 
-    if not voice_text.strip():
-
-        continue
+    start_server()
 
 
     # --------------------------------------------------------
-    # Quit
+    # Cleanup
     # --------------------------------------------------------
 
-    if voice_text.lower().strip() in (
-        "quit",
-        "exit"
-    ):
+    if arduino is not None:
 
-        break
+        try:
+            arduino.close()
+        except:
+            pass
 
-
-    # --------------------------------------------------------
-    # Normalize
-    # --------------------------------------------------------
-
-    command = normalize_command(
-        voice_text
-    )
+        print(
+            "[Arduino] Serial connection closed."
+        )
 
 
+    print()
     print(
-        "[Router]:",
-        command
+        "AMOMII Command Center stopped."
     )
-
-
-    # --------------------------------------------------------
-    # Unknown
-    # --------------------------------------------------------
-
-    if command is None:
-
-        print(
-            "[Router] I don't understand "
-            "that command."
-        )
-
-        print(
-            "[Router] Try HELP or one of "
-            "the examples above."
-        )
-
-        continue
-
-
-    # --------------------------------------------------------
-    # Send
-    # --------------------------------------------------------
-
-    send_command(command)
-
-
-# ============================================================
-# SHUTDOWN
-# ============================================================
-
-if arduino is not None:
-
-    try:
-
-        arduino.close()
-
-    except Exception:
-        pass
-
-
-print()
-print("AMOMII router stopped.")
