@@ -11,7 +11,7 @@ import re
 HOST = "127.0.0.1"
 PORT = 8000
 
-ARDUINO_PORT = "COM3"
+ARDUINO_PORT = "COM9"
 BAUD = 9600
 
 
