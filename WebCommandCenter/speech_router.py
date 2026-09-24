@@ -1,5 +1,6 @@
 import serial
 import time
+import re
 
 # ============================================================
 # GOOGLE SPEECH → ARDUINO ROUTER
@@ -21,11 +22,13 @@ print("     GOOGLE SPEECH → ARDUINO ROUTER")
 print("========================================")
 print("Router online.")
 print()
-print("Try:")
+print("Examples:")
+print("  led on")
+print("  led off")
 print("  trainer led three on")
 print("  trainer led three off")
-print("  trainer led seven on")
-print("  trainer led zero off")
+print("  turn on trainer led three")
+print("  turn off trainer led three")
 print()
 
 
@@ -33,7 +36,7 @@ print()
 # NUMBER WORDS
 # ============================================================
 
-WORD_MAP = {
+NUMBER_WORDS = {
     "zero": "0",
     "one": "1",
     "two": "2",
@@ -49,45 +52,22 @@ WORD_MAP = {
 
 
 # ============================================================
-# NORMALIZE VOICE
+# NORMALIZE VOICE COMMAND
 # ============================================================
 
 def normalize_voice(text):
 
     text = text.lower().strip()
 
-    # --------------------------------------------------------
-    # Remove common speech-command filler
-    # --------------------------------------------------------
+    # ----------------------------------------
+    # Clean punctuation
+    # ----------------------------------------
 
-    text = text.replace("please ", "")
-    text = text.replace("turn on ", "")
-    text = text.replace("turn off ", "")
-    text = text.replace("turn ", "")
-    text = text.replace("switch on ", "")
-    text = text.replace("switch off ", "")
-    text = text.replace("switch ", "")
+    text = re.sub(r"[.,!?]", "", text)
 
-    # --------------------------------------------------------
-    # Normalize trainer LED wording
-    # --------------------------------------------------------
-
-    text = text.replace("trainer leds", "trainer led")
-    text = text.replace("trainer lights", "trainer led")
-    text = text.replace("trainer light", "trainer led")
-
-    # --------------------------------------------------------
-    # Convert "trainer led" → "trainerled"
-    # --------------------------------------------------------
-
-    text = text.replace("trainer led", "trainerled")
-
-    # --------------------------------------------------------
-    # Convert number words
-    #
-    # Do this BEFORE removing spaces so "three" remains
-    # recognizable.
-    # --------------------------------------------------------
+    # ----------------------------------------
+    # Convert number words FIRST
+    # ----------------------------------------
 
     words = text.split()
 
@@ -95,18 +75,72 @@ def normalize_voice(text):
 
     for word in words:
 
-        if word in WORD_MAP:
-            converted.append(WORD_MAP[word])
+        if word in NUMBER_WORDS:
+            converted.append(NUMBER_WORDS[word])
         else:
             converted.append(word)
 
-    text = "".join(converted)
+    words = converted
 
-    return text
+    # ----------------------------------------
+    # Find ON / OFF
+    # ----------------------------------------
+
+    is_on = "on" in words
+    is_off = "off" in words
+
+    # ----------------------------------------
+    # Built-in LED
+    # ----------------------------------------
+
+    if "led" in words and not ("trainer" in words):
+
+        if is_on:
+            return "ledon"
+
+        if is_off:
+            return "ledoff"
+
+    # ----------------------------------------
+    # Trainer LED
+    # ----------------------------------------
+
+    if "trainer" in words:
+
+        # Find "led" after trainer
+        if "led" in words:
+
+            led_position = words.index("led")
+
+            # Number should normally follow LED
+            if led_position + 1 < len(words):
+
+                number = words[led_position + 1]
+
+                if number.isdigit():
+
+                    index = int(number)
+
+                    if 0 <= index <= 7:
+
+                        if is_off:
+                            return f"trainerled{index}off"
+
+                        if is_on:
+                            return f"trainerled{index}on"
+
+    # ----------------------------------------
+    # Other existing commands
+    # ----------------------------------------
+
+    # Remove spaces for simple Arduino commands
+    compact = "".join(words)
+
+    return compact
 
 
 # ============================================================
-# SEND TO ARDUINO
+# SEND COMMAND
 # ============================================================
 
 def send_to_arduino(cmd):
