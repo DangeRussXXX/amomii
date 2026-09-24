@@ -108,8 +108,6 @@ void readSerial() {
 
         command[commandLength] = '\0';
 
-        normalizeVoice(command);
-
         commandCount++;
 
         processCommand();
@@ -228,10 +226,6 @@ void setTrainerLED(byte index, bool state) {
 
 void processCommand() {
 
-  normalizeVoice(command);
-
-  lowerCase(command);
-
   // HELP
   if (!strcmp(command, "help") ||
       !strcmp(command, "?") ||
@@ -262,31 +256,44 @@ void processCommand() {
     return;
   }
 
-  // TRAINER LED CONTROL (NEW FORMAT)
-  if (!strncmp(command, "trainerled", 10)) {
+ // ============================================================
+// TRAINER LED CONTROL
+// ============================================================
 
-    char *p = command + 10;
+if (!strncmp(command, "trainerled", 10)) {
 
-    if (*p >= '0' && *p <= '7') {
+  char *p = command + 10;
 
-      byte index = *p - '0';
-      p++;
+  if (*p >= '0' && *p <= '7') {
 
-      bool turnOn  = strstr(p, "on");
-      bool turnOff = strstr(p, "off");
+    byte index = *p - '0';
 
-      if (turnOn || turnOff) {
+    p++;
 
-        setTrainerLED(index, turnOn);
+    if (strstr(p, "off")) {
 
-        Serial.print(F("TRAINER LED "));
-        Serial.print(index);
-        Serial.println(turnOn ? F(" ON") : F(" OFF"));
+      setTrainerLED(index, false);
 
-        return;
-      }
+      Serial.print(F("TRAINER LED "));
+      Serial.print(index);
+      Serial.println(F(" OFF"));
+
+      return;
+    }
+
+    if (strstr(p, "on")) {
+
+      setTrainerLED(index, true);
+
+      Serial.print(F("TRAINER LED "));
+      Serial.print(index);
+      Serial.println(F(" ON"));
+
+      return;
     }
   }
+}
+
 
   // BLINK
   if (!strncmp(command, "blink", 5)) {
