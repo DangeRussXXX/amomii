@@ -6,7 +6,7 @@ import re
 # GOOGLE SPEECH → ARDUINO ROUTER
 # ============================================================
 
-ARDUINO_PORT = "COM3"
+ARDUINO_PORT = "COM9"
 BAUD = 9600
 
 arduino = serial.Serial(
