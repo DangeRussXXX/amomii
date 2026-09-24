@@ -317,25 +317,54 @@ void normalizeVoice(char *text) {
 
   removeExtraSpaces(text);
 
-  // Common voice variations
+  // ----------------------------------------------------------
+  // TRAINER COMMANDS
+  // Keep "trainer led" intact so individual LED commands work.
+  // ----------------------------------------------------------
 
-  replaceFirst(text, "trainer leds", "trainer");
-  replaceFirst(text, "trainer led", "trainer");
+  replaceFirst(text, "trainer leds", "trainer led");
+
+
+  // ----------------------------------------------------------
+  // ARDUINO COMMANDS
+  // ----------------------------------------------------------
 
   replaceFirst(text, "arduino led", "arduino");
+
   replaceFirst(text, "built in led", "arduino");
+
   replaceFirst(text, "builtin led", "arduino");
 
+
+  // ----------------------------------------------------------
+  // BOTH / ALL COMMANDS
+  // ----------------------------------------------------------
+
   replaceFirst(text, "all leds", "both");
+
   replaceFirst(text, "all led", "both");
+
   replaceFirst(text, "all lights", "both");
+
   replaceFirst(text, "both leds", "both");
+
   replaceFirst(text, "both led", "both");
+
+
+  // ----------------------------------------------------------
+  // VOICE NUMBERS
+  // ----------------------------------------------------------
 
   replaceNumberWords(text);
 
+
+  // ----------------------------------------------------------
+  // FINAL CLEANUP
+  // ----------------------------------------------------------
+
   removeExtraSpaces(text);
 }
+
 
 
 // ============================================================
