@@ -1,6 +1,6 @@
 // ============================================================
 // AMOMII ONE COMMAND CENTER 5.0
-// Trainer LED Voice Command Edition
+// Trainer LED Voice Command Edition (ULTRA FLEXIBLE)
 // ============================================================
 
 #include <Arduino.h>
@@ -127,41 +127,25 @@ void readSerial() {
   }
 }
 
+
 // ============================================================
-// VOICE NORMALIZER (Trainer LED Edition)
+// ULTRA FLEXIBLE VOICE NORMALIZER
 // ============================================================
 
-// Helper: replace substring inside a char buffer
-void replace(char *str, const char *from, const char *to) {
-  char buffer[80];
-  char *p;
-
-  if (!(p = strstr(str, from))) return;
-
-  size_t before = p - str;
-  buffer[0] = '\0';
-
-  strncat(buffer, str, before);
-  strcat(buffer, to);
-  strcat(buffer, p + strlen(from));
-
-  strcpy(str, buffer);
+void lowerCase(char *text) {
+  while (*text) {
+    if (*text >= 'A' && *text <= 'Z') {
+      *text = *text + ('a' - 'A');
+    }
+    text++;
+  }
 }
-
-// Lowercase helper (your project already has this)
-void lowerCase(char *text);
 
 void normalizeVoice(char *text) {
 
-  // Fix voice commands: merge "trainer led" → "trainerled"
-  if (strstr(text, "trainer led")) {
-      replace(text, "trainer led", "trainerled");
-  }
-
-  // Lowercase everything
   lowerCase(text);
 
-  // Remove spaces → "trainerled zero on" → "trainerledzeroon"
+  // Remove spaces
   char buffer[80];
   byte idx = 0;
 
@@ -193,13 +177,34 @@ void normalizeVoice(char *text) {
     }
   }
 
-  // Fix speech glitch "d0on" → "trainerled0on"
-  if (buffer[0] == 'd') buffer[0] = 't';
+  // ULTRA FLEXIBLE: ANY numeric command becomes trainerledXon/off
+  // If buffer starts with a digit or "led" or "trainer"
+  if (buffer[0] >= '0' && buffer[0] <= '7') {
+    // Example: "0on" → "trainerled0on"
+    char temp[80];
+    sprintf(temp, "trainerled%s", buffer);
+    strcpy(buffer, temp);
+  }
 
-  // Copy final result back
+  if (!strncmp(buffer, "led", 3)) {
+    // Example: "led0on" → "trainerled0on"
+    char temp[80];
+    sprintf(temp, "trainer%s", buffer);
+    strcpy(buffer, temp);
+  }
+
+  if (!strncmp(buffer, "trainer", 7)) {
+    // If user said "trainer0on" → "trainerled0on"
+    if (buffer[7] >= '0' && buffer[7] <= '7') {
+      char temp[80];
+      sprintf(temp, "trainerled%s", buffer + 7);
+      strcpy(buffer, temp);
+    }
+  }
+
+  // Final result
   strcpy(text, buffer);
 }
-
 
 
 // ============================================================
@@ -228,7 +233,6 @@ void setTrainerLED(byte index, bool state) {
 void processCommand() {
 
   normalizeVoice(command);
-
   lowerCase(command);
 
   // HELP
@@ -261,32 +265,31 @@ void processCommand() {
     return;
   }
 
-// ⭐ FRIENDLY TRAINER LED COMMANDS
-if (!strncmp(command, "trainer", 7)) {
+  // TRAINER LED CONTROL (ULTRA FLEXIBLE)
+  if (!strncmp(command, "trainerled", 10)) {
 
-    // trainer0on → index = 0
-    char digit = command[7];
+    char *p = command + 10;
 
-    if (digit >= '0' && digit <= '7') {
+    if (*p >= '0' && *p <= '7') {
 
-        byte index = digit - '0';
+      byte index = *p - '0';
+      p++;
 
-        bool turnOn  = strstr(command, "on");
-        bool turnOff = strstr(command, "off");
+      bool turnOn  = strstr(p, "on");
+      bool turnOff = strstr(p, "off");
 
-        if (turnOn || turnOff) {
+      if (turnOn || turnOff) {
 
-            setTrainerLED(index, turnOn);
+        setTrainerLED(index, turnOn);
 
-            Serial.print(F("TRAINER LED "));
-            Serial.print(index);
-            Serial.println(turnOn ? F(" ON") : F(" OFF"));
+        Serial.print(F("TRAINER LED "));
+        Serial.print(index);
+        Serial.println(turnOn ? F(" ON") : F(" OFF"));
 
-            return;
-        }
+        return;
+      }
     }
-}
-
+  }
 
   // BLINK
   if (!strncmp(command, "blink", 5)) {
@@ -508,15 +511,7 @@ if (!strncmp(command, "trainer", 7)) {
 // LOWERCASE
 // ============================================================
 
-void lowerCase(char *text) {
-
-  while (*text) {
-    if (*text >= 'A' && *text <= 'Z') {
-      *text = *text + ('a' - 'A');
-    }
-    text++;
-  }
-}
+void lowerCase(char *text);
 
 
 // ============================================================
@@ -797,7 +792,7 @@ const char *getMorse(char c) {
 
     case 'A': return ".-";
     case 'B': return "-...";
-    case 'C': return "-.-.";
+        case 'C': return "-.-.";
     case 'D': return "-..";
     case 'E': return ".";
     case 'F': return "..-.";
@@ -832,6 +827,7 @@ const char *getMorse(char c) {
     case '7': return "--...";
     case '8': return "---..";
     case '9': return "----.";
+
     case '.': return ".-.-.-";
     case ',': return "--..--";
     case '?': return "..--..";
@@ -848,6 +844,8 @@ const char *getMorse(char c) {
       return NULL;
   }
 }
+
+
 // ============================================================
 // MORSE TRANSMISSION
 // ============================================================
@@ -877,6 +875,8 @@ void sendMorseCode(const char *code) {
     code++;
   }
 }
+
+
 // ============================================================
 // STATUS
 // ============================================================
@@ -923,6 +923,8 @@ void showStatus() {
 
   Serial.println(F("========================================"));
 }
+
+
 // ============================================================
 // UPTIME
 // ============================================================
@@ -950,6 +952,8 @@ void showUptime() {
   if (seconds < 10) Serial.print('0');
   Serial.println(seconds);
 }
+
+
 // ============================================================
 // ABOUT
 // ============================================================
@@ -980,6 +984,8 @@ void showAbout() {
   Serial.println(F("  ROBOT CONTROL"));
   Serial.println();
 }
+
+
 // ============================================================
 // SYSTEM TEST
 // ============================================================
@@ -1011,6 +1017,8 @@ void systemTest() {
   Serial.println(F("================================="));
   Serial.println();
 }
+
+
 // ============================================================
 // STARTUP ANIMATION
 // ============================================================
@@ -1026,6 +1034,8 @@ void startupAnimation() {
     delay(100);
   }
 }
+
+
 // ============================================================
 // CLEAR
 // ============================================================
@@ -1038,6 +1048,8 @@ void clearScreen() {
 
   Serial.println(F("AMOMII ONE Command Center ready."));
 }
+
+
 // ============================================================
 // HELP
 // ============================================================
