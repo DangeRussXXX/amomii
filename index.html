@@ -1978,64 +1978,31 @@ async function readSerial(){
 }
 
 
-/* ============================================================
-   SERIAL COMMAND
-   ============================================================ */
+function sendSerialCommand(command) {
 
-async function sendSerialCommand(command){
-
-  command =
-    String(command).trim();
-
-  if(!command){
-    return;
-  }
+  command = String(command).trim();
+  if (!command) return;
 
   commandCount++;
-
-  document.getElementById(
-    "statusCommands"
-  ).textContent =
-    commandCount;
+  document.getElementById("statusCommands").textContent = commandCount;
 
   addHistory(command);
 
-  log(
-    `> ${command}`,
-    "command"
-  );
+  log(`> ${command}`, "command");
 
-  if(!writer){
-
-    log(
-      "Not connected to AMOMII ONE.",
-      "warning"
-    );
-
-    return;
-  }
-
-  try{
-
-    const encoder =
-      new TextEncoder();
-
-    await writer.write(
-      encoder.encode(
-        command + "\n"
-      )
-    );
-
-  }catch(error){
-
-    log(
-      `Serial write error: ${error.message}`,
-      "error"
-    );
-
-  }
-
+  // Send command to Render instead of serial
+  fetch("https://amomii-server.onrender.com/command", {
+    method: "POST",
+    body: command
+  })
+  .then(() => {
+    log(`Sent to AMOMII Cloud Relay: ${command}`, "success");
+  })
+  .catch(error => {
+    log(`Cloud send error: ${error.message}`, "error");
+  });
 }
+
 
 
 function sendManualCommand(){
@@ -3261,26 +3228,23 @@ function routeVoiceCommand(command,raw){
     return;
   }
 
+/* CLOUD RELAY / AMOMII */
 
-  /* SERIAL / AMOMII */
+if (
+  /\bconnect\b/.test(command) &&
+  !/\bconnect(ed|ion)\b/.test(command)
+) {
+  log("Connecting to AMOMII Cloud Relay...", "info");
+  connectSerial();   // now just updates UI, no serial
+  return;
+}
 
-  if(
-    /\bconnect\b/.test(command) &&
-    !/\bconnect(ed|ion)\b/.test(command)
-  ){
+if (/\bdisconnect\b/.test(command)) {
+  log("Disconnecting from AMOMII Cloud Relay...", "info");
+  disconnectSerial();  // now just updates UI
+  return;
+}
 
-    connectSerial();
-    return;
-  }
-
-
-  if(
-    /\bdisconnect\b/.test(command)
-  ){
-
-    disconnectSerial();
-    return;
-  }
 
 
   if(
