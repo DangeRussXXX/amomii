@@ -2574,12 +2574,7 @@ recognition.onresult = event => {
     // Existing behavior
     handleVoiceInput(transcript);
 
-    // ⭐ NEW: Send voice text to Python server
-    fetch("/voice", {
-        method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: transcript
-    }).catch(err => console.error("Voice send error:", err));
+
 
 };
 
@@ -2955,88 +2950,58 @@ if(
 
 }
 
-
-/* ============================================================
-   VOICE INPUT
-   ============================================================ */
-
 function handleVoiceInput(rawText){
 
   if(isSpeaking){
     return;
   }
 
-  const text =
-    rawText.trim();
-
+  const text = rawText.trim();
   if(!text){
     return;
   }
 
-  lastVoiceCommand =
-    text;
+  lastVoiceCommand = text;
+  lastHeardEl.textContent = text;
 
-  lastHeardEl.textContent =
-    text;
-
-  document.getElementById(
-    "voiceLastShort"
-  ).textContent =
+  document.getElementById("voiceLastShort").textContent =
     text.slice(0,45);
 
-  log(
-    `Voice: "${text}"`,
-    "voice"
-  );
+  log(`Voice: "${text}"`, "voice");
 
-  const normalized =
-    normalizeVoice(text);
+  const normalized = normalizeVoice(text);
 
   if(awaitingUserName){
-
-    if(
-      !looksLikeCommand(normalized)
-    ){
-
+    if(!looksLikeCommand(normalized)){
       setUserName(text);
       return;
-
     }
-
     awaitingUserName = false;
   }
 
   if(awaitingAssistantName){
-
-    if(
-      !looksLikeCommand(normalized)
-    ){
-
+    if(!looksLikeCommand(normalized)){
       setAssistantName(text);
       return;
-
     }
-
     awaitingAssistantName = false;
   }
 
   if(awaitingEvent){
-
-    if(
-      !looksLikeCommand(normalized)
-    ){
-
+    if(!looksLikeCommand(normalized)){
       createEventFromNaturalLanguage(text);
       return;
-
     }
-
     awaitingEvent = false;
   }
 
-  routeVoiceCommand(normalized,text);
+  // Your existing routing logic
+  routeVoiceCommand(normalized, text);
 
+  // ⭐ NEW: Send ALL voice commands to the cloud relay
+  sendCloudCommand(normalized);
 }
+
 
 
 /* ============================================================
