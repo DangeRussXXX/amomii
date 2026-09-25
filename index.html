@@ -522,6 +522,22 @@ button.control.danger{
   min-height:40px;
 }
 
+.novaName {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-shadow:
+        0 0 8px rgba(0, 229, 255, 0.9),
+        0 0 15px rgba(0, 229, 255, 0.7),
+        0 0 25px rgba(0, 229, 255, 0.5);
+    pointer-events: none;
+}
+
 /* CONSOLE */
 
 .console{
@@ -1132,13 +1148,18 @@ video{
             <div id="novaConduits"></div>
         </div>
 
-        <div id="novaOrb">
-            <div class="novaOuterRing"></div>
-            <div class="novaInnerRing"></div>
-            <div class="novaIris"></div>
-            <div class="novaWaveform"></div>
-            <div class="novaParticles"></div>
-        </div>
+    <div id="novaOrb">
+    <div class="novaOuterRing"></div>
+    <div class="novaInnerRing"></div>
+
+    <div class="novaIris">
+        <div class="novaName">NOVA</div>
+    </div>
+
+    <div class="novaWaveform"></div>
+    <div class="novaParticles"></div>
+</div>
+
     </div>
 
   <div class="voiceHero">
@@ -1165,6 +1186,7 @@ video{
   <div class="panel">
 
     <div class="panelHeader">
+      
       SERIAL COMMAND CONSOLE
     </div>
 
