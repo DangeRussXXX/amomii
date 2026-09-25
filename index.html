@@ -2949,15 +2949,14 @@ if(
     () => {};
 
 }
-
 function handleVoiceInput(rawText){
 
-  if(isSpeaking){
+  if (isSpeaking) {
     return;
   }
 
   const text = rawText.trim();
-  if(!text){
+  if (!text) {
     return;
   }
 
@@ -2965,40 +2964,42 @@ function handleVoiceInput(rawText){
   lastHeardEl.textContent = text;
 
   document.getElementById("voiceLastShort").textContent =
-    text.slice(0,45);
+    text.slice(0, 45);
 
   log(`Voice: "${text}"`, "voice");
 
   const normalized = normalizeVoice(text);
 
-  if(awaitingUserName){
-    if(!looksLikeCommand(normalized)){
+  // Identity capture
+  if (awaitingUserName) {
+    if (!looksLikeCommand(normalized)) {
       setUserName(text);
       return;
     }
     awaitingUserName = false;
   }
 
-  if(awaitingAssistantName){
-    if(!looksLikeCommand(normalized)){
+  if (awaitingAssistantName) {
+    if (!looksLikeCommand(normalized)) {
       setAssistantName(text);
       return;
     }
     awaitingAssistantName = false;
   }
 
-  if(awaitingEvent){
-    if(!looksLikeCommand(normalized)){
+  if (awaitingEvent) {
+    if (!looksLikeCommand(normalized)) {
       createEventFromNaturalLanguage(text);
       return;
     }
     awaitingEvent = false;
   }
 
-  // Your existing routing logic
+  // Route the voice command through your existing logic
   routeVoiceCommand(normalized, text);
 
-  // ⭐ NEW: Send ALL voice commands to the cloud relay
+  // ⭐ Send ONLY the normalized command to the cloud relay
+  //    (This is the fix — prevents overwriting trainer commands)
   sendCloudCommand(normalized);
 }
 
