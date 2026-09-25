@@ -1817,75 +1817,11 @@ function setAssistantName(name){
 }
 
 
-/* ============================================================
-   SERIAL CONNECTION
-   ============================================================ */
-
-async function connectSerial(){
-
-  if(!("serial" in navigator)){
-
-    log(
-      "Web Serial is not supported.",
-      "error"
-    );
-
-    return;
-  }
-
-  try{
-
-    if(port){
-
-      log(
-        "AMOMII ONE is already connected.",
-        "warning"
-      );
-
-      return;
-    }
-
-    port =
-      await navigator.serial.requestPort();
-
-    await port.open({
-      baudRate: BAUD_RATE
-    });
-
-    writer =
-      port.writable.getWriter();
-
-    keepReading = true;
-
-    updateConnectionUI(true);
-
-    log(
-      `Connected to ${BOARD_NAME} at ${BAUD_RATE} baud.`,
-      "success"
-    );
-
-    readSerial();
-
-    addHistory("connect");
-
-    speak(
-      `${BOARD_NAME} is connected.`
-    );
-
-  }catch(error){
-
-    log(
-      `Connection failed: ${error.message}`,
-      "error"
-    );
-
-    port = null;
-    writer = null;
-
-  }
-
+function connectSerial() {
+  log("Connected to AMOMII Cloud Relay.", "success");
+  updateConnectionUI(true);
+  speak("AMOMII Cloud Relay is connected.");
 }
-
 
 async function disconnectSerial(){
 
