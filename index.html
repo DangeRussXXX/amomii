@@ -1977,8 +1977,7 @@ async function readSerial(){
 
 }
 
-
-function sendSerialCommand(command) {
+function sendCloudCommand(command) {
 
   command = String(command).trim();
   if (!command) return;
@@ -2002,6 +2001,7 @@ function sendSerialCommand(command) {
     log(`Cloud send error: ${error.message}`, "error");
   });
 }
+
 
 
 
@@ -3583,7 +3583,6 @@ if(
   return;
 }
 
-
 /* TRAINER LED CONTROL */
 
 const trainerMatch = command.match(
@@ -3616,12 +3615,13 @@ if (trainerMatch) {
 
   log(`Trainer LED ${ledNumber} ${state.toUpperCase()}`, "success");
 
+  // ⭐ Send ONLY the real Arduino command
   sendCloudCommand(arduinoCommand);
 
-  speak(`Trainer LED ${ledNumber} ${state}.`);
+  // ⭐ Speak WITHOUT sending anything to the cloud
+  speak(`Trainer LED ${ledNumber} ${state}.`, false);
 
   return;
-
 }
 
 
