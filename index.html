@@ -796,7 +796,7 @@ video{
           DISCONNECT
         </button>
 
-        <button class="control" onclick="sendSerialCommand('status')">
+        <button class="control" onclick="sendCloudCommand('status')">
           STATUS
         </button>
 
@@ -804,7 +804,7 @@ video{
           SYSTEM TEST
         </button>
 
-        <button class="control" onclick="sendSerialCommand('help')">
+        <button class="control" onclick="sendCloudCommand('help')">
           HELP
         </button>
 
@@ -812,27 +812,27 @@ video{
           STOP
         </button>
 
-        <button class="control good" onclick="sendSerialCommand('led on')">
+        <button class="control good" onclick="sendCloudCommand('led on')">
           LED ON
         </button>
 
-        <button class="control danger" onclick="sendSerialCommand('led off')">
+        <button class="control danger" onclick="sendCloudCommand('led off')">
           LED OFF
         </button>
 
-        <button class="control" onclick="sendSerialCommand('toggle')">
+        <button class="control" onclick="sendCloudCommand('toggle')">
           TOGGLE
         </button>
 
-        <button class="control warn" onclick="sendSerialCommand('blink 5')">
+        <button class="control warn" onclick="sendCloudCommand('blink 5')">
           BLINK 5
         </button>
 
-        <button class="control warn" onclick="sendSerialCommand('sos')">
+        <button class="control warn" onclick="sendCloudCommand('sos')">
           SOS
         </button>
 
-        <button class="control danger" onclick="sendSerialCommand('stop')">
+        <button class="control danger" onclick="sendCloudCommand('stop')">
           STOP
         </button>
 
@@ -2245,7 +2245,7 @@ function runSystemTest(){
     "system"
   );
 
-  sendSerialCommand("test");
+  sendCloudCommand("test");
 
   speak(
     "Starting system test."
@@ -2432,7 +2432,7 @@ function finalizeSystemTest(){
 
 function stopBoard(){
 
-  sendSerialCommand("stop");
+  sendCloudCommand("stop");
 
   document.getElementById(
     "statusBlinking"
@@ -3226,7 +3226,7 @@ if (/\bdisconnect\b/.test(command)) {
     /\bstatus\b/.test(command)
   ){
 
-    sendSerialCommand("status");
+    sendCloudCommand("status");
 
     speakStatus();
 
@@ -3238,7 +3238,7 @@ if (/\bdisconnect\b/.test(command)) {
     /\bturn (the )?led on\b|\bled on\b|\bswitch (the )?led on\b/.test(command)
   ){
 
-    sendSerialCommand("led on");
+    sendCloudCommand("led on");
 
     document.getElementById(
       "statusLed"
@@ -3254,7 +3254,7 @@ if (/\bdisconnect\b/.test(command)) {
     /\bturn (the )?led off\b|\bled off\b|\bswitch (the )?led off\b/.test(command)
   ){
 
-    sendSerialCommand("led off");
+    sendCloudCommand("led off");
 
     document.getElementById(
       "statusLed"
@@ -3270,7 +3270,7 @@ if (/\bdisconnect\b/.test(command)) {
     /\btoggle\b/.test(command)
   ){
 
-    sendSerialCommand("toggle");
+    sendCloudCommand("toggle");
 
     speak("Toggling the LED.");
 
@@ -3294,7 +3294,7 @@ if (/\bdisconnect\b/.test(command)) {
         Number(match[1]);
     }
 
-    sendSerialCommand(
+    sendCloudCommand(
       `blink ${count}`
     );
 
@@ -3310,7 +3310,7 @@ if (/\bdisconnect\b/.test(command)) {
     /\bsos\b/.test(command)
   ){
 
-    sendSerialCommand("sos");
+    sendCloudCommand("sos");
 
     speak(
       "Sending SOS."
