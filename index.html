@@ -3589,7 +3589,7 @@ const trainerMatch = command.match(
   /\b(?:trainer\s+(?:led\s+)?)(zero|one|two|three|four|five|six|seven|0|1|2|3|4|5|6|7)\s+(on|off)\b/
 );
 
-if(trainerMatch){
+if (trainerMatch) {
 
   const numberWords = {
     zero: 0,
@@ -3611,53 +3611,18 @@ if(trainerMatch){
 
   const state = trainerMatch[2];
 
-  const arduinoCommand =
-    `trainer ${ledNumber} ${state}`;
+  const arduinoCommand = `trainer ${ledNumber} ${state}`;
 
-  log(
-    `Trainer LED ${ledNumber} ${state.toUpperCase()}`,
-    "success"
-  );
+  log(`Trainer LED ${ledNumber} ${state.toUpperCase()}`, "success");
 
-  fetch("http://127.0.0.1:8000/command", {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain"
-    },
-    body: arduinoCommand
-  })
-  .then(response => {
+  // ⭐ FIX: Use cloud relay instead of local server
+  sendCloudCommand(arduinoCommand);
 
-    if(!response.ok){
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    return response.text();
-
-  })
-  .then(() => {
-
-    speak(
-      `Trainer LED ${ledNumber} ${state}.`
-    );
-
-  })
-  .catch(error => {
-
-    console.error(
-      "[Trainer LED] HTTP error:",
-      error
-    );
-
-    log(
-      "Could not connect to the Arduino command server.",
-      "error"
-    );
-
-  });
+  speak(`Trainer LED ${ledNumber} ${state}.`);
 
   return;
 }
+
 
 
 /* UNKNOWN */
