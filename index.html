@@ -3611,16 +3611,16 @@ if (trainerMatch) {
 
   const state = trainerMatch[2];
 
-  const arduinoCommand = `trainer ${ledNumber} ${state}`;
+  const arduinoCommand = `trainer led ${ledNumber} ${state}`;
 
   log(`Trainer LED ${ledNumber} ${state.toUpperCase()}`, "success");
 
-  // ⭐ FIX: Use cloud relay instead of local server
   sendCloudCommand(arduinoCommand);
 
   speak(`Trainer LED ${ledNumber} ${state}.`);
 
   return;
+
 }
 
 
